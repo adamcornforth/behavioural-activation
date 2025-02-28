@@ -241,6 +241,39 @@ const clearFeedback = () => {
 }
 
 
+// Computed properties for feedback comparison
+const getDifficultyDifference = computed(() => {
+  if (!props.editActivity || formData.actualDifficulty === undefined) return '';
+  
+  const diff = formData.actualDifficulty - props.editActivity.expectedDifficulty;
+  if (diff === 0) return 'same';
+  return diff > 0 ? `+${diff}` : `${diff}`;
+});
+
+const getDifficultyComparisonClass = computed(() => {
+  if (!props.editActivity || formData.actualDifficulty === undefined) return '';
+  
+  const diff = formData.actualDifficulty - props.editActivity.expectedDifficulty;
+  if (diff === 0) return 'text-gray-500 dark:text-gray-400';
+  return diff > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400';
+});
+
+const getMoodDifference = computed(() => {
+  if (!props.editActivity || formData.actualMood === undefined) return '';
+  
+  const diff = formData.actualMood - props.editActivity.expectedMood;
+  if (diff === 0) return 'same';
+  return diff > 0 ? `+${diff}` : `${diff}`;
+});
+
+const getMoodComparisonClass = computed(() => {
+  if (!props.editActivity || formData.actualMood === undefined) return '';
+  
+  const diff = formData.actualMood - props.editActivity.expectedMood;
+  if (diff === 0) return 'text-gray-500 dark:text-gray-400';
+  return diff > 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400';
+});
+
 // Handle modal close
 const handleClose = () => {
   resetForm()
@@ -454,6 +487,10 @@ const handleClose = () => {
         <div>
           <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Difficulty: {{ formData.actualDifficulty || '?' }}
+            <span v-if="formData.actualDifficulty && editActivity" 
+                  :class="getDifficultyComparisonClass">
+              ({{ getDifficultyDifference }})
+            </span>
           </label>
           <div class="flex items-center space-x-2">
             <span class="text-xs text-gray-500 dark:text-gray-400">Very Easy</span>
@@ -475,6 +512,10 @@ const handleClose = () => {
         <div>
           <label for="actualMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Mood Impact: {{ formData.actualMood || '?' }}
+            <span v-if="formData.actualMood && editActivity" 
+                  :class="getMoodComparisonClass">
+              ({{ getMoodDifference }})
+            </span>
           </label>
           <div class="flex items-center space-x-2">
             <span class="text-xs text-gray-500 dark:text-gray-400">Very Low</span>
