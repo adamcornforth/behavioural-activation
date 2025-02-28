@@ -1,13 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { cn } from "../../lib/utils"
 
-defineProps<{
+const props = defineProps<{
   class?: string
 }>()
+
+const classes = computed(() => {
+  return cn('p-6 pt-0', props.class)
+})
 </script>
 
 <template>
-  <div :class="cn('p-6 pt-0', class)">
+  <div :class="classes">
     <slot />
   </div>
 </template>

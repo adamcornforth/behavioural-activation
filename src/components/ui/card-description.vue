@@ -1,13 +1,18 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { cn } from "../../lib/utils"
 
-defineProps<{
+const props = defineProps<{
   class?: string
 }>()
+
+const classes = computed(() => {
+  return cn('text-sm text-muted-foreground', props.class)
+})
 </script>
 
 <template>
-  <p :class="cn('text-sm text-muted-foreground', class)">
+  <p :class="classes">
     <slot />
   </p>
 </template>
