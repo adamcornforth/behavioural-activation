@@ -825,7 +825,6 @@ onUnmounted(() => {
 .time-labels {
   position: sticky;
   left: 0;
-  background-color: white;
   z-index: 10;
 }
 
