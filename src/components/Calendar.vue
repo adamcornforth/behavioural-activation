@@ -450,27 +450,6 @@ const activities = computed(() => {
   return activityStore.getActivities();
 });
 
-// Check for activities that need feedback
-const checkForActivitiesNeedingFeedback = () => {
-  const now = new Date();
-  const activitiesNeedingFeedback = activities.value.filter(activity => {
-    return activity.endTime < now && 
-           !activity.completed &&
-           (activity.actualDifficulty === undefined || activity.actualMood === undefined);
-  });
-  
-  if (activitiesNeedingFeedback.length > 0) {
-    // Open the activity modal with the feedback tab for the oldest completed activity
-    activitiesNeedingFeedback.sort((a, b) => a.endTime.getTime() - b.endTime.getTime());
-    activityToEdit.value = activitiesNeedingFeedback[0];
-    selectedTimeRange.value = {
-      start: activityToEdit.value.startTime,
-      end: activityToEdit.value.endTime
-    };
-    showActivityModal.value = true;
-  }
-};
-
 // Set up polling to check for activities needing feedback
 let feedbackCheckInterval: number | null = null;
 
