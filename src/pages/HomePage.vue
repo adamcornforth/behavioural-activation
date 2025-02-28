@@ -1,56 +1,59 @@
 <script setup lang="ts">
-import HelloWorld from '../components/HelloWorld.vue'
+import Card from '../components/ui/card.vue'
+import CardHeader from '../components/ui/card-header.vue'
+import CardTitle from '../components/ui/card-title.vue'
+import CardDescription from '../components/ui/card-description.vue'
+import CardContent from '../components/ui/card-content.vue'
+import CardFooter from '../components/ui/card-footer.vue'
+import Button from '../components/ui/button.vue'
 </script>
 
 <template>
-  <div class="home-page">
-    <HelloWorld msg="Behavioural Activation App" />
-    <div class="features">
-      <div class="feature">
-        <h3>Track Activities</h3>
-        <p>Record your daily activities and mood</p>
-      </div>
-      <div class="feature">
-        <h3>Set Goals</h3>
-        <p>Create meaningful goals to work towards</p>
-      </div>
-      <div class="feature">
-        <h3>Monitor Progress</h3>
-        <p>See how your activities affect your mood over time</p>
-      </div>
-    </div>
+  <div>
+    <section class="mb-10">
+      <h2 class="text-3xl font-bold tracking-tight mb-6">Behavioural Activation App</h2>
+      <p class="text-muted-foreground text-lg mb-4">A tool to help you engage in meaningful activities</p>
+    </section>
+    
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Track Activities</CardTitle>
+          <CardDescription>Record your daily activities and mood</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>Keep a log of what you do each day and how it affects your mood. Identify patterns and make positive changes.</p>
+        </CardContent>
+        <CardFooter>
+          <Button>Get Started</Button>
+        </CardFooter>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Set Goals</CardTitle>
+          <CardDescription>Create meaningful goals to work towards</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>Define what matters to you and set achievable goals that align with your values and interests.</p>
+        </CardContent>
+        <CardFooter>
+          <Button variant="outline">Learn More</Button>
+        </CardFooter>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Monitor Progress</CardTitle>
+          <CardDescription>See how your activities affect your mood over time</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>Track your progress with visual charts and insights that help you understand what activities boost your wellbeing.</p>
+        </CardContent>
+        <CardFooter>
+          <Button variant="secondary">View Demo</Button>
+        </CardFooter>
+      </Card>
+    </section>
   </div>
 </template>
-
-<style scoped>
-.home-page {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.features {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 40px;
-  gap: 20px;
-}
-
-.feature {
-  flex: 1;
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
-}
-
-.feature:hover {
-  transform: translateY(-5px);
-}
-
-.feature h3 {
-  color: var(--primary-color);
-  margin-bottom: 10px;
-}
-</style>
