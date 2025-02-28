@@ -1,6 +1,6 @@
 <template>
   <div class="calendar-container">
-    <div class="calendar-header">
+    <div class="calendar-header sticky top-0 bg-white dark:bg-gray-800 z-20 pb-2">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold dark:text-white">{{ formatDate(currentWeekStart) }}</h2>
         <div class="flex gap-2">
@@ -882,6 +882,7 @@ onUnmounted(() => {
   position: sticky;
   left: 0;
   z-index: 10;
+  background-color: white;
 }
 
 :global(.dark) .time-labels {
