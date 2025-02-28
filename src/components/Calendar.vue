@@ -2,27 +2,27 @@
   <div class="calendar-container">
     <div class="calendar-header">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">{{ formatDate(currentWeekStart) }}</h2>
+        <h2 class="text-2xl font-bold dark:text-white">{{ formatDate(currentWeekStart) }}</h2>
         <div class="flex gap-2">
-          <Button @click="previousWeek" variant="outline" size="sm">
+          <Button @click="previousWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
             <ChevronLeft class="h-4 w-4 mr-1" />
             Previous
           </Button>
-          <Button @click="currentWeek" variant="outline" size="sm">
+          <Button @click="currentWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
             Today
           </Button>
-          <Button @click="nextWeek" variant="outline" size="sm">
+          <Button @click="nextWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
             Next
             <ChevronRight class="h-4 w-4 ml-1" />
           </Button>
-          <Button @click="checkForActivitiesNeedingFeedback" variant="outline" size="sm" class="ml-2">
+          <Button @click="checkForActivitiesNeedingFeedback" variant="outline" size="sm" class="ml-2 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
             Check Feedback
           </Button>
         </div>
       </div>
-      <div class="grid grid-cols-8 border-b border-gray-200">
+      <div class="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
         <div class="py-2 text-center"></div>
-        <div v-for="day in weekDays" :key="day.date" class="py-2 text-center font-medium">
+        <div v-for="day in weekDays" :key="day.date" class="py-2 text-center font-medium dark:text-gray-300">
           <div>{{ day.name }}</div>
           <div>{{ day.date }}</div>
         </div>
@@ -31,7 +31,7 @@
     <div class="calendar-body grid grid-cols-8">
       <!-- Time labels -->
       <div class="time-labels">
-        <div v-for="hour in hours" :key="hour" class="time-label h-20 border-b border-gray-100 text-sm text-gray-500 pr-2 text-right">
+        <div v-for="hour in hours" :key="hour" class="time-label h-20 border-b border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 pr-2 text-right">
           {{ formatHour(hour) }}
         </div>
       </div>
@@ -42,7 +42,7 @@
           <div
             v-for="hour in hours"
             :key="hour"
-            class="hour-cell h-20 border-b border-r border-gray-100 relative"
+            class="hour-cell h-20 border-b border-r border-gray-100 dark:border-gray-700 relative"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
@@ -163,11 +163,11 @@
 
     <!-- Delete confirmation dialog -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h3 class="text-lg font-medium mb-4">Delete Activity</h3>
-        <p class="mb-4">Are you sure you want to delete "{{ activityToDelete?.activityName }}"?</p>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-medium mb-4 dark:text-white">Delete Activity</h3>
+        <p class="mb-4 dark:text-gray-300">Are you sure you want to delete "{{ activityToDelete?.activityName }}"?</p>
         <div class="flex justify-end space-x-3">
-          <Button variant="outline" @click="cancelDelete">Cancel</Button>
+          <Button variant="outline" @click="cancelDelete" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</Button>
           <Button variant="destructive" @click="deleteActivity">Delete</Button>
         </div>
       </div>
@@ -718,10 +718,10 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Get color based on expected mood
   const getMoodColor = (mood: number) => {
-    if (mood >= 8) return 'bg-green-100 border-green-300';
-    if (mood >= 6) return 'bg-blue-100 border-blue-300';
-    if (mood >= 4) return 'bg-yellow-100 border-yellow-300';
-    return 'bg-red-100 border-red-300';
+    if (mood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
+    if (mood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
+    if (mood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
+    return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
   };
   
   // Determine border radius
@@ -829,6 +829,10 @@ onUnmounted(() => {
   z-index: 10;
 }
 
+:global(.dark) .time-labels {
+  background-color: #1f2937; /* dark:bg-gray-800 */
+}
+
 .hour-cell {
   position: relative;
 }
@@ -836,6 +840,12 @@ onUnmounted(() => {
 .selection-preview {
   font-size: 0.875rem;
   max-width: 300px;
+}
+
+:global(.dark) .selection-preview {
+  background-color: #1f2937;
+  color: white;
+  border-color: #374151;
 }
 
 .activity-block {
@@ -853,6 +863,12 @@ onUnmounted(() => {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
+:global(.dark) .activity-block.activity-hovered,
+:global(.dark) .activity-block:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
 .delete-button:hover {
   background-color: #ef4444;
 }
@@ -862,6 +878,11 @@ onUnmounted(() => {
   filter: brightness(0.95);
   z-index: 30;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+:global(.dark) [class*="activity-"]:hover ~ [class*="activity-"] {
+  filter: brightness(1.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 /* 15-minute interval markers */
@@ -876,9 +897,18 @@ onUnmounted(() => {
   z-index: 20;
 }
 
+:global(.dark) .quarter-hour-marker {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .quarter-hour-marker:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.1);
   border-top: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+:global(.dark) .quarter-hour-marker:not(.has-activity):hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-top: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 /* Different colors for each marker to make them more distinguishable */
@@ -906,5 +936,10 @@ onUnmounted(() => {
 .selection-indicator {
   pointer-events: none;
   z-index: 15;
+}
+
+:global(.dark) .selection-indicator {
+  background: rgba(59, 130, 246, 0.4) !important;
+  border: 1px solid rgba(59, 130, 246, 0.6) !important;
 }
 </style>

@@ -7,11 +7,11 @@ import Calendar from '../components/Calendar.vue'
 <template>
   <div>
     <section class="mb-4">
-      <p class="text-muted-foreground text-lg mb-2">A tool to help you engage in meaningful activities</p>
+      <p class="text-muted-foreground dark:text-gray-300 text-lg mb-2">A tool to help you engage in meaningful activities</p>
     </section>
     
     <section>
-      <div class="bg-white rounded-lg shadow-sm border p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-4 transition-colors duration-200">
         <Calendar />
       </div>
     </section>
