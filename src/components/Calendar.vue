@@ -110,7 +110,10 @@
                 <!-- Delete button - only show on first cell and on hover -->
                 <button
                   v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell"
-                  class="delete-button absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  :class="[
+                    'delete-button absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 transition-opacity',
+                    { 'opacity-100': hoveredActivityId === activity.id }
+                  ]"
                   @click.stop="confirmDeleteActivity(activity)"
                   title="Delete activity"
                 >
@@ -511,8 +514,13 @@ const deleteActivity = () => {
   }
 };
 
+// Track currently hovered activity
+const hoveredActivityId = ref<string | null>(null);
+
 // Handle activity hover
 const handleActivityHover = (activityId: string, isHovering: boolean) => {
+  hoveredActivityId.value = isHovering ? activityId : null;
+  
   const activityBlocks = document.querySelectorAll(`.activity-${activityId}`);
   activityBlocks.forEach(block => {
     if (isHovering) {
