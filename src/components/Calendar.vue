@@ -104,7 +104,7 @@
               v-if="day - 1 === currentDayIndex && hour === currentHour" 
               class="current-time-indicator"
               :style="{
-                top: `${(currentDate.value.getMinutes() / 60) * 100}%`
+                top: `${(currentDate.getMinutes() / 60) * 100}%`
               }"
             ></div>
             
