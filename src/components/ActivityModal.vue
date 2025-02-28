@@ -221,6 +221,25 @@ const handleFeedbackSubmit = () => {
   resetForm()
 }
 
+// Clear feedback data
+const clearFeedback = () => {
+  if (!props.editActivity) return
+  
+  // Create activity object with cleared feedback data
+  const activity = {
+    ...props.editActivity,
+    actualDifficulty: undefined,
+    actualMood: undefined,
+    completed: false
+  }
+  
+  emit('submit', activity)
+  
+  // Reset form fields related to feedback
+  formData.actualDifficulty = undefined
+  formData.actualMood = undefined
+}
+
 
 // Handle modal close
 const handleClose = () => {
@@ -496,6 +515,13 @@ const handleClose = () => {
           :disabled="!formData.activityName"
         >
           {{ editActivity ? 'Update Activity' : 'Create Activity' }}
+        </Button>
+        <Button 
+          v-if="activeTab === 'feedback' && editActivity?.actualDifficulty !== undefined && editActivity?.actualMood !== undefined" 
+          @click="clearFeedback" 
+          variant="destructive"
+        >
+          Clear Feedback
         </Button>
         <Button 
           v-if="activeTab === 'feedback'" 
