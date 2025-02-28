@@ -192,18 +192,18 @@ const handleClose = () => {
   >
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Time information -->
-      <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mb-4">
-        <p class="text-sm font-medium">Selected Time:</p>
-        <p class="text-sm">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+      <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
+        <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
+        <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
       </div>
       
       <!-- Activity Presets -->
-      <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-        <p class="text-sm font-medium mb-2">Quick Add from Presets:</p>
+      <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+        <p class="text-sm font-medium mb-2 dark:text-gray-200">Quick Add from Presets:</p>
         <div class="grid grid-cols-2 gap-2">
           <select 
             v-model="selectedCategory" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
           >
             <option value="">Select Category</option>
             <option v-for="category in Object.keys(presetsByCategory)" :key="category" :value="category">
@@ -213,7 +213,7 @@ const handleClose = () => {
           
           <select 
             v-model="selectedPresetId" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             :disabled="!selectedCategory"
             @change="applyPreset"
           >
@@ -232,47 +232,47 @@ const handleClose = () => {
       <!-- Basic fields -->
       <div class="space-y-4">
         <div>
-          <label for="activityName" class="block text-sm font-medium mb-1">Activity Name*</label>
+          <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
           <input 
             id="activityName" 
             v-model="formData.activityName" 
             type="text" 
             required
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="What are you planning to do?"
           />
         </div>
         
         <div>
-          <label for="expectedDifficulty" class="block text-sm font-medium mb-1">
+          <label for="expectedDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Expected Difficulty*
           </label>
           <select 
             id="expectedDifficulty" 
             v-model="formData.expectedDifficulty" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
           >
             <option v-for="option in difficultyOptions" :key="option.value" :value="option.value">
               {{ option.label }} ({{ option.value }})
             </option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">How difficult do you expect this activity to be? (1-10)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult do you expect this activity to be? (1-10)</p>
         </div>
         
         <div>
-          <label for="expectedMood" class="block text-sm font-medium mb-1">
+          <label for="expectedMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Expected Mood Impact*
           </label>
           <select 
             id="expectedMood" 
             v-model="formData.expectedMood" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
           >
             <option v-for="option in moodOptions" :key="option.value" :value="option.value">
               {{ option.label }} ({{ option.value }})
             </option>
           </select>
-          <p class="text-xs text-gray-500 mt-1">How do you expect this activity to affect your mood? (1-10)</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How do you expect this activity to affect your mood? (1-10)</p>
         </div>
       </div>
       
@@ -281,7 +281,7 @@ const handleClose = () => {
         <button 
           type="button" 
           @click="showAdvancedFields = !showAdvancedFields"
-          class="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+          class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
         >
           {{ showAdvancedFields ? 'Hide' : 'Show' }} advanced fields
           <span class="ml-1">{{ showAdvancedFields ? '▲' : '▼' }}</span>
@@ -289,13 +289,13 @@ const handleClose = () => {
       </div>
       
       <!-- Advanced fields -->
-      <div v-if="showAdvancedFields" class="space-y-4 border-t pt-4 mt-2">
+      <div v-if="showAdvancedFields" class="space-y-4 border-t dark:border-gray-700 pt-4 mt-2">
         <div>
-          <label for="activityType" class="block text-sm font-medium mb-1">Activity Type</label>
+          <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
           <select 
             id="activityType" 
             v-model="formData.activityType" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
           >
             <option v-for="type in activityTypes" :key="type.value" :value="type.value">
               {{ type.label }}
@@ -304,34 +304,34 @@ const handleClose = () => {
         </div>
         
         <div>
-          <label for="location" class="block text-sm font-medium mb-1">Location</label>
+          <label for="location" class="block text-sm font-medium mb-1 dark:text-gray-200">Location</label>
           <input 
             id="location" 
             v-model="formData.location" 
             type="text" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Where will this activity take place?"
           />
         </div>
         
         <div>
-          <label for="participants" class="block text-sm font-medium mb-1">Participants</label>
+          <label for="participants" class="block text-sm font-medium mb-1 dark:text-gray-200">Participants</label>
           <input 
             id="participants" 
             v-model="formData.participants" 
             type="text" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Who will be involved? (e.g., 'Alone', 'With friends')"
           />
         </div>
         
         <div>
-          <label for="notes" class="block text-sm font-medium mb-1">Notes</label>
+          <label for="notes" class="block text-sm font-medium mb-1 dark:text-gray-200">Notes</label>
           <textarea 
             id="notes" 
             v-model="formData.notes" 
             rows="3" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Any additional details or thoughts..."
           ></textarea>
         </div>
@@ -340,7 +340,7 @@ const handleClose = () => {
     
     <template #footer>
       <div class="flex justify-end space-x-3">
-        <Button @click="handleClose" variant="outline">Cancel</Button>
+        <Button @click="handleClose" variant="outline" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</Button>
         <Button @click="handleSubmit" :disabled="!formData.activityName">
           {{ editActivity ? 'Update Activity' : 'Create Activity' }}
         </Button>

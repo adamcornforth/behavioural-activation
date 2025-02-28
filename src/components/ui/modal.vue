@@ -83,9 +83,9 @@ const sizeClasses = {
           role="dialog"
           aria-modal="true"
         >
-          <div class="flex justify-between items-center p-4 border-b">
+          <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
             <div>
-              <h2 v-if="title" class="text-lg font-semibold">{{ title }}</h2>
+              <h2 v-if="title" class="text-lg font-semibold dark:text-white">{{ title }}</h2>
               <p v-if="description" class="text-sm text-gray-500 dark:text-gray-400">
                 {{ description }}
               </p>
@@ -95,13 +95,13 @@ const sizeClasses = {
               class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
               aria-label="Close"
             >
-              <XIcon class="h-5 w-5" />
+              <XIcon class="h-5 w-5 dark:text-gray-400" />
             </button>
           </div>
-          <div class="p-4">
+          <div class="p-4 dark:text-gray-200">
             <slot></slot>
           </div>
-          <div v-if="$slots.footer" class="p-4 border-t">
+          <div v-if="$slots.footer" class="p-4 border-t dark:border-gray-700">
             <slot name="footer"></slot>
           </div>
         </div>

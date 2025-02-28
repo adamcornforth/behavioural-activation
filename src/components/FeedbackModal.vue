@@ -94,9 +94,9 @@ const handleClose = () => {
   >
     <div v-if="activity" class="space-y-4">
       <!-- Activity info -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mb-4">
-        <p class="text-sm font-medium">{{ activity.activityName }}</p>
-        <p class="text-xs text-gray-500">{{ activityTimeInfo }}</p>
+      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
+        <p class="text-sm font-medium dark:text-gray-200">{{ activity.activityName }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ activityTimeInfo }}</p>
       </div>
       
       <!-- Skip feedback option -->
@@ -105,9 +105,9 @@ const handleClose = () => {
           id="skipFeedback" 
           v-model="skipFeedback" 
           type="checkbox" 
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
         />
-        <label for="skipFeedback" class="ml-2 block text-sm text-gray-700">
+        <label for="skipFeedback" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
           Skip providing feedback for this activity
         </label>
       </div>
@@ -115,7 +115,7 @@ const handleClose = () => {
       <!-- Feedback form -->
       <form v-if="!skipFeedback" @submit.prevent="handleSubmit" class="space-y-4">
         <div>
-          <label for="actualDifficulty" class="block text-sm font-medium mb-1">
+          <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Difficulty
           </label>
           <div class="flex items-center space-x-2">
@@ -126,18 +126,18 @@ const handleClose = () => {
               min="1" 
               max="10" 
               step="1"
-              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
-            <span class="text-sm font-medium w-8 text-center">{{ actualDifficulty }}</span>
+            <span class="text-sm font-medium w-8 text-center dark:text-gray-200">{{ actualDifficulty }}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-500 px-1">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
             <span>Easy</span>
             <span>Difficult</span>
           </div>
         </div>
         
         <div>
-          <label for="actualMood" class="block text-sm font-medium mb-1">
+          <label for="actualMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Mood Impact
           </label>
           <div class="flex items-center space-x-2">
@@ -148,45 +148,45 @@ const handleClose = () => {
               min="1" 
               max="10" 
               step="1"
-              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
-            <span class="text-sm font-medium w-8 text-center">{{ actualMood }}</span>
+            <span class="text-sm font-medium w-8 text-center dark:text-gray-200">{{ actualMood }}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-500 px-1">
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
             <span>Poor</span>
             <span>Great</span>
           </div>
         </div>
         
         <!-- Expected vs Actual comparison -->
-        <div v-if="activity.expectedDifficulty || activity.expectedMood" class="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-          <p class="text-sm font-medium mb-2">Comparison with Expectations:</p>
+        <div v-if="activity.expectedDifficulty || activity.expectedMood" class="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+          <p class="text-sm font-medium mb-2 dark:text-gray-200">Comparison with Expectations:</p>
           
           <div v-if="activity.expectedDifficulty" class="flex items-center text-sm mb-2">
-            <span class="w-1/2">Expected Difficulty: {{ activity.expectedDifficulty }}</span>
+            <span class="w-1/2 dark:text-gray-300">Expected Difficulty: {{ activity.expectedDifficulty }}</span>
             <span class="w-1/2">
-              <span v-if="actualDifficulty < activity.expectedDifficulty" class="text-green-600">
+              <span v-if="actualDifficulty < activity.expectedDifficulty" class="text-green-600 dark:text-green-400">
                 Easier than expected (-{{ activity.expectedDifficulty - actualDifficulty }})
               </span>
-              <span v-else-if="actualDifficulty > activity.expectedDifficulty" class="text-red-600">
+              <span v-else-if="actualDifficulty > activity.expectedDifficulty" class="text-red-600 dark:text-red-400">
                 Harder than expected (+{{ actualDifficulty - activity.expectedDifficulty }})
               </span>
-              <span v-else class="text-gray-600">
+              <span v-else class="text-gray-600 dark:text-gray-400">
                 Same as expected
               </span>
             </span>
           </div>
           
           <div v-if="activity.expectedMood" class="flex items-center text-sm">
-            <span class="w-1/2">Expected Mood: {{ activity.expectedMood }}</span>
+            <span class="w-1/2 dark:text-gray-300">Expected Mood: {{ activity.expectedMood }}</span>
             <span class="w-1/2">
-              <span v-if="actualMood > activity.expectedMood" class="text-green-600">
+              <span v-if="actualMood > activity.expectedMood" class="text-green-600 dark:text-green-400">
                 Better than expected (+{{ actualMood - activity.expectedMood }})
               </span>
-              <span v-else-if="actualMood < activity.expectedMood" class="text-red-600">
+              <span v-else-if="actualMood < activity.expectedMood" class="text-red-600 dark:text-red-400">
                 Worse than expected (-{{ activity.expectedMood - actualMood }})
               </span>
-              <span v-else class="text-gray-600">
+              <span v-else class="text-gray-600 dark:text-gray-400">
                 Same as expected
               </span>
             </span>
@@ -197,7 +197,7 @@ const handleClose = () => {
     
     <template #footer>
       <div class="flex justify-end space-x-3">
-        <Button @click="handleClose" variant="outline">Cancel</Button>
+        <Button @click="handleClose" variant="outline" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</Button>
         <Button @click="handleSubmit">
           {{ skipFeedback ? 'Skip Feedback' : 'Submit Feedback' }}
         </Button>
