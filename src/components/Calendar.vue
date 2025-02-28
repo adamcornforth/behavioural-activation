@@ -311,9 +311,25 @@ const getActivitiesForCell = (day: number, hour: number) => {
   
   return activities.value.filter(activity => {
     // Check if activity overlaps with this hour cell
-    return isWithinInterval(startHour, { start: activity.startTime, end: activity.endTime }) ||
-           isWithinInterval(endHour, { start: activity.startTime, end: activity.endTime }) ||
-           (activity.startTime <= startHour && activity.endTime >= endHour);
+    // An activity should be displayed in this cell if:
+    // 1. The activity starts during this hour, OR
+    // 2. The activity ends during this hour (but not exactly at the start of the hour), OR
+    // 3. The activity completely spans this hour
+    
+    const activityStartsInThisHour = 
+      isSameDay(activity.startTime, date) && 
+      activity.startTime.getHours() === hour;
+      
+    const activityEndsInThisHour = 
+      isSameDay(activity.endTime, date) && 
+      activity.endTime.getHours() === hour && 
+      activity.endTime.getMinutes() > 0;
+      
+    const activitySpansThisHour = 
+      activity.startTime < startHour && 
+      activity.endTime > endHour;
+      
+    return activityStartsInThisHour || activityEndsInThisHour || activitySpansThisHour;
   });
 };
 
@@ -347,7 +363,8 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Determine if this is the last hour cell for this activity
   const isLastHourCell = isSameDay(activity.endTime, date) && 
-                         activity.endTime.getHours() === hour;
+                         activity.endTime.getHours() === hour &&
+                         activity.endTime.getMinutes() > 0;
   
   // Determine if this is a middle hour cell (not first, not last)
   const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
@@ -412,7 +429,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     top: `${topPercentage}%`,
     height: `${heightPercentage}%`,
     colorClass: getMoodColor(activity.expectedMood),
-    display: isWithinInterval(cellStart, { start: activity.startTime, end: activity.endTime }) ? 'block' : 'none',
+    display: isFirstHourCell || isLastHourCell || isMiddleHourCell ? 'block' : 'none',
     isFirstHourCell,
     isLastHourCell,
     isMiddleHourCell,
