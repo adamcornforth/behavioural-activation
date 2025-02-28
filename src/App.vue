@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// This is a Vue 3 component using the <script setup> syntax
+import { RouterView } from 'vue-router'
+import HomePage from './pages/HomePage.vue'
 </script>
 
 <template>
@@ -8,8 +9,7 @@
       <h1>Behavioural Activation</h1>
     </header>
     <main>
-      <!-- Main content will go here -->
-      <p>Welcome to the Behavioural Activation app!</p>
+      <HomePage />
     </main>
   </div>
 </template>
