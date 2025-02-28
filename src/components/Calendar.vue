@@ -93,6 +93,7 @@
                 @click="editActivity(activity)"
                 @mouseenter="handleActivityHover(activity.id, true)"
                 @mouseleave="handleActivityHover(activity.id, false)"
+                @mouseup="endDrag()"
               >
                 <!-- Delete button - only show on first cell and on hover -->
                 <button
