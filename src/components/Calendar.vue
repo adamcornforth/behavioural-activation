@@ -45,27 +45,39 @@
           >
             <!-- 15-minute interval markers -->
             <div 
-              class="quarter-hour-marker quarter-marker-25" 
+              :class="[
+                'quarter-hour-marker quarter-marker-25',
+                { 'has-activity': hasActivityInQuarter(day - 1, hour, 0) }
+              ]" 
               style="top: 0%; height: 25%"
-              @mousedown="startDrag($event, day - 1, hour, 0)"
+              @mousedown="!hasActivityInQuarter(day - 1, hour, 0) && startDrag($event, day - 1, hour, 0)"
               @mousemove="onDrag($event, day - 1, hour, 0)"
             ></div>
             <div 
-              class="quarter-hour-marker quarter-marker-50" 
+              :class="[
+                'quarter-hour-marker quarter-marker-50',
+                { 'has-activity': hasActivityInQuarter(day - 1, hour, 0.25) }
+              ]" 
               style="top: 25%; height: 25%"
-              @mousedown="startDrag($event, day - 1, hour, 0.25)"
+              @mousedown="!hasActivityInQuarter(day - 1, hour, 0.25) && startDrag($event, day - 1, hour, 0.25)"
               @mousemove="onDrag($event, day - 1, hour, 0.25)"
             ></div>
             <div 
-              class="quarter-hour-marker quarter-marker-75" 
+              :class="[
+                'quarter-hour-marker quarter-marker-75',
+                { 'has-activity': hasActivityInQuarter(day - 1, hour, 0.5) }
+              ]" 
               style="top: 50%; height: 25%"
-              @mousedown="startDrag($event, day - 1, hour, 0.5)"
+              @mousedown="!hasActivityInQuarter(day - 1, hour, 0.5) && startDrag($event, day - 1, hour, 0.5)"
               @mousemove="onDrag($event, day - 1, hour, 0.5)"
             ></div>
             <div 
-              class="quarter-hour-marker quarter-marker-100" 
+              :class="[
+                'quarter-hour-marker quarter-marker-100',
+                { 'has-activity': hasActivityInQuarter(day - 1, hour, 0.75) }
+              ]" 
               style="top: 75%; height: 25%"
-              @mousedown="startDrag($event, day - 1, hour, 0.75)"
+              @mousedown="!hasActivityInQuarter(day - 1, hour, 0.75) && startDrag($event, day - 1, hour, 0.75)"
               @mousemove="onDrag($event, day - 1, hour, 0.75)"
             ></div>
             <!-- Visual selection indicator -->
@@ -448,6 +460,23 @@ const getActivitiesForCell = (day: number, hour: number) => {
   });
 };
 
+// Check if a specific 15-minute block has an activity
+const hasActivityInQuarter = (day: number, hour: number, quarterHour: number) => {
+  const date = addDays(currentWeekStart.value, day);
+  
+  // Calculate the start and end times for this 15-minute block
+  const blockStart = new Date(date);
+  blockStart.setHours(hour, quarterHour * 60, 0, 0);
+  
+  const blockEnd = new Date(date);
+  blockEnd.setHours(hour, (quarterHour * 60) + 15, 0, 0);
+  
+  // Check if any activity overlaps with this 15-minute block
+  return activities.value.some(activity => {
+    return activity.startTime < blockEnd && activity.endTime > blockStart;
+  });
+};
+
 // Format duration for display
 const formatDuration = (startTime: Date, endTime: Date) => {
   const durationMs = endTime.getTime() - startTime.getTime();
@@ -666,26 +695,31 @@ onUnmounted(() => {
   z-index: 25; /* Higher than activity blocks (z-index: 20) */
 }
 
-.quarter-hour-marker:hover {
+.quarter-hour-marker:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.1);
   border-top: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 /* Different colors for each marker to make them more distinguishable */
-.quarter-marker-25:hover {
+.quarter-marker-25:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.1);
 }
 
-.quarter-marker-50:hover {
+.quarter-marker-50:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.15);
 }
 
-.quarter-marker-75:hover {
+.quarter-marker-75:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.1);
 }
 
-.quarter-marker-100:hover {
+.quarter-marker-100:not(.has-activity):hover {
   background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Styling for markers that have activities */
+.quarter-hour-marker.has-activity {
+  cursor: default;
 }
 
 .selection-indicator {
