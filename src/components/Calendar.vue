@@ -15,6 +15,9 @@
             Next
             <ChevronRight class="h-4 w-4 ml-1" />
           </Button>
+          <Button @click="checkForActivitiesNeedingFeedback" variant="outline" size="sm" class="ml-2">
+            Check Feedback
+          </Button>
         </div>
       </div>
       <div class="grid grid-cols-8 border-b border-gray-200">
@@ -120,7 +123,14 @@
                   ×
                 </button>
                 <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
-                  <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
+                  <div class="flex items-center">
+                    <div class="text-xs font-medium truncate flex-1">{{ activity.activityName }}</div>
+                    <!-- Feedback indicator -->
+                    <div v-if="needsFeedback(activity)" 
+                         class="ml-1 w-3 h-3 rounded-full bg-yellow-400" 
+                         title="Needs feedback">
+                    </div>
+                  </div>
                   <div class="text-xs truncate">
                     {{ getActivityStyle(activity, day - 1, hour).duration }}
                   </div>
@@ -162,6 +172,14 @@
         </div>
       </div>
     </div>
+    
+    <!-- Feedback modal -->
+    <FeedbackModal
+      :open="showFeedbackModal"
+      :activity="activityForFeedback"
+      @close="closeFeedbackModal"
+      @submit="handleFeedbackSubmit"
+    />
   </div>
 </template>
 
@@ -171,6 +189,7 @@ import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isS
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
+import FeedbackModal from './FeedbackModal.vue';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -188,6 +207,10 @@ const activityToEdit = ref<any>(null);
 // Delete confirmation state
 const showDeleteConfirm = ref(false);
 const activityToDelete = ref<any>(null);
+
+// Feedback modal state
+const showFeedbackModal = ref(false);
+const activityForFeedback = ref<any>(null);
 
 // Hours for the day (6 AM to 10 PM)
 const hours = Array.from({ length: 17 }, (_, i) => i + 6);
@@ -386,6 +409,26 @@ const activities = computed(() => {
   return activityStore.getActivities();
 });
 
+// Check for activities that need feedback
+const checkForActivitiesNeedingFeedback = () => {
+  const now = new Date();
+  const activitiesNeedingFeedback = activities.value.filter(activity => {
+    return activity.endTime < now && 
+           !activity.completed &&
+           (activity.actualDifficulty === undefined || activity.actualMood === undefined);
+  });
+  
+  if (activitiesNeedingFeedback.length > 0 && !showFeedbackModal.value) {
+    // Show feedback modal for the oldest completed activity
+    activitiesNeedingFeedback.sort((a, b) => a.endTime.getTime() - b.endTime.getTime());
+    activityForFeedback.value = activitiesNeedingFeedback[0];
+    showFeedbackModal.value = true;
+  }
+};
+
+// Set up polling to check for activities needing feedback
+let feedbackCheckInterval: number | null = null;
+
 // Create default activities for first-time users
 const createDefaultActivities = () => {
   // Get the current week's Monday at 9 AM
@@ -485,6 +528,28 @@ const handleActivitySubmit = (activity: any) => {
     activityStore.addActivity(newActivity);
   }
   closeActivityModal();
+};
+
+// Handle feedback submission
+const handleFeedbackSubmit = (feedback: any) => {
+  if (activityForFeedback.value) {
+    // Update the activity with feedback
+    activityStore.updateActivity(activityForFeedback.value.id, {
+      actualDifficulty: feedback.actualDifficulty,
+      actualMood: feedback.actualMood,
+      completed: true
+    });
+    closeFeedbackModal();
+    
+    // Check if there are more activities needing feedback
+    setTimeout(checkForActivitiesNeedingFeedback, 500);
+  }
+};
+
+// Close feedback modal
+const closeFeedbackModal = () => {
+  showFeedbackModal.value = false;
+  activityForFeedback.value = null;
 };
 
 // Close modal and reset state
@@ -592,6 +657,14 @@ const formatDuration = (startTime: Date, endTime: Date) => {
   } else {
     return `${hours}h ${minutes}m`;
   }
+};
+
+// Check if an activity needs feedback
+const needsFeedback = (activity: any) => {
+  const now = new Date();
+  return activity.endTime < now && 
+         !activity.completed &&
+         (activity.actualDifficulty === undefined || activity.actualMood === undefined);
 };
 
 // Calculate activity position and height based on its time
@@ -724,11 +797,22 @@ const handleGlobalMouseUp = () => {
 onMounted(() => {
   // Add global event listener for mouseup to handle drag ending outside the calendar
   window.addEventListener('mouseup', handleGlobalMouseUp);
+  
+  // Start polling for activities needing feedback (every 30 seconds)
+  feedbackCheckInterval = window.setInterval(checkForActivitiesNeedingFeedback, 30000);
+  
+  // Also check immediately on mount
+  setTimeout(checkForActivitiesNeedingFeedback, 1000);
 });
 
 onUnmounted(() => {
   // Clean up event listeners
   window.removeEventListener('mouseup', handleGlobalMouseUp);
+  
+  // Clear the feedback check interval
+  if (feedbackCheckInterval !== null) {
+    clearInterval(feedbackCheckInterval);
+  }
 });
 </script>
 
