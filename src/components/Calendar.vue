@@ -52,7 +52,7 @@
             ></div>
             
             <!-- Render activities in this cell -->
-            <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative">
+            <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative h-full">
               <div 
                 :class="[
                   'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer',
