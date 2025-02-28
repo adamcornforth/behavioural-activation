@@ -6,9 +6,37 @@ import CardHeader from './ui/card-header.vue'
 import CardTitle from './ui/card-title.vue'
 import CardContent from './ui/card-content.vue'
 import Button from './ui/button.vue'
+import ActivityModal from './ActivityModal.vue'
 
 const activityStore = useActivityStore()
 const showStats = ref(false)
+
+// Activity modal state
+const showActivityModal = ref(false)
+const currentActivity = ref(null)
+const provideFeedback = ref(false)
+
+// Function to open activity modal for feedback
+const openFeedbackModal = (activity) => {
+  currentActivity.value = activity
+  provideFeedback.value = true
+  showActivityModal.value = true
+}
+
+// Handle activity update
+const handleActivityUpdate = (updatedActivity) => {
+  activityStore.updateActivity(updatedActivity.id, updatedActivity)
+  showActivityModal.value = false
+  currentActivity.value = null
+  provideFeedback.value = false
+}
+
+// Handle modal close
+const handleModalClose = () => {
+  showActivityModal.value = false
+  currentActivity.value = null
+  provideFeedback.value = false
+}
 
 // Calculate statistics
 const stats = computed(() => {
@@ -53,6 +81,36 @@ const stats = computed(() => {
 
 <template>
   <div class="mb-6">
+    <!-- Activity Modal for feedback -->
+    <ActivityModal
+      :open="showActivityModal"
+      :edit-activity="currentActivity"
+      :provide-feedback="provideFeedback"
+      @close="handleModalClose"
+      @submit="handleActivityUpdate"
+    />
+    
+    <!-- Activities needing feedback -->
+    <div v-if="activityStore.getPendingFeedbackActivities().length > 0" class="mb-4">
+      <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-md border border-blue-100 dark:border-blue-800">
+        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Activities Needing Feedback</h3>
+        <div class="space-y-2">
+          <div 
+            v-for="activity in activityStore.getPendingFeedbackActivities().slice(0, 3)" 
+            :key="activity.id"
+            class="flex justify-between items-center bg-white dark:bg-gray-800 p-2 rounded shadow-sm"
+          >
+            <div class="text-sm">{{ activity.activityName }}</div>
+            <Button size="sm" @click="openFeedbackModal(activity)">
+              Give Feedback
+            </Button>
+          </div>
+        </div>
+        <div v-if="activityStore.getPendingFeedbackActivities().length > 3" class="mt-2 text-xs text-blue-600 dark:text-blue-400">
+          + {{ activityStore.getPendingFeedbackActivities().length - 3 }} more activities need feedback
+        </div>
+      </div>
+    </div>
     <div class="flex justify-end mb-2" v-if="stats.totalCompleted > 0">
       <Button 
         variant="outline" 

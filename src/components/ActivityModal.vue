@@ -128,6 +128,11 @@ watch(() => props.provideFeedback, (newVal) => {
   }
 })
 
+// Initialize with feedback tab if provideFeedback is true
+if (props.provideFeedback) {
+  activeTab.value = 'feedback'
+}
+
 
 // Difficulty and mood options
 const difficultyOptions = [
