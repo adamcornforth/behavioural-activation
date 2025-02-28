@@ -135,7 +135,18 @@
                     {{ getActivityStyle(activity, day - 1, hour).duration }}
                   </div>
                   <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
-                    Difficulty: {{ activity.expectedDifficulty }}/10
+                    <span>Difficulty: {{ activity.expectedDifficulty }}/10</span>
+                    <span v-if="activity.completed && activity.actualDifficulty !== undefined" 
+                          :class="getDifficultyComparisonClass(activity)">
+                      ({{ getDifficultyComparisonText(activity) }})
+                    </span>
+                  </div>
+                  <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 50">
+                    <span>Mood: {{ activity.expectedMood }}/10</span>
+                    <span v-if="activity.completed && activity.actualMood !== undefined"
+                          :class="getMoodComparisonClass(activity)">
+                      ({{ getMoodComparisonText(activity) }})
+                    </span>
                   </div>
                 </template>
               </div>
@@ -665,6 +676,42 @@ const needsFeedback = (activity: any) => {
   return activity.endTime < now && 
          !activity.completed &&
          (activity.actualDifficulty === undefined || activity.actualMood === undefined);
+};
+
+// Get difficulty comparison text
+const getDifficultyComparisonText = (activity: any) => {
+  if (activity.actualDifficulty === undefined) return '';
+  
+  const diff = activity.actualDifficulty - activity.expectedDifficulty;
+  if (diff === 0) return 'same';
+  return diff > 0 ? `+${diff}` : `${diff}`;
+};
+
+// Get difficulty comparison class
+const getDifficultyComparisonClass = (activity: any) => {
+  if (activity.actualDifficulty === undefined) return '';
+  
+  const diff = activity.actualDifficulty - activity.expectedDifficulty;
+  if (diff === 0) return 'text-gray-500 dark:text-gray-400';
+  return diff > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400';
+};
+
+// Get mood comparison text
+const getMoodComparisonText = (activity: any) => {
+  if (activity.actualMood === undefined) return '';
+  
+  const diff = activity.actualMood - activity.expectedMood;
+  if (diff === 0) return 'same';
+  return diff > 0 ? `+${diff}` : `${diff}`;
+};
+
+// Get mood comparison class
+const getMoodComparisonClass = (activity: any) => {
+  if (activity.actualMood === undefined) return '';
+  
+  const diff = activity.actualMood - activity.expectedMood;
+  if (diff === 0) return 'text-gray-500 dark:text-gray-400';
+  return diff > 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400';
 };
 
 // Calculate activity position and height based on its time
