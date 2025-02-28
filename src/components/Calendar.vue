@@ -32,13 +32,13 @@
           {{ formatHour(hour) }}
         </div>
       </div>
-      
+
       <!-- Calendar grid -->
       <template v-for="day in 7" :key="day">
         <div class="day-column">
-          <div 
-            v-for="hour in hours" 
-            :key="hour" 
+          <div
+            v-for="hour in hours"
+            :key="hour"
             class="hour-cell h-20 border-b border-r border-gray-100"
             @mousedown="startDrag($event, day - 1, hour)"
             @mousemove="onDrag($event, day - 1, hour)"
@@ -46,14 +46,14 @@
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
             <!-- Visual selection indicator -->
-            <div 
-              v-if="isDragging && isInSelectionRange(day - 1, hour)" 
+            <div
+              v-if="isDragging && isInSelectionRange(day - 1, hour)"
               class="bg-blue-100 border border-blue-300 rounded-sm h-full w-full absolute inset-0 opacity-70"
             ></div>
-            
+
             <!-- Render activities in this cell -->
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative h-full">
-              <div 
+              <div
                 :class="[
                   'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer group',
                   `activity-${activity.id}`,
@@ -71,7 +71,7 @@
                 @mouseleave="handleActivityHover(activity.id, false)"
               >
                 <!-- Delete button - only show on first cell and on hover -->
-                <button 
+                <button
                   v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell"
                   class="delete-button absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   @click.stop="confirmDeleteActivity(activity)"
@@ -93,24 +93,24 @@
           </div>
         </div>
       </template>
-      
+
       <!-- Selection preview -->
       <div v-if="isDragging" class="selection-preview fixed bottom-4 right-4 bg-white p-3 shadow-lg rounded-md border border-gray-200 z-50">
         <p class="font-medium">Selection:</p>
         <p>{{ formatSelectionTime() }}</p>
       </div>
     </div>
-    
+
     <!-- Activity modal -->
-    <ActivityModal 
-      :open="showActivityModal" 
-      :start-time="selectedTimeRange?.start" 
+    <ActivityModal
+      :open="showActivityModal"
+      :start-time="selectedTimeRange?.start"
       :end-time="selectedTimeRange?.end"
       :edit-activity="activityToEdit"
       @close="closeActivityModal"
       @submit="handleActivitySubmit"
     />
-    
+
     <!-- Delete confirmation dialog -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -129,7 +129,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay } from 'date-fns';
 import Button from './ui/button.vue';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
 
