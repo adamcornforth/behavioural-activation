@@ -40,16 +40,34 @@
             v-for="hour in hours"
             :key="hour"
             class="hour-cell h-20 border-b border-r border-gray-100 relative"
-            @mousedown="startDrag($event, day - 1, hour)"
-            @mousemove="onDrag($event, day - 1, hour)"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
             <!-- 15-minute interval markers -->
-            <div class="quarter-hour-marker quarter-marker-25" style="top: 0%; height: 25%"></div>
-            <div class="quarter-hour-marker quarter-marker-50" style="top: 25%; height: 25%"></div>
-            <div class="quarter-hour-marker quarter-marker-75" style="top: 50%; height: 25%"></div>
-            <div class="quarter-hour-marker quarter-marker-100" style="top: 75%; height: 25%"></div>
+            <div 
+              class="quarter-hour-marker quarter-marker-25" 
+              style="top: 0%; height: 25%"
+              @mousedown="startDrag($event, day - 1, hour, 0)"
+              @mousemove="onDrag($event, day - 1, hour, 0)"
+            ></div>
+            <div 
+              class="quarter-hour-marker quarter-marker-50" 
+              style="top: 25%; height: 25%"
+              @mousedown="startDrag($event, day - 1, hour, 0.25)"
+              @mousemove="onDrag($event, day - 1, hour, 0.25)"
+            ></div>
+            <div 
+              class="quarter-hour-marker quarter-marker-75" 
+              style="top: 50%; height: 25%"
+              @mousedown="startDrag($event, day - 1, hour, 0.5)"
+              @mousemove="onDrag($event, day - 1, hour, 0.5)"
+            ></div>
+            <div 
+              class="quarter-hour-marker quarter-marker-100" 
+              style="top: 75%; height: 25%"
+              @mousedown="startDrag($event, day - 1, hour, 0.75)"
+              @mousemove="onDrag($event, day - 1, hour, 0.75)"
+            ></div>
             <!-- Visual selection indicator -->
             <div
               v-if="isDragging && isInSelectionRange(day - 1, hour)"
@@ -280,16 +298,9 @@ const formatSelectionTime = () => {
 };
 
 // Drag functionality
-const startDrag = (event: MouseEvent, day: number, hour: number) => {
+const startDrag = (event: MouseEvent, day: number, hour: number, quarterHour: number) => {
   isDragging.value = true;
   dragStartDay.value = day;
-  
-  // Calculate the 15-minute interval based on mouse position
-  const rect = (event.target as HTMLElement).getBoundingClientRect();
-  const relativeY = event.clientY - rect.top;
-  const percentageY = relativeY / rect.height;
-  const quarterHour = Math.floor(percentageY * 4) / 4; // 0, 0.25, 0.5, or 0.75
-  
   dragStartHour.value = hour + quarterHour;
   dragEndDay.value = day;
   dragEndHour.value = hour + quarterHour;
@@ -300,16 +311,9 @@ const startDrag = (event: MouseEvent, day: number, hour: number) => {
   console.log(`Started dragging at day ${day}, hour ${dragStartHour.value}`);
 };
 
-const onDrag = (event: MouseEvent, day: number, hour: number) => {
+const onDrag = (event: MouseEvent, day: number, hour: number, quarterHour: number) => {
   if (isDragging.value) {
     dragEndDay.value = day;
-    
-    // Calculate the 15-minute interval based on mouse position
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    const relativeY = event.clientY - rect.top;
-    const percentageY = relativeY / rect.height;
-    const quarterHour = Math.floor(percentageY * 4) / 4; // 0, 0.25, 0.5, or 0.75
-    
     dragEndHour.value = hour + quarterHour;
   }
 };
