@@ -1,22 +1,60 @@
-# Aider
+# Behavioral Activation App
 
-https://aider.chat/docs/llms/ollama.html
+A front-end application designed to facilitate Behavioral Activation (BA) therapy, helping users
+plan and track activities, rate difficulty and mood impact, and     
+visualize progress.
 
-## Using Ollama Chat
+## About This Project
 
-```
-ollama pull deepseek-r1:8b
-ollama serve
-```
+This project was created using AI assistance, following a structured development approach:
 
-I chose which model to use from https://aider.chat/docs/leaderboards/
+1. A detailed specification document (`docs/spec.md`) outlining the requirements and features
+2. A methodical prompt plan (`docs/prompt_plan.md`) breaking down the implementation into manageable
+   chunks
 
-## Using Aider with Ollama Chat
+## Core Features
 
-(In a new terminal window)
+- **Activity Management**: Create, schedule, and track time-bound activities
+- **Calendar View**: Weekly view with drag-and-drop scheduling
+- **Mood & Difficulty Tracking**: Rate expected vs. actual difficulty and mood impact
+- **Activity Presets**: Quick selection of common activities
+- **Stats & Progress Tracking**: Visualize trends and insights about your activities
 
-```
-export OLLAMA_API_BASE=http://127.0.0.1:11434
-aider --model ollama_chat/deepseek-r1:8b
-```
+## Technology Stack
 
+- **Vite**: For fast development and optimized builds
+- **Vue 3 + TypeScript**: For type-safe, component-based UI development
+- **Shadcn UI**: For reusable UI components
+- **TailwindCSS**: For styling and design
+- **Local Storage**: For persisting user data
+
+## Getting Started
+
+ ```bash                                                                                                                                                              
+ # Install dependencies                                                                                                                                               
+ npm install                                                                                                                                                          
+                                                                                                                                                                      
+ # Start development server                                                                                                                                           
+ npm run dev                                                                                                                                                          
+                                                                                                                                                                      
+ # Build for production                                                                                                                                               
+ npm run build                                                                                                                                                        
+ ```                                                                                                                                                                  
+
+## Project Structure
+
+- `src/components/`: UI components including Calendar and activity modals
+- `src/store/`: State management for activities
+- `src/data/`: Activity presets and other static data
+- `src/pages/`: Page components
+- `docs/`: Project documentation including specification and prompt plan
+
+## Future Enhancements
+
+- Data export functionality
+- Cloud integration
+- Mobile app version
+
+## License
+
+MIT
