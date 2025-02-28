@@ -55,7 +55,7 @@
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative h-full">
               <div 
                 :class="[
-                  'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer',
+                  'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer group',
                   `activity-${activity.id}`,
                   getActivityStyle(activity, day - 1, hour).colorClass,
                   getActivityStyle(activity, day - 1, hour).borderRadius,
@@ -70,6 +70,15 @@
                 @mouseenter="handleActivityHover(activity.id, true)"
                 @mouseleave="handleActivityHover(activity.id, false)"
               >
+                <!-- Delete button - only show on first cell and on hover -->
+                <button 
+                  v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell"
+                  class="delete-button absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click.stop="confirmDeleteActivity(activity)"
+                  title="Delete activity"
+                >
+                  ×
+                </button>
                 <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
                   <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
                   <div class="text-xs truncate">
@@ -101,6 +110,18 @@
       @close="closeActivityModal"
       @submit="handleActivitySubmit"
     />
+    
+    <!-- Delete confirmation dialog -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-lg font-medium mb-4">Delete Activity</h3>
+        <p class="mb-4">Are you sure you want to delete "{{ activityToDelete?.activityName }}"?</p>
+        <div class="flex justify-end space-x-3">
+          <Button variant="outline" @click="cancelDelete">Cancel</Button>
+          <Button variant="destructive" @click="deleteActivity">Delete</Button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -108,6 +129,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay } from 'date-fns';
 import Button from './ui/button.vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
 
@@ -123,6 +145,10 @@ const dragEndHour = ref(0);
 const showActivityModal = ref(false);
 const selectedTimeRange = ref<{ start: Date, end: Date } | null>(null);
 const activityToEdit = ref<any>(null);
+
+// Delete confirmation state
+const showDeleteConfirm = ref(false);
+const activityToDelete = ref<any>(null);
 
 // Hours for the day (6 AM to 10 PM)
 const hours = Array.from({ length: 17 }, (_, i) => i + 6);
@@ -276,6 +302,27 @@ const handleActivitySubmit = (activity: any) => {
 const closeActivityModal = () => {
   showActivityModal.value = false;
   activityToEdit.value = null;
+};
+
+// Delete activity confirmation
+const confirmDeleteActivity = (activity: any) => {
+  activityToDelete.value = activity;
+  showDeleteConfirm.value = true;
+};
+
+// Cancel delete
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
+  activityToDelete.value = null;
+};
+
+// Delete activity
+const deleteActivity = () => {
+  if (activityToDelete.value) {
+    activityStore.deleteActivity(activityToDelete.value.id);
+    showDeleteConfirm.value = false;
+    activityToDelete.value = null;
+  }
 };
 
 // Handle activity hover
@@ -513,6 +560,10 @@ onUnmounted(() => {
   filter: brightness(0.95);
   z-index: 30;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button:hover {
+  background-color: #ef4444;
 }
 
 /* Apply hover effect to all blocks of the same activity */
