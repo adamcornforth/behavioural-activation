@@ -55,13 +55,15 @@
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative">
               <div 
                 :class="[
-                  'activity-block absolute left-0 right-0 px-1 py-0.5 border rounded-sm z-20 overflow-hidden',
+                  'activity-block absolute left-0 right-0 px-1 py-0.5 border rounded-sm z-20 overflow-hidden cursor-pointer',
                   getActivityStyle(activity, day - 1, hour).colorClass
                 ]"
                 :style="{
                   top: getActivityStyle(activity, day - 1, hour).top,
-                  height: getActivityStyle(activity, day - 1, hour).height
+                  height: getActivityStyle(activity, day - 1, hour).height,
+                  display: getActivityStyle(activity, day - 1, hour).display
                 }"
+                @click="editActivity(activity)"
               >
                 <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
                 <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
@@ -80,12 +82,13 @@
       </div>
     </div>
     
-    <!-- Activity creation modal -->
+    <!-- Activity modal -->
     <ActivityModal 
       :open="showActivityModal" 
       :start-time="selectedTimeRange?.start" 
       :end-time="selectedTimeRange?.end"
-      @close="showActivityModal = false"
+      :edit-activity="activityToEdit"
+      @close="closeActivityModal"
       @submit="handleActivitySubmit"
     />
   </div>
@@ -109,6 +112,7 @@ const dragEndHour = ref(0);
 // Activity modal state
 const showActivityModal = ref(false);
 const selectedTimeRange = ref<{ start: Date, end: Date } | null>(null);
+const activityToEdit = ref<any>(null);
 
 // Hours for the day (6 AM to 10 PM)
 const hours = Array.from({ length: 17 }, (_, i) => i + 6);
@@ -244,14 +248,34 @@ const activities = computed(() => activityStore.getActivities());
 
 // Handle activity submission from modal
 const handleActivitySubmit = (activity: any) => {
-  // Add the activity to our store
-  const newActivity = {
-    ...activity,
-    completed: false
-  };
-  
-  activityStore.addActivity(newActivity);
+  if (activityToEdit.value) {
+    // Update existing activity
+    activityStore.updateActivity(activityToEdit.value.id, activity);
+  } else {
+    // Add new activity
+    const newActivity = {
+      ...activity,
+      completed: false
+    };
+    activityStore.addActivity(newActivity);
+  }
+  closeActivityModal();
+};
+
+// Close modal and reset state
+const closeActivityModal = () => {
   showActivityModal.value = false;
+  activityToEdit.value = null;
+};
+
+// Edit an existing activity
+const editActivity = (activity: any) => {
+  activityToEdit.value = activity;
+  selectedTimeRange.value = {
+    start: activity.startTime,
+    end: activity.endTime
+  };
+  showActivityModal.value = true;
 };
 
 // Helper to determine if an activity falls within a specific day and hour
@@ -280,6 +304,23 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   const cellEnd = new Date(date);
   cellEnd.setHours(hour + 1, 0, 0, 0);
   
+  // Check if this is the first hour of a multi-hour activity
+  const isFirstHour = isSameDay(activity.startTime, date) && 
+                      activity.startTime.getHours() <= hour && 
+                      (activity.endTime.getHours() > hour || 
+                       !isSameDay(activity.startTime, activity.endTime));
+  
+  // Check if this is a middle hour (not first, not last)
+  const isMiddleHour = !isSameDay(activity.startTime, date) || 
+                       activity.startTime.getHours() < hour;
+  
+  // Only show the activity block in the first hour it appears
+  // For multi-hour activities, we'll make them taller
+  let display = 'block';
+  if (!isFirstHour && isMiddleHour) {
+    display = 'none';
+  }
+  
   // Calculate top position (minutes from the start of the hour)
   let topPercentage = 0;
   if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
@@ -298,7 +339,19 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   } 
   // If activity starts in this hour but ends later
   else if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
+    // Calculate how many hours this activity spans
+    const startHour = activity.startTime.getHours();
+    const endHour = isSameDay(activity.startTime, activity.endTime) 
+                    ? activity.endTime.getHours() 
+                    : 24; // If it ends on a different day, go to end of day
+    
+    const hoursSpanned = endHour - startHour;
+    
+    // Make the height proportional to hours spanned
     heightPercentage = ((60 - activity.startTime.getMinutes()) / 60) * 100;
+    if (hoursSpanned > 1) {
+      heightPercentage = heightPercentage + ((hoursSpanned - 1) * 100);
+    }
   }
   // If activity ends in this hour but started earlier
   else if (isSameDay(activity.endTime, date) && activity.endTime.getHours() === hour) {
@@ -317,7 +370,8 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   return {
     top: `${topPercentage}%`,
     height: `${heightPercentage}%`,
-    colorClass: getMoodColor(activity.expectedMood)
+    colorClass: getMoodColor(activity.expectedMood),
+    display: display
   };
 };
 
