@@ -60,6 +60,15 @@
         <p>{{ formatSelectionTime() }}</p>
       </div>
     </div>
+    
+    <!-- Activity creation modal -->
+    <ActivityModal 
+      :open="showActivityModal" 
+      :start-time="selectedTimeRange?.start" 
+      :end-time="selectedTimeRange?.end"
+      @close="showActivityModal = false"
+      @submit="handleActivitySubmit"
+    />
   </div>
 </template>
 
@@ -68,6 +77,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import ActivityModal from './ActivityModal.vue';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -76,6 +86,10 @@ const dragStartDay = ref(0);
 const dragStartHour = ref(0);
 const dragEndDay = ref(0);
 const dragEndHour = ref(0);
+
+// Activity modal state
+const showActivityModal = ref(false);
+const selectedTimeRange = ref<{ start: Date, end: Date } | null>(null);
 
 // Hours for the day (6 AM to 10 PM)
 const hours = Array.from({ length: 17 }, (_, i) => i + 6);
@@ -194,9 +208,17 @@ const endDrag = () => {
     
     console.log('Selected time range:', normalizedSelection);
     
-    // Here we would typically emit an event to open the activity creation modal
-    // emit('timeSelected', normalizedSelection);
+    // Open the activity modal with the selected time range
+    showActivityModal.value = true;
+    selectedTimeRange.value = normalizedSelection;
   }
+};
+
+// Handle activity submission from modal
+const handleActivitySubmit = (activity: any) => {
+  console.log('Activity submitted from modal:', activity);
+  showActivityModal.value = false;
+  // Here we would typically store the activity in a state management solution
 };
 
 // Handle global mouse up to end drag even if mouse is released outside the calendar
