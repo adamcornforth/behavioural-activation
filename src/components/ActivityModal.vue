@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import Modal from './ui/modal.vue'
 import Button from './ui/button.vue'
+import { getPresetsByCategory, findPresetById } from '../data/activityPresets'
 
 const props = defineProps<{
   open: boolean
@@ -11,6 +12,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'submit'])
+
+// Activity presets
+const presetsByCategory = computed(() => getPresetsByCategory())
+const selectedCategory = ref('')
+const selectedPresetId = ref('')
 
 
 // UI state
@@ -38,6 +44,32 @@ const resetForm = () => {
   formData.participants = ''
   formData.activityType = 'other'
   showAdvancedFields.value = false
+  selectedCategory.value = ''
+  selectedPresetId.value = ''
+}
+
+// Apply selected preset to form
+const applyPreset = () => {
+  if (!selectedPresetId.value) return
+  
+  const preset = findPresetById(selectedPresetId.value)
+  if (!preset) return
+  
+  // Apply preset values to form
+  formData.activityName = preset.name
+  formData.expectedDifficulty = preset.expectedDifficulty
+  formData.expectedMood = preset.expectedMood
+  formData.activityType = preset.category.toLowerCase()
+  
+  // Set location if provided in preset
+  if (preset.location) {
+    formData.location = preset.location
+  }
+  
+  // If we have advanced fields with data, show them
+  if (preset.location) {
+    showAdvancedFields.value = true
+  }
 }
 
 // Watch for edit activity changes
@@ -54,6 +86,10 @@ watch(() => props.editActivity, (newVal) => {
     formData.participants = newVal.participants || ''
     formData.activityType = newVal.activityType
     
+    // Reset preset selections
+    selectedCategory.value = ''
+    selectedPresetId.value = ''
+    
     // Show advanced fields if they have data
     if (newVal.location || newVal.notes || newVal.participants || newVal.activityType !== 'other') {
       showAdvancedFields.value = true
@@ -62,6 +98,14 @@ watch(() => props.editActivity, (newVal) => {
     resetForm()
   }
 }, { immediate: true })
+
+// Reset presets when modal opens/closes
+watch(() => props.open, (isOpen) => {
+  if (!isOpen) {
+    selectedCategory.value = ''
+    selectedPresetId.value = ''
+  }
+})
 
 
 // Difficulty and mood options
@@ -151,6 +195,38 @@ const handleClose = () => {
       <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mb-4">
         <p class="text-sm font-medium">Selected Time:</p>
         <p class="text-sm">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+      </div>
+      
+      <!-- Activity Presets -->
+      <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+        <p class="text-sm font-medium mb-2">Quick Add from Presets:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <select 
+            v-model="selectedCategory" 
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Category</option>
+            <option v-for="category in Object.keys(presetsByCategory)" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+          
+          <select 
+            v-model="selectedPresetId" 
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            :disabled="!selectedCategory"
+            @change="applyPreset"
+          >
+            <option value="">Select Activity</option>
+            <option 
+              v-for="preset in selectedCategory ? presetsByCategory[selectedCategory] : []" 
+              :key="preset.id" 
+              :value="preset.id"
+            >
+              {{ preset.name }}
+            </option>
+          </select>
+        </div>
       </div>
       
       <!-- Basic fields -->
