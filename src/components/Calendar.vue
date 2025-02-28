@@ -55,8 +55,10 @@
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative">
               <div 
                 :class="[
-                  'activity-block absolute left-0 right-0 px-1 py-0.5 border rounded-sm z-20 overflow-hidden cursor-pointer',
-                  getActivityStyle(activity, day - 1, hour).colorClass
+                  'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer',
+                  getActivityStyle(activity, day - 1, hour).colorClass,
+                  getActivityStyle(activity, day - 1, hour).borderRadius,
+                  getActivityStyle(activity, day - 1, hour).borderStyle
                 ]"
                 :style="{
                   top: getActivityStyle(activity, day - 1, hour).top,
@@ -65,10 +67,15 @@
                 }"
                 @click="editActivity(activity)"
               >
-                <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
-                <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
-                  Difficulty: {{ activity.expectedDifficulty }}/10
-                </div>
+                <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
+                  <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
+                  <div class="text-xs truncate">
+                    {{ getActivityStyle(activity, day - 1, hour).duration }}
+                  </div>
+                  <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
+                    Difficulty: {{ activity.expectedDifficulty }}/10
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -295,6 +302,21 @@ const getActivitiesForCell = (day: number, hour: number) => {
   });
 };
 
+// Format duration for display
+const formatDuration = (startTime: Date, endTime: Date) => {
+  const durationMs = endTime.getTime() - startTime.getTime();
+  const hours = Math.floor(durationMs / (1000 * 60 * 60));
+  const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (hours === 0) {
+    return `${minutes}m`;
+  } else if (minutes === 0) {
+    return `${hours}h`;
+  } else {
+    return `${hours}h ${minutes}m`;
+  }
+};
+
 // Calculate activity position and height based on its time
 const getActivityStyle = (activity: any, day: number, hour: number) => {
   const date = addDays(currentWeekStart.value, day);
@@ -304,26 +326,24 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   const cellEnd = new Date(date);
   cellEnd.setHours(hour + 1, 0, 0, 0);
   
-  // Check if this is the first hour of a multi-hour activity
-  const isFirstHour = isSameDay(activity.startTime, date) && 
-                      activity.startTime.getHours() <= hour && 
-                      (activity.endTime.getHours() > hour || 
-                       !isSameDay(activity.startTime, activity.endTime));
+  // Determine if this is the first hour cell for this activity
+  const isFirstHourCell = isSameDay(activity.startTime, date) && 
+                          activity.startTime.getHours() === hour;
   
-  // Check if this is a middle hour (not first, not last)
-  const isMiddleHour = !isSameDay(activity.startTime, date) || 
-                       activity.startTime.getHours() < hour;
+  // Determine if this is the last hour cell for this activity
+  const isLastHourCell = isSameDay(activity.endTime, date) && 
+                         activity.endTime.getHours() === hour;
   
-  // Only show the activity block in the first hour it appears
-  // For multi-hour activities, we'll make them taller
-  let display = 'block';
-  if (!isFirstHour && isMiddleHour) {
-    display = 'none';
-  }
+  // Determine if this is a middle hour cell (not first, not last)
+  const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
+                           isWithinInterval(cellStart, { start: activity.startTime, end: activity.endTime });
+  
+  // Calculate total duration for display
+  const duration = formatDuration(activity.startTime, activity.endTime);
   
   // Calculate top position (minutes from the start of the hour)
   let topPercentage = 0;
-  if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
+  if (isFirstHourCell) {
     topPercentage = (activity.startTime.getMinutes() / 60) * 100;
   }
   
@@ -331,32 +351,18 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   let heightPercentage = 100;
   
   // If activity starts and ends within this hour
-  if (isSameDay(activity.startTime, date) && 
-      isSameDay(activity.endTime, date) && 
-      activity.startTime.getHours() === hour && 
-      activity.endTime.getHours() === hour) {
+  if (isFirstHourCell && isLastHourCell) {
     heightPercentage = ((activity.endTime.getMinutes() - activity.startTime.getMinutes()) / 60) * 100;
+    if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
   } 
-  // If activity starts in this hour but ends later
-  else if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
-    // Calculate how many hours this activity spans
-    const startHour = activity.startTime.getHours();
-    const endHour = isSameDay(activity.startTime, activity.endTime) 
-                    ? activity.endTime.getHours() 
-                    : 24; // If it ends on a different day, go to end of day
-    
-    const hoursSpanned = endHour - startHour;
-    
-    // Make the height proportional to hours spanned
+  // If activity starts in this hour but continues
+  else if (isFirstHourCell) {
     heightPercentage = ((60 - activity.startTime.getMinutes()) / 60) * 100;
-    if (hoursSpanned > 1) {
-      heightPercentage = heightPercentage + ((hoursSpanned - 1) * 100);
-    }
   }
   // If activity ends in this hour but started earlier
-  else if (isSameDay(activity.endTime, date) && activity.endTime.getHours() === hour) {
+  else if (isLastHourCell) {
     heightPercentage = (activity.endTime.getMinutes() / 60) * 100;
-    topPercentage = 0;
+    if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
   }
   
   // Get color based on expected mood
@@ -367,11 +373,37 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     return 'bg-red-100 border-red-300';
   };
   
+  // Determine border radius based on position in multi-hour activity
+  let borderRadius = 'rounded-sm';
+  if (isFirstHourCell && !isLastHourCell) {
+    borderRadius = 'rounded-t-sm';
+  } else if (!isFirstHourCell && isLastHourCell) {
+    borderRadius = 'rounded-b-sm';
+  } else if (!isFirstHourCell && !isLastHourCell) {
+    borderRadius = 'rounded-none';
+  }
+  
+  // Determine border style based on position in multi-hour activity
+  let borderStyle = 'border';
+  if (!isFirstHourCell && !isLastHourCell) {
+    borderStyle = 'border-l border-r';
+  } else if (isFirstHourCell && !isLastHourCell) {
+    borderStyle = 'border-t border-l border-r';
+  } else if (!isFirstHourCell && isLastHourCell) {
+    borderStyle = 'border-b border-l border-r';
+  }
+  
   return {
     top: `${topPercentage}%`,
     height: `${heightPercentage}%`,
     colorClass: getMoodColor(activity.expectedMood),
-    display: display
+    display: isWithinInterval(cellStart, { start: activity.startTime, end: activity.endTime }) ? 'block' : 'none',
+    isFirstHourCell,
+    isLastHourCell,
+    isMiddleHourCell,
+    duration,
+    borderRadius,
+    borderStyle
   };
 };
 
@@ -424,10 +456,12 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 1.5rem;
+  box-sizing: border-box;
 }
 
 .activity-block:hover {
   filter: brightness(0.95);
   z-index: 30;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 </style>
