@@ -13,6 +13,9 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'submit'])
 
 
+// UI state
+const showAdvancedFields = ref(false)
+
 // Form state
 const formData = reactive({
   activityName: '',
@@ -25,7 +28,7 @@ const formData = reactive({
   activityType: 'other'
 })
 
-// Reset form function (defined after showAdvancedFields is initialized)
+// Reset form function
 const resetForm = () => {
   formData.activityName = ''
   formData.expectedDifficulty = 5
