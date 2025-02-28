@@ -306,34 +306,42 @@ const handleClose = () => {
         
         <div>
           <label for="expectedDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
-            Expected Difficulty*
+            Expected Difficulty: {{ formData.expectedDifficulty }}
           </label>
-          <select 
-            id="expectedDifficulty" 
-            v-model="formData.expectedDifficulty" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="option in difficultyOptions" :key="option.value" :value="option.value">
-              {{ option.label }} ({{ option.value }})
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult do you expect this activity to be? (1-10)</p>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Easy</span>
+            <input 
+              id="expectedDifficulty" 
+              v-model="formData.expectedDifficulty" 
+              type="range" 
+              min="1" 
+              max="10" 
+              step="1"
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            />
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Difficult</span>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult do you expect this activity to be?</p>
         </div>
         
         <div>
           <label for="expectedMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
-            Expected Mood Impact*
+            Expected Mood Impact: {{ formData.expectedMood }}
           </label>
-          <select 
-            id="expectedMood" 
-            v-model="formData.expectedMood" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="option in moodOptions" :key="option.value" :value="option.value">
-              {{ option.label }} ({{ option.value }})
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How do you expect this activity to affect your mood? (1-10)</p>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Low</span>
+            <input 
+              id="expectedMood" 
+              v-model="formData.expectedMood" 
+              type="range" 
+              min="1" 
+              max="10" 
+              step="1"
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            />
+            <span class="text-xs text-gray-500 dark:text-gray-400">Excellent</span>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How do you expect this activity to affect your mood?</p>
         </div>
       </div>
       
@@ -420,36 +428,44 @@ const handleClose = () => {
       <div class="space-y-4">
         <div>
           <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
-            Actual Difficulty*
+            Actual Difficulty: {{ formData.actualDifficulty || '?' }}
           </label>
-          <select 
-            id="actualDifficulty" 
-            v-model="formData.actualDifficulty" 
-            required
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="option in difficultyOptions" :key="option.value" :value="option.value">
-              {{ option.label }} ({{ option.value }})
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult was this activity actually? (1-10)</p>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Easy</span>
+            <input 
+              id="actualDifficulty" 
+              v-model="formData.actualDifficulty" 
+              type="range" 
+              min="1" 
+              max="10" 
+              step="1"
+              required
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            />
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Difficult</span>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult was this activity actually?</p>
         </div>
         
         <div>
           <label for="actualMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
-            Actual Mood Impact*
+            Actual Mood Impact: {{ formData.actualMood || '?' }}
           </label>
-          <select 
-            id="actualMood" 
-            v-model="formData.actualMood" 
-            required
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="option in moodOptions" :key="option.value" :value="option.value">
-              {{ option.label }} ({{ option.value }})
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How did this activity actually affect your mood? (1-10)</p>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Very Low</span>
+            <input 
+              id="actualMood" 
+              v-model="formData.actualMood" 
+              type="range" 
+              min="1" 
+              max="10" 
+              step="1"
+              required
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+            />
+            <span class="text-xs text-gray-500 dark:text-gray-400">Excellent</span>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How did this activity actually affect your mood?</p>
         </div>
         
         <div>
