@@ -6,6 +6,7 @@ import CardDescription from '../components/ui/card-description.vue'
 import CardContent from '../components/ui/card-content.vue'
 import CardFooter from '../components/ui/card-footer.vue'
 import Button from '../components/ui/button.vue'
+import Calendar from '../components/Calendar.vue'
 </script>
 
 <template>
@@ -13,6 +14,12 @@ import Button from '../components/ui/button.vue'
     <section class="mb-10">
       <h2 class="text-3xl font-bold tracking-tight mb-6">Behavioural Activation App</h2>
       <p class="text-muted-foreground text-lg mb-4">A tool to help you engage in meaningful activities</p>
+    </section>
+    
+    <section class="mb-10">
+      <div class="bg-white rounded-lg shadow-sm border p-4">
+        <Calendar />
+      </div>
     </section>
     
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
