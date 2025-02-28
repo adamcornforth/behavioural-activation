@@ -226,7 +226,7 @@ const handleClose = () => {
 <template>
   <Modal 
     :open="open" 
-    :title="editActivity ? (activeTab === 'feedback' ? 'Provide Feedback' : 'Edit Activity') : 'Create New Activity'" 
+    :title="editActivity ? (activeTab === 'feedback' ? 'Provide Feedback' : 'Edit Activity') : 'Create New Activity'"
     :description="activeTab === 'feedback' ? 'How did this activity affect you?' : 'Plan your activity and predict how it will affect you'"
     @close="handleClose"
     size="lg"
