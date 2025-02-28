@@ -364,9 +364,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   // Determine if this is the last hour cell for this activity
   const isLastHourCell = isSameDay(activity.endTime, date) && 
                          activity.endTime.getHours() === hour &&
-                         (activity.endTime.getMinutes() > 0 || 
-                          // Also consider it the last hour if activity duration is <= 1 hour
-                          (activity.endTime.getTime() - activity.startTime.getTime() <= 60 * 60 * 1000));
+                         (activity.endTime.getMinutes() > 0);
   
   // Determine if this is a middle hour cell (not first, not last)
   const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
@@ -386,7 +384,10 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // If activity starts and ends within this hour
   if (isFirstHourCell && isLastHourCell) {
-    heightPercentage = ((activity.endTime.getMinutes() - activity.startTime.getMinutes()) / 60) * 100;
+    // Full height if activity spans whole hour
+    let activityIs1hr = activity.startTime.getMinutes() === 0 && activity.endTime.getMinutes() === 0;
+    // Otherwise, calculate height based on start and end times
+    heightPercentage = activityIs1hr ? 100 : ((activity.endTime.getMinutes() - activity.startTime.getMinutes()) / 60) * 100;
     if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
   } 
   // If activity starts in this hour but continues
