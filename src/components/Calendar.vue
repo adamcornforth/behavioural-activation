@@ -214,11 +214,19 @@ const endDrag = () => {
   }
 };
 
+// Import the activity store
+import { addActivity } from '../store/activityStore';
+
 // Handle activity submission from modal
 const handleActivitySubmit = (activity: any) => {
-  console.log('Activity submitted from modal:', activity);
+  // Add the activity to our store
+  const newActivity = {
+    ...activity,
+    completed: false
+  };
+  
+  addActivity(newActivity);
   showActivityModal.value = false;
-  // Here we would typically store the activity in a state management solution
 };
 
 // Handle global mouse up to end drag even if mouse is released outside the calendar
