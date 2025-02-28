@@ -22,7 +22,12 @@
       </div>
       <div class="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
         <div class="py-2 text-center"></div>
-        <div v-for="day in weekDays" :key="day.date" class="py-2 text-center font-medium dark:text-gray-300">
+        <div 
+          v-for="day in weekDays" 
+          :key="day.date" 
+          class="py-2 text-center font-medium dark:text-gray-300"
+          :class="{ 'bg-blue-50 dark:bg-blue-900/30 rounded-t-md': day.isToday }"
+        >
           <div>{{ day.name }}</div>
           <div>{{ day.date }}</div>
         </div>
@@ -43,6 +48,10 @@
             v-for="hour in hours"
             :key="hour"
             class="hour-cell h-20 border-b border-r border-gray-100 dark:border-gray-700 relative"
+            :class="{
+              'bg-blue-50 dark:bg-blue-900/20': day - 1 === currentDayIndex && hour === currentHour,
+              'bg-blue-50/50 dark:bg-blue-900/10': day - 1 === currentDayIndex && hour !== currentHour
+            }"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
@@ -90,6 +99,15 @@
               :style="getSelectionStyle(day - 1, hour)"
             ></div>
 
+            <!-- Current time indicator -->
+            <div 
+              v-if="day - 1 === currentDayIndex && hour === currentHour" 
+              class="current-time-indicator"
+              :style="{
+                top: `${(currentDate.value.getMinutes() / 60) * 100}%`
+              }"
+            ></div>
+            
             <!-- Render activities in this cell -->
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="absolute inset-0">
               <div
@@ -199,13 +217,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay } from 'date-fns';
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay, differenceInDays } from 'date-fns';
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
+const currentDate = ref(new Date());
 const isDragging = ref(false);
 const dragStartDay = ref(0);
 const dragStartHour = ref(0);
@@ -228,12 +247,28 @@ const hours = Array.from({ length: 15 }, (_, i) => i + 8);
 const weekDays = computed(() => {
   return Array.from({ length: 7 }, (_, i) => {
     const date = addDays(currentWeekStart.value, i);
+    const isToday = isSameDay(date, currentDate.value);
     return {
       name: format(date, 'EEE'),
       date: format(date, 'd'),
-      fullDate: date
+      fullDate: date,
+      isToday
     };
   });
+});
+
+// Current hour for highlighting
+const currentHour = computed(() => {
+  return currentDate.value.getHours();
+});
+
+// Current day index (0-6) for highlighting
+const currentDayIndex = computed(() => {
+  const daysDiff = differenceInDays(
+    currentDate.value,
+    currentWeekStart.value
+  );
+  return daysDiff >= 0 && daysDiff < 7 ? daysDiff : -1;
 });
 
 // Methods
@@ -823,6 +858,13 @@ const handleGlobalMouseUp = () => {
   }
 };
 
+// Update current time every minute
+let currentTimeInterval: number | null = null;
+
+const updateCurrentTime = () => {
+  currentDate.value = new Date();
+};
+
 onMounted(() => {
   // Add global event listener for mouseup to handle drag ending outside the calendar
   window.addEventListener('mouseup', handleGlobalMouseUp);
@@ -832,6 +874,10 @@ onMounted(() => {
   
   // Also check immediately on mount
   setTimeout(checkForActivitiesNeedingFeedback, 1000);
+  
+  // Update current time immediately and then every minute
+  updateCurrentTime();
+  currentTimeInterval = window.setInterval(updateCurrentTime, 60000);
 });
 
 onUnmounted(() => {
@@ -841,6 +887,11 @@ onUnmounted(() => {
   // Clear the feedback check interval
   if (feedbackCheckInterval !== null) {
     clearInterval(feedbackCheckInterval);
+  }
+  
+  // Clear the current time interval
+  if (currentTimeInterval !== null) {
+    clearInterval(currentTimeInterval);
   }
 });
 </script>
@@ -969,5 +1020,20 @@ onUnmounted(() => {
 :global(.dark) .selection-indicator {
   background: rgba(59, 130, 246, 0.4) !important;
   border: 1px solid rgba(59, 130, 246, 0.6) !important;
+}
+
+.current-time-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #ef4444; /* red-500 */
+  z-index: 25;
+  pointer-events: none;
+}
+
+:global(.dark) .current-time-indicator {
+  background-color: #f87171; /* red-400 */
+  box-shadow: 0 0 4px rgba(248, 113, 113, 0.6);
 }
 </style>
