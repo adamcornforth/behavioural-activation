@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useActivityStore } from '../store/activityStore'
-import { Card } from './ui/card'
+import Card from './ui/card.vue'
 import CardHeader from './ui/card-header.vue'
 import CardTitle from './ui/card-title.vue'
 import CardContent from './ui/card-content.vue'
