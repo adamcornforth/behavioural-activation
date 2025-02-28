@@ -43,18 +43,28 @@
             @mousedown="startDrag($event, day - 1, hour)"
             @mousemove="onDrag($event, day - 1, hour)"
             @mouseup="endDrag()"
+            @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
+            <!-- Visual selection indicator -->
+            <div 
+              v-if="isDragging && isInSelectionRange(day - 1, hour)" 
+              class="bg-blue-100 border border-blue-300 rounded-sm h-full w-full absolute inset-0 opacity-70"
+            ></div>
           </div>
         </div>
       </template>
       
-      <!-- Placeholder for activities that will be rendered here -->
+      <!-- Selection preview -->
+      <div v-if="isDragging" class="selection-preview fixed bottom-4 right-4 bg-white p-3 shadow-lg rounded-md border border-gray-200 z-50">
+        <p class="font-medium">Selection:</p>
+        <p>{{ formatSelectionTime() }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
@@ -103,6 +113,42 @@ const currentWeek = () => {
   currentWeekStart.value = startOfWeek(new Date(), { weekStartsOn: 1 });
 };
 
+// Helper to check if a cell is in the current selection range
+const isInSelectionRange = (day: number, hour: number) => {
+  if (!isDragging.value) return false;
+  
+  // Handle selection across multiple days
+  if (dragStartDay.value === dragEndDay.value) {
+    // Same day selection
+    return day === dragStartDay.value && 
+           hour >= Math.min(dragStartHour.value, dragEndHour.value) && 
+           hour <= Math.max(dragStartHour.value, dragEndHour.value);
+  } else if (dragStartDay.value < dragEndDay.value) {
+    // Forward selection across days
+    return (day === dragStartDay.value && hour >= dragStartHour.value) || 
+           (day === dragEndDay.value && hour <= dragEndHour.value) || 
+           (day > dragStartDay.value && day < dragEndDay.value);
+  } else {
+    // Backward selection across days
+    return (day === dragStartDay.value && hour <= dragStartHour.value) || 
+           (day === dragEndDay.value && hour >= dragEndHour.value) || 
+           (day < dragStartDay.value && day > dragEndDay.value);
+  }
+};
+
+// Format the selection time for display
+const formatSelectionTime = () => {
+  if (!isDragging.value) return '';
+  
+  const startDate = addDays(currentWeekStart.value, dragStartDay.value);
+  startDate.setHours(dragStartHour.value, 0, 0);
+  
+  const endDate = addDays(currentWeekStart.value, dragEndDay.value);
+  endDate.setHours(dragEndHour.value + 1, 0, 0); // +1 to include the full hour
+  
+  return `${format(startDate, 'EEE, MMM d, h:mm a')} - ${format(endDate, 'EEE, MMM d, h:mm a')}`;
+};
+
 // Drag functionality
 const startDrag = (event: MouseEvent, day: number, hour: number) => {
   isDragging.value = true;
@@ -110,6 +156,9 @@ const startDrag = (event: MouseEvent, day: number, hour: number) => {
   dragStartHour.value = hour;
   dragEndDay.value = day;
   dragEndHour.value = hour;
+  
+  // Prevent text selection during drag
+  event.preventDefault();
   
   console.log(`Started dragging at day ${day}, hour ${hour}`);
 };
@@ -119,6 +168,11 @@ const onDrag = (event: MouseEvent, day: number, hour: number) => {
     dragEndDay.value = day;
     dragEndHour.value = hour;
   }
+};
+
+const onMouseLeave = (event: MouseEvent, day: number, hour: number) => {
+  // Optional: Handle mouse leaving the calendar grid
+  // This can be used to improve the drag experience
 };
 
 const endDrag = () => {
@@ -132,18 +186,34 @@ const endDrag = () => {
     const endDate = addDays(currentWeekStart.value, dragEndDay.value);
     endDate.setHours(dragEndHour.value + 1, 0, 0); // +1 to include the full hour
     
-    console.log('Selected time range:', {
-      start: startDate,
-      end: endDate
-    });
+    // Normalize the selection (ensure start is before end)
+    const normalizedSelection = {
+      start: startDate <= endDate ? startDate : endDate,
+      end: startDate <= endDate ? endDate : startDate
+    };
+    
+    console.log('Selected time range:', normalizedSelection);
     
     // Here we would typically emit an event to open the activity creation modal
-    // emit('timeSelected', { start: startDate, end: endDate });
+    // emit('timeSelected', normalizedSelection);
+  }
+};
+
+// Handle global mouse up to end drag even if mouse is released outside the calendar
+const handleGlobalMouseUp = () => {
+  if (isDragging.value) {
+    endDrag();
   }
 };
 
 onMounted(() => {
-  // Any initialization code can go here
+  // Add global event listener for mouseup to handle drag ending outside the calendar
+  window.addEventListener('mouseup', handleGlobalMouseUp);
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  window.removeEventListener('mouseup', handleGlobalMouseUp);
 });
 </script>
 
@@ -162,9 +232,15 @@ onMounted(() => {
 
 .hour-cell {
   cursor: pointer;
+  position: relative;
 }
 
 .hour-cell:hover {
   background-color: rgba(59, 130, 246, 0.1);
+}
+
+.selection-preview {
+  font-size: 0.875rem;
+  max-width: 300px;
 }
 </style>
