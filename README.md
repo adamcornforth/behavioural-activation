@@ -1,8 +1,9 @@
 # Behavioral Activation App
 
 A front-end application designed to facilitate Behavioral Activation (BA) therapy, helping users
-plan and track activities, rate difficulty and mood impact, and     
-visualize progress.
+plan and track activities, rate difficulty and mood impact, and visualize progress.
+
+<img width="1384" alt="image" src="https://github.com/user-attachments/assets/7192839e-acb4-4820-bee5-fbaaefd144a2" />
 
 ## About This Project
 
