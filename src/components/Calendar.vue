@@ -362,9 +362,9 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
                           activity.startTime.getHours() === hour;
   
   // Determine if this is the last hour cell for this activity
+  // Consider it the last cell if the activity ends in this hour (including exactly on the hour)
   const isLastHourCell = isSameDay(activity.endTime, date) && 
-                         activity.endTime.getHours() === hour &&
-                         (activity.endTime.getMinutes() > 0);
+                         activity.endTime.getHours() === hour;
   
   // Determine if this is a middle hour cell (not first, not last)
   const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
@@ -384,11 +384,16 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // If activity starts and ends within this hour
   if (isFirstHourCell && isLastHourCell) {
-    // Full height if activity spans whole hour
-    let activityIs1hr = activity.startTime.getMinutes() === 0 && activity.endTime.getMinutes() === 0;
-    // Otherwise, calculate height based on start and end times
-    heightPercentage = activityIs1hr ? 100 : ((activity.endTime.getMinutes() - activity.startTime.getMinutes()) / 60) * 100;
-    if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
+    // Calculate height based on start and end times
+    if (activity.startTime.getMinutes() === 0 && activity.endTime.getMinutes() === 0) {
+      // Activity spans exactly one hour (e.g., 9:00 to 10:00)
+      heightPercentage = 100;
+    } else {
+      // Activity spans part of the hour
+      const endMinutes = activity.endTime.getMinutes() || 60; // If 0 minutes, treat as 60 (full hour)
+      heightPercentage = ((endMinutes - activity.startTime.getMinutes()) / 60) * 100;
+      if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
+    }
   } 
   // If activity starts in this hour but continues
   else if (isFirstHourCell) {
@@ -396,7 +401,8 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   }
   // If activity ends in this hour but started earlier
   else if (isLastHourCell) {
-    heightPercentage = (activity.endTime.getMinutes() / 60) * 100;
+    const endMinutes = activity.endTime.getMinutes() || 60; // If 0 minutes, treat as 60 (full hour)
+    heightPercentage = (endMinutes / 60) * 100;
     if (heightPercentage < 10) heightPercentage = 10; // Minimum height for visibility
   }
   
