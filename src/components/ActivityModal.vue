@@ -67,13 +67,18 @@ const formatDateTime = (date?: Date) => {
 
 // Handle form submission
 const handleSubmit = () => {
+  if (!formData.activityName) {
+    return; // Don't submit if no activity name
+  }
+  
   // Create activity object with all form data
   const activity = {
     ...formData,
     startTime: props.startTime,
     endTime: props.endTime,
     createdAt: new Date(),
-    id: Date.now().toString()
+    id: Date.now().toString(),
+    completed: false
   }
   
   console.log('Activity created:', activity)
