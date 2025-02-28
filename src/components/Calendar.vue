@@ -194,13 +194,6 @@
       </div>
     </div>
     
-    <!-- Feedback modal -->
-    <FeedbackModal
-      :open="showFeedbackModal"
-      :activity="activityForFeedback"
-      @close="closeFeedbackModal"
-      @submit="handleFeedbackSubmit"
-    />
   </div>
 </template>
 
@@ -210,7 +203,6 @@ import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isS
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
-import FeedbackModal from './FeedbackModal.vue';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -229,9 +221,6 @@ const activityToEdit = ref<any>(null);
 const showDeleteConfirm = ref(false);
 const activityToDelete = ref<any>(null);
 
-// Feedback modal state
-const showFeedbackModal = ref(false);
-const activityForFeedback = ref<any>(null);
 
 const hours = Array.from({ length: 15 }, (_, i) => i + 8);
 
@@ -438,11 +427,15 @@ const checkForActivitiesNeedingFeedback = () => {
            (activity.actualDifficulty === undefined || activity.actualMood === undefined);
   });
   
-  if (activitiesNeedingFeedback.length > 0 && !showFeedbackModal.value) {
-    // Show feedback modal for the oldest completed activity
+  if (activitiesNeedingFeedback.length > 0) {
+    // Open the activity modal with the feedback tab for the oldest completed activity
     activitiesNeedingFeedback.sort((a, b) => a.endTime.getTime() - b.endTime.getTime());
-    activityForFeedback.value = activitiesNeedingFeedback[0];
-    showFeedbackModal.value = true;
+    activityToEdit.value = activitiesNeedingFeedback[0];
+    selectedTimeRange.value = {
+      start: activityToEdit.value.startTime,
+      end: activityToEdit.value.endTime
+    };
+    showActivityModal.value = true;
   }
 };
 
@@ -550,27 +543,6 @@ const handleActivitySubmit = (activity: any) => {
   closeActivityModal();
 };
 
-// Handle feedback submission
-const handleFeedbackSubmit = (feedback: any) => {
-  if (activityForFeedback.value) {
-    // Update the activity with feedback
-    activityStore.updateActivity(activityForFeedback.value.id, {
-      actualDifficulty: feedback.actualDifficulty,
-      actualMood: feedback.actualMood,
-      completed: true
-    });
-    closeFeedbackModal();
-    
-    // Check if there are more activities needing feedback
-    setTimeout(checkForActivitiesNeedingFeedback, 500);
-  }
-};
-
-// Close feedback modal
-const closeFeedbackModal = () => {
-  showFeedbackModal.value = false;
-  activityForFeedback.value = null;
-};
 
 // Close modal and reset state
 const closeActivityModal = () => {
