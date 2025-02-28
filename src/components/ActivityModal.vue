@@ -195,8 +195,8 @@ const handleClose = () => {
         <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
       </div>
       
-      <!-- Activity Presets -->
-      <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+      <!-- Activity Presets - only show when creating a new activity -->
+      <div v-if="!editActivity" class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
         <p class="text-sm font-medium mb-2 dark:text-gray-200">Quick Add from Presets:</p>
         <div class="grid grid-cols-2 gap-2">
           <select 
