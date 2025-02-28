@@ -372,7 +372,101 @@ import { useActivityStore } from '../store/activityStore';
 const activityStore = useActivityStore();
 
 // Get all activities
-const activities = computed(() => activityStore.getActivities());
+const activities = computed(() => {
+  const allActivities = activityStore.getActivities();
+  
+  // If there are no activities, create some default ones
+  if (allActivities.length === 0) {
+    createDefaultActivities();
+  }
+  
+  return activityStore.getActivities();
+});
+
+// Create default activities for first-time users
+const createDefaultActivities = () => {
+  // Get the current week's Monday at 9 AM
+  const monday = new Date(currentWeekStart.value);
+  monday.setHours(9, 0, 0, 0);
+  
+  // Create a morning workout for Monday
+  const workout = {
+    id: crypto.randomUUID(),
+    activityName: "Morning Workout",
+    startTime: new Date(monday),
+    endTime: new Date(monday.setHours(10, 0, 0, 0)),
+    expectedDifficulty: 7,
+    expectedMood: 8,
+    location: "Gym"
+  };
+  
+  // Create a team meeting for Tuesday at 11 AM
+  const tuesday = new Date(currentWeekStart.value);
+  tuesday.setDate(tuesday.getDate() + 1); // Tuesday
+  tuesday.setHours(11, 0, 0, 0);
+  
+  const meeting = {
+    id: crypto.randomUUID(),
+    activityName: "Team Meeting",
+    startTime: new Date(tuesday),
+    endTime: new Date(new Date(tuesday).setHours(12, 30, 0, 0)),
+    expectedDifficulty: 4,
+    expectedMood: 6,
+    location: "Conference Room"
+  };
+  
+  // Create a lunch with friends on Wednesday
+  const wednesday = new Date(currentWeekStart.value);
+  wednesday.setDate(wednesday.getDate() + 2); // Wednesday
+  wednesday.setHours(12, 30, 0, 0);
+  
+  const lunch = {
+    id: crypto.randomUUID(),
+    activityName: "Lunch with Friends",
+    startTime: new Date(wednesday),
+    endTime: new Date(new Date(wednesday).setHours(13, 30, 0, 0)),
+    expectedDifficulty: 2,
+    expectedMood: 9,
+    location: "Cafe Downtown"
+  };
+  
+  // Create a project work session on Thursday
+  const thursday = new Date(currentWeekStart.value);
+  thursday.setDate(thursday.getDate() + 3); // Thursday
+  thursday.setHours(14, 0, 0, 0);
+  
+  const project = {
+    id: crypto.randomUUID(),
+    activityName: "Project Work",
+    startTime: new Date(thursday),
+    endTime: new Date(new Date(thursday).setHours(17, 0, 0, 0)),
+    expectedDifficulty: 8,
+    expectedMood: 7,
+    location: "Home Office"
+  };
+  
+  // Create a weekend hike on Saturday
+  const saturday = new Date(currentWeekStart.value);
+  saturday.setDate(saturday.getDate() + 5); // Saturday
+  saturday.setHours(10, 0, 0, 0);
+  
+  const hike = {
+    id: crypto.randomUUID(),
+    activityName: "Weekend Hike",
+    startTime: new Date(saturday),
+    endTime: new Date(new Date(saturday).setHours(14, 0, 0, 0)),
+    expectedDifficulty: 6,
+    expectedMood: 10,
+    location: "Mountain Trail"
+  };
+  
+  // Add all default activities
+  activityStore.addActivity(workout);
+  activityStore.addActivity(meeting);
+  activityStore.addActivity(lunch);
+  activityStore.addActivity(project);
+  activityStore.addActivity(hike);
+};
 
 // Handle activity submission from modal
 const handleActivitySubmit = (activity: any) => {
