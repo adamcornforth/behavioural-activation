@@ -51,6 +51,7 @@ const resetForm = () => {
   showAdvancedFields.value = false
   selectedCategory.value = ''
   selectedPresetId.value = ''
+  activeTab.value = 'edit'
 }
 
 // Apply selected preset to form
