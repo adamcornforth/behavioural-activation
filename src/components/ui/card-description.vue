@@ -7,11 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <p
-    :class="
-      cn('text-sm text-muted-foreground', class)
-    "
-  >
+  <p :class="cn('text-sm text-muted-foreground', class)">
     <slot />
   </p>
 </template>

@@ -7,11 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div
-    :class="
-      cn('flex items-center p-6 pt-0', class)
-    "
-  >
+  <div :class="cn('flex items-center p-6 pt-0', class)">
     <slot />
   </div>
 </template>
