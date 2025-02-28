@@ -613,37 +613,6 @@ onUnmounted(() => {
   position: relative;
 }
 
-.hour-cell:hover {
-  background-color: transparent;
-}
-
-.hour-cell::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(59, 130, 246, 0) 0%,
-    rgba(59, 130, 246, 0) 24.9%,
-    rgba(59, 130, 246, 0.1) 25%,
-    rgba(59, 130, 246, 0.1) 49.9%,
-    rgba(59, 130, 246, 0) 50%,
-    rgba(59, 130, 246, 0) 74.9%,
-    rgba(59, 130, 246, 0.1) 75%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.hour-cell:hover::before {
-  opacity: 1;
-}
-
 .selection-preview {
   font-size: 0.875rem;
   max-width: 300px;
