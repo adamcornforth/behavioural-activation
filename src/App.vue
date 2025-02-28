@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
 import HomePage from './pages/HomePage.vue'
 import ActivityStoreProvider from './providers/ActivityStoreProvider.vue'
 import { ref, onMounted, watch } from 'vue'
@@ -44,8 +43,8 @@ function toggleDarkMode() {
 
 <template>
   <ActivityStoreProvider>
-    <div class="min-h-screen bg-background dark:bg-gray-900 dark:text-white transition-colors duration-200">
-      <header class="container py-4 md:py-6 flex justify-between items-center">
+    <div class="bg-background h-100 dark:bg-gray-900 dark:text-white transition-colors duration-200">
+      <header class="container pt-4 md:pt-6 flex justify-between items-center">
         <h1 class="text-3xl font-bold tracking-tight">Behavioural Activation</h1>
         <button 
           @click="toggleDarkMode" 
@@ -56,7 +55,7 @@ function toggleDarkMode() {
           <Moon v-else class="h-5 w-5" />
         </button>
       </header>
-      <main class="container py-2">
+      <main class="container pt-2">
         <HomePage />
       </main>
     </div>

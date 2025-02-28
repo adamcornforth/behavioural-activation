@@ -236,8 +236,7 @@ You are an expert software developer.
 Step Goal:
 
 1. Install shadcn and any dependencies it requires.
-2. Configure shadcn to provide a minimal layout (typography, some base components).
-3. Create a basic <App> component that renders “Hello World” inside shadcn’s layout.
+2. Configure shadcn with 'New York' theme to provide a minimal layout (typography, some base components).
 
 Instructions:
 
@@ -367,6 +366,25 @@ Instructions:
 - Include the title, possibly the expected mood, etc.
 - If using a third-party calendar library, show how to add events to the calendar. If custom, show
   how you map each activity to the correct location in the UI.
+
+
+Begin.
+```
+
+```
+You are an expert software developer.
+
+Step Goal:
+Fix the goal rendering for activities spanning multiple 1hr blocks.
+
+Instructions:
+
+- Currently activities don't take up the whole height of their 1hr block if the time range spans
+  that hour.
+- Now that activities use up the full height of their block, add in the duration as text to the
+  activity block, in a format like "1h 30m", "2h", etc.
+- If an activity is longer than 1 hour, make it render as one continuous block across multiple
+  hours, with no borders or border radius in the in between hours.
 
 
 Begin.
