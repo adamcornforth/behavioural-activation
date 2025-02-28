@@ -39,12 +39,16 @@
           <div
             v-for="hour in hours"
             :key="hour"
-            class="hour-cell h-20 border-b border-r border-gray-100"
+            class="hour-cell h-20 border-b border-r border-gray-100 relative"
             @mousedown="startDrag($event, day - 1, hour)"
             @mousemove="onDrag($event, day - 1, hour)"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
+            <!-- 15-minute interval markers -->
+            <div class="quarter-hour-marker" style="top: 25%"></div>
+            <div class="quarter-hour-marker" style="top: 50%"></div>
+            <div class="quarter-hour-marker" style="top: 75%"></div>
             <!-- Visual selection indicator -->
             <div
               v-if="isDragging && isInSelectionRange(day - 1, hour)"
@@ -189,21 +193,25 @@ const currentWeek = () => {
 const isInSelectionRange = (day: number, hour: number) => {
   if (!isDragging.value) return false;
   
+  // Convert hour to hour range for the cell (e.g., hour 9 = 9.0 to 9.99)
+  const hourStart = hour;
+  const hourEnd = hour + 0.99;
+  
   // Handle selection across multiple days
   if (dragStartDay.value === dragEndDay.value) {
     // Same day selection
     return day === dragStartDay.value && 
-           hour >= Math.min(dragStartHour.value, dragEndHour.value) && 
-           hour <= Math.max(dragStartHour.value, dragEndHour.value);
+           hourEnd >= Math.min(dragStartHour.value, dragEndHour.value) && 
+           hourStart <= Math.max(dragStartHour.value, dragEndHour.value);
   } else if (dragStartDay.value < dragEndDay.value) {
     // Forward selection across days
-    return (day === dragStartDay.value && hour >= dragStartHour.value) || 
-           (day === dragEndDay.value && hour <= dragEndHour.value) || 
+    return (day === dragStartDay.value && hourEnd >= dragStartHour.value) || 
+           (day === dragEndDay.value && hourStart <= dragEndHour.value) || 
            (day > dragStartDay.value && day < dragEndDay.value);
   } else {
     // Backward selection across days
-    return (day === dragStartDay.value && hour <= dragStartHour.value) || 
-           (day === dragEndDay.value && hour >= dragEndHour.value) || 
+    return (day === dragStartDay.value && hourStart <= dragStartHour.value) || 
+           (day === dragEndDay.value && hourEnd >= dragEndHour.value) || 
            (day < dragStartDay.value && day > dragEndDay.value);
   }
 };
@@ -213,10 +221,14 @@ const formatSelectionTime = () => {
   if (!isDragging.value) return '';
   
   const startDate = addDays(currentWeekStart.value, dragStartDay.value);
-  startDate.setHours(dragStartHour.value, 0, 0);
+  const startMinutes = Math.floor(dragStartHour.value * 4) * 15;
+  startDate.setHours(Math.floor(dragStartHour.value), startMinutes % 60, 0);
   
   const endDate = addDays(currentWeekStart.value, dragEndDay.value);
-  endDate.setHours(dragEndHour.value + 1, 0, 0); // +1 to include the full hour
+  const endMinutes = Math.floor(dragEndHour.value * 4) * 15;
+  endDate.setHours(Math.floor(dragEndHour.value), endMinutes % 60, 0);
+  // Add 15 minutes to include the full interval
+  endDate.setMinutes(endDate.getMinutes() + 15);
   
   return `${format(startDate, 'EEE, MMM d, h:mm a')} - ${format(endDate, 'EEE, MMM d, h:mm a')}`;
 };
@@ -225,20 +237,34 @@ const formatSelectionTime = () => {
 const startDrag = (event: MouseEvent, day: number, hour: number) => {
   isDragging.value = true;
   dragStartDay.value = day;
-  dragStartHour.value = hour;
+  
+  // Calculate the 15-minute interval based on mouse position
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  const relativeY = event.clientY - rect.top;
+  const percentageY = relativeY / rect.height;
+  const quarterHour = Math.floor(percentageY * 4) / 4; // 0, 0.25, 0.5, or 0.75
+  
+  dragStartHour.value = hour + quarterHour;
   dragEndDay.value = day;
-  dragEndHour.value = hour;
+  dragEndHour.value = hour + quarterHour;
   
   // Prevent text selection during drag
   event.preventDefault();
   
-  console.log(`Started dragging at day ${day}, hour ${hour}`);
+  console.log(`Started dragging at day ${day}, hour ${dragStartHour.value}`);
 };
 
 const onDrag = (event: MouseEvent, day: number, hour: number) => {
   if (isDragging.value) {
     dragEndDay.value = day;
-    dragEndHour.value = hour;
+    
+    // Calculate the 15-minute interval based on mouse position
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const relativeY = event.clientY - rect.top;
+    const percentageY = relativeY / rect.height;
+    const quarterHour = Math.floor(percentageY * 4) / 4; // 0, 0.25, 0.5, or 0.75
+    
+    dragEndHour.value = hour + quarterHour;
   }
 };
 
@@ -251,12 +277,16 @@ const endDrag = () => {
   if (isDragging.value) {
     isDragging.value = false;
     
-    // Calculate the start and end times
+    // Calculate the start and end times with 15-minute precision
     const startDate = addDays(currentWeekStart.value, dragStartDay.value);
-    startDate.setHours(dragStartHour.value, 0, 0);
+    const startHourWhole = Math.floor(dragStartHour.value);
+    const startMinutes = Math.round((dragStartHour.value - startHourWhole) * 60);
+    startDate.setHours(startHourWhole, startMinutes, 0);
     
     const endDate = addDays(currentWeekStart.value, dragEndDay.value);
-    endDate.setHours(dragEndHour.value + 1, 0, 0); // +1 to include the full hour
+    const endHourWhole = Math.floor(dragEndHour.value);
+    const endMinutes = Math.round((dragEndHour.value - endHourWhole) * 60);
+    endDate.setHours(endHourWhole, endMinutes + 15, 0); // +15 minutes to include the full interval
     
     // Normalize the selection (ensure start is before end)
     const normalizedSelection = {
@@ -570,5 +600,15 @@ onUnmounted(() => {
   filter: brightness(0.95);
   z-index: 30;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 15-minute interval markers */
+.quarter-hour-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.05);
+  pointer-events: none;
 }
 </style>
