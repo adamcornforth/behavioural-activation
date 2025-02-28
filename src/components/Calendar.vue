@@ -134,14 +134,14 @@
                   <div class="text-xs truncate">
                     {{ getActivityStyle(activity, day - 1, hour).duration }}
                   </div>
-                  <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
+                  <div class="text-xs truncate">
                     <span>Difficulty: {{ activity.expectedDifficulty }}/10</span>
                     <span v-if="activity.completed && activity.actualDifficulty !== undefined" 
                           :class="getDifficultyComparisonClass(activity)">
                       ({{ getDifficultyComparisonText(activity) }})
                     </span>
                   </div>
-                  <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 50">
+                  <div class="text-xs truncate">
                     <span>Mood: {{ activity.expectedMood }}/10</span>
                     <span v-if="activity.completed && activity.actualMood !== undefined"
                           :class="getMoodComparisonClass(activity)">
