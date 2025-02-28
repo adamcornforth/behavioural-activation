@@ -52,7 +52,8 @@
             <!-- Visual selection indicator -->
             <div
               v-if="isDragging && isInSelectionRange(day - 1, hour)"
-              class="bg-blue-100 border border-blue-300 rounded-sm h-full w-full absolute inset-0 opacity-70"
+              class="selection-indicator absolute inset-0 w-full opacity-70"
+              :style="getSelectionStyle(day - 1, hour)"
             ></div>
 
             <!-- Render activities in this cell -->
@@ -214,6 +215,50 @@ const isInSelectionRange = (day: number, hour: number) => {
            (day === dragEndDay.value && hourEnd >= dragEndHour.value) || 
            (day < dragStartDay.value && day > dragEndDay.value);
   }
+};
+
+// Calculate the style for the selection indicator with 15-minute precision
+const getSelectionStyle = (day: number, hour: number) => {
+  if (!isDragging.value) return {};
+  
+  // Normalize selection to ensure start is before end
+  const [startDay, startHour, endDay, endHour] = 
+    dragStartDay.value <= dragEndDay.value || 
+    (dragStartDay.value === dragEndDay.value && dragStartHour.value <= dragEndHour.value)
+      ? [dragStartDay.value, dragStartHour.value, dragEndDay.value, dragEndHour.value]
+      : [dragEndDay.value, dragEndHour.value, dragStartDay.value, dragStartHour.value];
+  
+  // Calculate top and height based on 15-minute intervals
+  let top = 0;
+  let height = '100%';
+  
+  // If this is the start day and hour
+  if (day === startDay && Math.floor(startHour) === hour) {
+    // Calculate the fractional part (0, 0.25, 0.5, 0.75)
+    const fractionalPart = startHour - Math.floor(startHour);
+    top = fractionalPart * 100;
+    
+    // If this is also the end cell
+    if (day === endDay && Math.floor(endHour) === hour) {
+      const endFractionalPart = endHour - Math.floor(endHour);
+      height = `${(endFractionalPart - fractionalPart) * 100 + 25}%`; // +25% to include the full 15-min interval
+    } else {
+      height = `${100 - top}%`;
+    }
+  } 
+  // If this is the end day and hour
+  else if (day === endDay && Math.floor(endHour) === hour) {
+    const fractionalPart = endHour - Math.floor(endHour);
+    height = `${(fractionalPart + 0.25) * 100}%`; // +0.25 to include the full 15-min interval
+  }
+  
+  return {
+    top: `${top}%`,
+    height,
+    background: 'rgba(59, 130, 246, 0.3)',
+    border: '1px solid rgba(59, 130, 246, 0.5)',
+    borderRadius: '0.125rem',
+  };
 };
 
 // Format the selection time for display
@@ -569,7 +614,34 @@ onUnmounted(() => {
 }
 
 .hour-cell:hover {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: transparent;
+}
+
+.hour-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(59, 130, 246, 0) 0%,
+    rgba(59, 130, 246, 0) 24.9%,
+    rgba(59, 130, 246, 0.1) 25%,
+    rgba(59, 130, 246, 0.1) 49.9%,
+    rgba(59, 130, 246, 0) 50%,
+    rgba(59, 130, 246, 0) 74.9%,
+    rgba(59, 130, 246, 0.1) 75%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.hour-cell:hover::before {
+  opacity: 1;
 }
 
 .selection-preview {
@@ -610,5 +682,10 @@ onUnmounted(() => {
   height: 1px;
   background-color: rgba(0, 0, 0, 0.05);
   pointer-events: none;
+}
+
+.selection-indicator {
+  pointer-events: none;
+  z-index: 15;
 }
 </style>
