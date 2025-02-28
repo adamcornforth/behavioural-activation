@@ -3,12 +3,14 @@ import { ref, reactive, computed } from 'vue'
 import Modal from './ui/modal.vue'
 import Button from './ui/button.vue'
 import { getPresetsByCategory, findPresetById } from '../data/activityPresets'
+import { Activity } from '../store/activityStore'
 
 const props = defineProps<{
   open: boolean
   startTime?: Date
   endTime?: Date
-  editActivity?: any
+  editActivity?: Activity
+  provideFeedback?: boolean
 }>()
 
 const emit = defineEmits(['close', 'submit'])
@@ -21,12 +23,15 @@ const selectedPresetId = ref('')
 
 // UI state
 const showAdvancedFields = ref(false)
+const activeTab = ref<'edit' | 'feedback'>('edit')
 
 // Form state
 const formData = reactive({
   activityName: '',
   expectedDifficulty: 5,
   expectedMood: 5,
+  actualDifficulty: undefined as number | undefined,
+  actualMood: undefined as number | undefined,
   // Advanced fields
   location: '',
   notes: '',
@@ -81,10 +86,12 @@ watch(() => props.editActivity, (newVal) => {
     formData.activityName = newVal.activityName
     formData.expectedDifficulty = newVal.expectedDifficulty
     formData.expectedMood = newVal.expectedMood
+    formData.actualDifficulty = newVal.actualDifficulty
+    formData.actualMood = newVal.actualMood
     formData.location = newVal.location || ''
     formData.notes = newVal.notes || ''
     formData.participants = newVal.participants || ''
-    formData.activityType = newVal.activityType
+    formData.activityType = newVal.activityType || 'other'
     
     // Reset preset selections
     selectedCategory.value = ''
@@ -92,6 +99,13 @@ watch(() => props.editActivity, (newVal) => {
     
     // Don't automatically show advanced fields even if they have data
     showAdvancedFields.value = false
+    
+    // Set active tab based on provideFeedback prop
+    if (props.provideFeedback) {
+      activeTab.value = 'feedback'
+    } else {
+      activeTab.value = 'edit'
+    }
   } else {
     resetForm()
   }
@@ -102,6 +116,15 @@ watch(() => props.open, (isOpen) => {
   if (!isOpen) {
     selectedCategory.value = ''
     selectedPresetId.value = ''
+  }
+})
+
+// Watch for provideFeedback prop changes
+watch(() => props.provideFeedback, (newVal) => {
+  if (newVal) {
+    activeTab.value = 'feedback'
+  } else {
+    activeTab.value = 'edit'
   }
 })
 
@@ -165,7 +188,27 @@ const handleSubmit = () => {
     activity.completed = false
     console.log('Activity created:', activity)
   } else {
+    // Check if feedback was provided
+    if (formData.actualDifficulty !== undefined && formData.actualMood !== undefined) {
+      activity.completed = true
+    }
     console.log('Activity updated:', activity)
+  }
+  
+  emit('submit', activity)
+  resetForm()
+}
+
+// Handle feedback submission
+const handleFeedbackSubmit = () => {
+  if (!props.editActivity) return
+  
+  // Create activity object with feedback data
+  const activity = {
+    ...props.editActivity,
+    actualDifficulty: formData.actualDifficulty,
+    actualMood: formData.actualMood,
+    completed: true
   }
   
   emit('submit', activity)
@@ -183,12 +226,32 @@ const handleClose = () => {
 <template>
   <Modal 
     :open="open" 
-    :title="editActivity ? 'Edit Activity' : 'Create New Activity'" 
-    description="Plan your activity and predict how it will affect you"
+    :title="editActivity ? (activeTab === 'feedback' ? 'Provide Feedback' : 'Edit Activity') : 'Create New Activity'" 
+    :description="activeTab === 'feedback' ? 'How did this activity affect you?' : 'Plan your activity and predict how it will affect you'"
     @close="handleClose"
     size="lg"
   >
-    <form @submit.prevent="handleSubmit" class="space-y-4">
+    <!-- Tab navigation -->
+    <div v-if="editActivity" class="mb-6 border-b dark:border-gray-700">
+      <div class="flex space-x-4">
+        <button 
+          @click="activeTab = 'edit'" 
+          class="py-2 px-4 font-medium text-sm focus:outline-none"
+          :class="activeTab === 'edit' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Edit Details
+        </button>
+        <button 
+          @click="activeTab = 'feedback'" 
+          class="py-2 px-4 font-medium text-sm focus:outline-none"
+          :class="activeTab === 'feedback' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+        >
+          Provide Feedback
+        </button>
+      </div>
+    </div>
+    <!-- Edit tab -->
+    <form v-if="activeTab === 'edit'" @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Time information -->
       <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
         <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
@@ -336,11 +399,88 @@ const handleClose = () => {
       </div>
     </form>
     
+    <!-- Feedback tab -->
+    <form v-if="activeTab === 'feedback' && editActivity" @submit.prevent="handleFeedbackSubmit" class="space-y-4">
+      <!-- Activity info -->
+      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
+        <h3 class="font-medium mb-2 dark:text-gray-200">{{ editActivity.activityName }}</h3>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <p class="text-gray-500 dark:text-gray-400">Expected Difficulty:</p>
+            <p class="dark:text-gray-300">{{ editActivity.expectedDifficulty }}/10</p>
+          </div>
+          <div>
+            <p class="text-gray-500 dark:text-gray-400">Expected Mood:</p>
+            <p class="dark:text-gray-300">{{ editActivity.expectedMood }}/10</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Feedback fields -->
+      <div class="space-y-4">
+        <div>
+          <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
+            Actual Difficulty*
+          </label>
+          <select 
+            id="actualDifficulty" 
+            v-model="formData.actualDifficulty" 
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+          >
+            <option v-for="option in difficultyOptions" :key="option.value" :value="option.value">
+              {{ option.label }} ({{ option.value }})
+            </option>
+          </select>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How difficult was this activity actually? (1-10)</p>
+        </div>
+        
+        <div>
+          <label for="actualMood" class="block text-sm font-medium mb-1 dark:text-gray-200">
+            Actual Mood Impact*
+          </label>
+          <select 
+            id="actualMood" 
+            v-model="formData.actualMood" 
+            required
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+          >
+            <option v-for="option in moodOptions" :key="option.value" :value="option.value">
+              {{ option.label }} ({{ option.value }})
+            </option>
+          </select>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How did this activity actually affect your mood? (1-10)</p>
+        </div>
+        
+        <div>
+          <label for="feedbackNotes" class="block text-sm font-medium mb-1 dark:text-gray-200">Reflection Notes</label>
+          <textarea 
+            id="feedbackNotes" 
+            v-model="formData.notes" 
+            rows="3" 
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            placeholder="Any reflections on this activity..."
+          ></textarea>
+        </div>
+      </div>
+    </form>
+    
     <template #footer>
       <div class="flex justify-end space-x-3">
         <Button @click="handleClose" variant="outline" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">Cancel</Button>
-        <Button @click="handleSubmit" :disabled="!formData.activityName">
+        <Button 
+          v-if="activeTab === 'edit'" 
+          @click="handleSubmit" 
+          :disabled="!formData.activityName"
+        >
           {{ editActivity ? 'Update Activity' : 'Create Activity' }}
+        </Button>
+        <Button 
+          v-if="activeTab === 'feedback'" 
+          @click="handleFeedbackSubmit" 
+          :disabled="formData.actualDifficulty === undefined || formData.actualMood === undefined"
+        >
+          Submit Feedback
         </Button>
       </div>
     </template>
