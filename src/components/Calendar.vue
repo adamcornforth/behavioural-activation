@@ -131,8 +131,8 @@
                          title="Needs feedback">
                     </div>
                     <!-- Completed indicator -->
-                    <div v-else-if="activity.completed" 
-                         class="ml-1 w-4 h-4 flex items-center justify-center text-green-600 dark:text-green-400" 
+                    <div v-else-if="activity.completed"
+                         class="ml-1 w-4 h-4 flex items-center justify-center text-green-600 dark:text-green-400"
                          title="Completed">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 6L9 17l-5-5"/>
@@ -142,14 +142,16 @@
                   <div class="text-xs truncate">
                     {{ getActivityStyle(activity, day - 1, hour).duration }}
                   </div>
-                  <div class="text-xs truncate">
+                  <div class="text-xs truncate"
+                       v-if="Number.parseInt(getActivityStyle(activity, day - 1, hour).height) > 10">
                     <span>Difficulty: {{ activity.expectedDifficulty }}/10</span>
                     <span v-if="activity.completed && activity.actualDifficulty !== undefined" 
                           :class="getDifficultyComparisonClass(activity)">
                       ({{ getDifficultyComparisonText(activity) }})
                     </span>
                   </div>
-                  <div class="text-xs truncate">
+                  <div class="text-xs truncate"
+                       v-if="Number.parseInt(getActivityStyle(activity, day - 1, hour).height) > 10">
                     <span>Mood: {{ activity.expectedMood }}/10</span>
                     <span v-if="activity.completed && activity.actualMood !== undefined"
                           :class="getMoodComparisonClass(activity)">
@@ -231,8 +233,7 @@ const activityToDelete = ref<any>(null);
 const showFeedbackModal = ref(false);
 const activityForFeedback = ref<any>(null);
 
-// Hours for the day (6 AM to 10 PM)
-const hours = Array.from({ length: 17 }, (_, i) => i + 6);
+const hours = Array.from({ length: 15 }, (_, i) => i + 8);
 
 // Computed properties
 const weekDays = computed(() => {
