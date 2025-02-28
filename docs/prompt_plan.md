@@ -56,7 +56,7 @@ Below is a set of larger chunks, each of which can then be subdivided further:
     - “More fields” section hidden behind a toggle.
 
 4. **Chunk D: Storing & Retrieving Activities**
-    - Set up a simple state management approach (React Context, Zustand, or Redux, etc.).
+    - Set up a simple state management approach (Vue Context, Zustand, or Redux, etc.).
     - Maintain a list of activities in memory (later we can refine or integrate a real backend if
       needed).
 
@@ -88,7 +88,7 @@ steps:
 ### Chunk A: Scaffolding & Basic Front-End Setup
 
 1. **Initialize Vite + TypeScript Project**
-    - Step 1A: Run `npm create vite@latest behavioural-activation --template react-ts`.
+    - Step 1A: Run `npm create vite@latest behavioural-activation --template vue-ts`.
     - Step 1B: Install dependencies (e.g., `npm install shadcn-ui`), following shadcn docs.
 
 2. **Set Up shadcn and Basic Folder Structure**
@@ -96,7 +96,7 @@ steps:
     - Step 2B: Create a top-level `App` component with placeholders.
 
 3. **Basic Routing/Structure**
-    - Step 3A: Decide if you’ll use React Router or a single-page approach.
+    - Step 3A: Decide if you’ll use Vue Router or a single-page approach.
     - Step 3B: Set up a placeholder `<Header>` or `<Navigation>` if needed.
 
 ---
@@ -104,7 +104,7 @@ steps:
 ### Chunk B: Calendar UI
 
 1. **Install or Integrate Calendar Library (If Using One)**
-    - Step 1B: Evaluate libraries (e.g., FullCalendar, React Big Calendar, or a custom approach).
+    - Step 1B: Evaluate libraries (e.g., FullCalendar, Vue Calendar, or a custom approach).
 
 2. **Render Basic Calendar Structure**
     - Step 2B: Show a weekly view with days/hours.
@@ -210,11 +210,11 @@ iteratively without leaving anything behind.
 You are an expert software developer.
 
 Step Goal:
-Initialize a new Vite + TypeScript React project and set up the basic folder structure.
+Initialize a new Vite + TypeScript Vue project and set up the basic folder structure.
 
 Tasks:
 
-1. Run: npm create vite@latest behavioural-activation --template react-ts
+1. Run: npm create vite@latest behavioural-activation --template vue-ts
 2. Navigate into the project folder, run npm install or yarn to install.
 3. Create a minimal file/folder structure:
     - src/
@@ -257,7 +257,7 @@ You are an expert software developer.
 Step Goal:
 
 1. Integrate a basic weekly calendar view in our existing project.
-2. Use either a library (e.g., React Big Calendar) or a custom approach if you prefer.
+2. Use either a library (e.g., Vue Calendar) or a custom approach if you prefer.
 3. Show how to set up the calendar so it appears on the main page.
 
 Instructions:
