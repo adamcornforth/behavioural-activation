@@ -1,6 +1,6 @@
 <template>
   <div class="calendar-container">
-    <div class="calendar-header sticky top-0 bg-white dark:bg-gray-800 z-20 pb-2">
+    <div class="calendar-header sticky top-0 bg-white dark:bg-gray-800 z-50 drop-shadow-md dark:drop-shadow-md">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold dark:text-white">{{ formatDate(currentWeekStart) }}</h2>
         <div class="flex gap-2">
@@ -184,7 +184,7 @@
 
     <!-- Delete confirmation dialog -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg- shadow-lg max-w-md w-full">
         <h3 class="text-lg font-medium mb-4 dark:text-white">Delete Activity</h3>
         <p class="mb-4 dark:text-gray-300">Are you sure you want to delete "{{ activityToDelete?.activityName }}"?</p>
         <div class="flex justify-end space-x-3">
@@ -874,7 +874,7 @@ onUnmounted(() => {
 
 <style scoped>
 .calendar-container {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 132px);
   overflow-y: auto;
 }
 
@@ -882,7 +882,6 @@ onUnmounted(() => {
   position: sticky;
   left: 0;
   z-index: 10;
-  background-color: white;
 }
 
 :global(.dark) .time-labels {
