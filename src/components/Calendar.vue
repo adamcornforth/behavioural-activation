@@ -46,9 +46,10 @@
             @mouseleave="onMouseLeave($event, day - 1, hour)"
           >
             <!-- 15-minute interval markers -->
-            <div class="quarter-hour-marker" style="top: 25%"></div>
-            <div class="quarter-hour-marker" style="top: 50%"></div>
-            <div class="quarter-hour-marker" style="top: 75%"></div>
+            <div class="quarter-hour-marker quarter-marker-25" style="top: 0%; height: 25%"></div>
+            <div class="quarter-hour-marker quarter-marker-50" style="top: 25%; height: 25%"></div>
+            <div class="quarter-hour-marker quarter-marker-75" style="top: 50%; height: 25%"></div>
+            <div class="quarter-hour-marker quarter-marker-100" style="top: 75%; height: 25%"></div>
             <!-- Visual selection indicator -->
             <div
               v-if="isDragging && isInSelectionRange(day - 1, hour)"
@@ -609,7 +610,6 @@ onUnmounted(() => {
 }
 
 .hour-cell {
-  cursor: pointer;
   position: relative;
 }
 
@@ -648,9 +648,32 @@ onUnmounted(() => {
   position: absolute;
   left: 0;
   right: 0;
-  height: 1px;
-  background-color: rgba(0, 0, 0, 0.05);
-  pointer-events: none;
+  background-color: transparent;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.quarter-hour-marker:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-top: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Different colors for each marker to make them more distinguishable */
+.quarter-marker-25:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.quarter-marker-50:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.quarter-marker-75:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.quarter-marker-100:hover {
+  background-color: rgba(59, 130, 246, 0.15);
 }
 
 .selection-indicator {
