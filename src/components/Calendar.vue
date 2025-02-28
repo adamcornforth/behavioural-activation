@@ -56,6 +56,7 @@
               <div 
                 :class="[
                   'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer',
+                  `activity-${activity.id}`,
                   getActivityStyle(activity, day - 1, hour).colorClass,
                   getActivityStyle(activity, day - 1, hour).borderRadius,
                   getActivityStyle(activity, day - 1, hour).borderStyle
@@ -66,6 +67,8 @@
                   display: getActivityStyle(activity, day - 1, hour).display
                 }"
                 @click="editActivity(activity)"
+                @mouseenter="handleActivityHover(activity.id, true)"
+                @mouseleave="handleActivityHover(activity.id, false)"
               >
                 <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
                   <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
@@ -275,6 +278,18 @@ const closeActivityModal = () => {
   activityToEdit.value = null;
 };
 
+// Handle activity hover
+const handleActivityHover = (activityId: string, isHovering: boolean) => {
+  const activityBlocks = document.querySelectorAll(`.activity-${activityId}`);
+  activityBlocks.forEach(block => {
+    if (isHovering) {
+      block.classList.add('activity-hovered');
+    } else {
+      block.classList.remove('activity-hovered');
+    }
+  });
+};
+
 // Edit an existing activity
 const editActivity = (activity: any) => {
   activityToEdit.value = activity;
@@ -459,7 +474,15 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
+.activity-block.activity-hovered,
 .activity-block:hover {
+  filter: brightness(0.95);
+  z-index: 30;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Apply hover effect to all blocks of the same activity */
+[class*="activity-"]:hover ~ [class*="activity-"] {
   filter: brightness(0.95);
   z-index: 30;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
