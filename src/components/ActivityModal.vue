@@ -60,8 +60,6 @@ watch(() => props.editActivity, (newVal) => {
   }
 }, { immediate: true })
 
-// Toggle for advanced fields
-const showAdvancedFields = ref(false)
 
 // Difficulty and mood options
 const difficultyOptions = [
