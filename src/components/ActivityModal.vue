@@ -90,10 +90,8 @@ watch(() => props.editActivity, (newVal) => {
     selectedCategory.value = ''
     selectedPresetId.value = ''
     
-    // Show advanced fields if they have data
-    if (newVal.location || newVal.notes || newVal.participants || newVal.activityType !== 'other') {
-      showAdvancedFields.value = true
-    }
+    // Don't automatically show advanced fields even if they have data
+    showAdvancedFields.value = false
   } else {
     resetForm()
   }
