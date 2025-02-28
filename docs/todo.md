@@ -8,7 +8,7 @@ sub-task you can check off as you progress.
 ## Chunk A: Scaffolding & Basic Front-End Setup
 
 1. **Initialize Vite + TypeScript Project**
-    - [ ] **A1.1**: Run `npm create vite@latest my-therapy-app --template react-ts`
+    - [ ] **A1.1**: Run `npm create vite@latest my-therapy-app --template vue-ts`
     - [ ] **A1.2**: Navigate into the project folder and install dependencies
     - [ ] **A1.3**: Create minimal file/folder structure:
         - [ ] `src/`
@@ -23,7 +23,7 @@ sub-task you can check off as you progress.
     - [ ] **A2.3**: Create a top-level `<App>` component with placeholders
 
 3. **Basic Routing/Structure**
-    - [ ] **A3.1**: Decide on React Router or single-page approach
+    - [ ] **A3.1**: Decide on Vue Router or single-page approach
     - [ ] **A3.2**: Set up placeholders like `<Header>` or `<Navigation>` if needed
 
 ---
@@ -31,7 +31,7 @@ sub-task you can check off as you progress.
 ## Chunk B: Calendar UI
 
 1. **Select/Install Calendar Library**
-    - [ ] **B1.1**: Evaluate options (e.g., FullCalendar, React Big Calendar, custom)
+    - [ ] **B1.1**: Evaluate options (e.g., FullCalendar, Vue Calendar, custom)
     - [ ] **B1.2**: Add necessary dependencies to `package.json`
 
 2. **Render Basic Calendar Structure**
