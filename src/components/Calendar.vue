@@ -548,6 +548,7 @@ const handleActivitySubmit = (activity: any) => {
 const closeActivityModal = () => {
   showActivityModal.value = false;
   activityToEdit.value = null;
+  selectedTimeRange.value = null;
 };
 
 // Delete activity confirmation
