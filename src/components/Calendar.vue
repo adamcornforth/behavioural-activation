@@ -50,6 +50,25 @@
               v-if="isDragging && isInSelectionRange(day - 1, hour)" 
               class="bg-blue-100 border border-blue-300 rounded-sm h-full w-full absolute inset-0 opacity-70"
             ></div>
+            
+            <!-- Render activities in this cell -->
+            <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="relative">
+              <div 
+                :class="[
+                  'activity-block absolute left-0 right-0 px-1 py-0.5 border rounded-sm z-20 overflow-hidden',
+                  getActivityStyle(activity, day - 1, hour).colorClass
+                ]"
+                :style="{
+                  top: getActivityStyle(activity, day - 1, hour).top,
+                  height: getActivityStyle(activity, day - 1, hour).height
+                }"
+              >
+                <div class="text-xs font-medium truncate">{{ activity.activityName }}</div>
+                <div class="text-xs truncate" v-if="getActivityStyle(activity, day - 1, hour).height > 30">
+                  Difficulty: {{ activity.expectedDifficulty }}/10
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -74,7 +93,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { format, addDays, startOfWeek, addWeeks, subWeeks } from 'date-fns';
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay } from 'date-fns';
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
@@ -215,7 +234,13 @@ const endDrag = () => {
 };
 
 // Import the activity store
-import { addActivity } from '../store/activityStore';
+import { useActivityStore } from '../store/activityStore';
+
+// Get the activity store
+const activityStore = useActivityStore();
+
+// Get all activities
+const activities = computed(() => activityStore.getActivities());
 
 // Handle activity submission from modal
 const handleActivitySubmit = (activity: any) => {
@@ -225,8 +250,75 @@ const handleActivitySubmit = (activity: any) => {
     completed: false
   };
   
-  addActivity(newActivity);
+  activityStore.addActivity(newActivity);
   showActivityModal.value = false;
+};
+
+// Helper to determine if an activity falls within a specific day and hour
+const getActivitiesForCell = (day: number, hour: number) => {
+  const date = addDays(currentWeekStart.value, day);
+  const startHour = new Date(date);
+  startHour.setHours(hour, 0, 0, 0);
+  
+  const endHour = new Date(date);
+  endHour.setHours(hour + 1, 0, 0, 0);
+  
+  return activities.value.filter(activity => {
+    // Check if activity overlaps with this hour cell
+    return isWithinInterval(startHour, { start: activity.startTime, end: activity.endTime }) ||
+           isWithinInterval(endHour, { start: activity.startTime, end: activity.endTime }) ||
+           (activity.startTime <= startHour && activity.endTime >= endHour);
+  });
+};
+
+// Calculate activity position and height based on its time
+const getActivityStyle = (activity: any, day: number, hour: number) => {
+  const date = addDays(currentWeekStart.value, day);
+  const cellStart = new Date(date);
+  cellStart.setHours(hour, 0, 0, 0);
+  
+  const cellEnd = new Date(date);
+  cellEnd.setHours(hour + 1, 0, 0, 0);
+  
+  // Calculate top position (minutes from the start of the hour)
+  let topPercentage = 0;
+  if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
+    topPercentage = (activity.startTime.getMinutes() / 60) * 100;
+  }
+  
+  // Calculate height (percentage of the hour)
+  let heightPercentage = 100;
+  
+  // If activity starts and ends within this hour
+  if (isSameDay(activity.startTime, date) && 
+      isSameDay(activity.endTime, date) && 
+      activity.startTime.getHours() === hour && 
+      activity.endTime.getHours() === hour) {
+    heightPercentage = ((activity.endTime.getMinutes() - activity.startTime.getMinutes()) / 60) * 100;
+  } 
+  // If activity starts in this hour but ends later
+  else if (isSameDay(activity.startTime, date) && activity.startTime.getHours() === hour) {
+    heightPercentage = ((60 - activity.startTime.getMinutes()) / 60) * 100;
+  }
+  // If activity ends in this hour but started earlier
+  else if (isSameDay(activity.endTime, date) && activity.endTime.getHours() === hour) {
+    heightPercentage = (activity.endTime.getMinutes() / 60) * 100;
+    topPercentage = 0;
+  }
+  
+  // Get color based on expected mood
+  const getMoodColor = (mood: number) => {
+    if (mood >= 8) return 'bg-green-100 border-green-300';
+    if (mood >= 6) return 'bg-blue-100 border-blue-300';
+    if (mood >= 4) return 'bg-yellow-100 border-yellow-300';
+    return 'bg-red-100 border-red-300';
+  };
+  
+  return {
+    top: `${topPercentage}%`,
+    height: `${heightPercentage}%`,
+    colorClass: getMoodColor(activity.expectedMood)
+  };
 };
 
 // Handle global mouse up to end drag even if mouse is released outside the calendar
@@ -272,5 +364,16 @@ onUnmounted(() => {
 .selection-preview {
   font-size: 0.875rem;
   max-width: 300px;
+}
+
+.activity-block {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 1.5rem;
+}
+
+.activity-block:hover {
+  filter: brightness(0.95);
+  z-index: 30;
 }
 </style>
