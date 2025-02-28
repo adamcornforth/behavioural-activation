@@ -657,12 +657,7 @@ onUnmounted(() => {
   transition: all 0.2s ease;
   min-height: 1.5rem;
   box-sizing: border-box;
-  pointer-events: none; /* Allow clicks to pass through to quarter-hour markers */
-}
-
-/* Only enable pointer events for the content inside activity blocks */
-.activity-block > * {
-  pointer-events: auto;
+  z-index: 30; /* Higher than quarter-hour markers */
 }
 
 .activity-block.activity-hovered,
@@ -692,7 +687,7 @@ onUnmounted(() => {
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   transition: background-color 0.2s ease;
   cursor: pointer;
-  z-index: 25; /* Higher than activity blocks (z-index: 20) */
+  z-index: 20;
 }
 
 .quarter-hour-marker:not(.has-activity):hover {
