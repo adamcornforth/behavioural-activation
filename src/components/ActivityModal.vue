@@ -7,6 +7,7 @@ const props = defineProps<{
   open: boolean
   startTime?: Date
   endTime?: Date
+  editActivity?: any
 }>()
 
 const emit = defineEmits(['close', 'submit'])
@@ -22,6 +23,29 @@ const formData = reactive({
   participants: '',
   activityType: 'other'
 })
+
+// Watch for edit activity changes
+import { watch } from 'vue'
+
+watch(() => props.editActivity, (newVal) => {
+  if (newVal) {
+    // Populate form with activity data
+    formData.activityName = newVal.activityName
+    formData.expectedDifficulty = newVal.expectedDifficulty
+    formData.expectedMood = newVal.expectedMood
+    formData.location = newVal.location || ''
+    formData.notes = newVal.notes || ''
+    formData.participants = newVal.participants || ''
+    formData.activityType = newVal.activityType
+    
+    // Show advanced fields if they have data
+    if (newVal.location || newVal.notes || newVal.participants || newVal.activityType !== 'other') {
+      showAdvancedFields.value = true
+    }
+  } else {
+    resetForm()
+  }
+}, { immediate: true })
 
 // Toggle for advanced fields
 const showAdvancedFields = ref(false)
@@ -75,13 +99,19 @@ const handleSubmit = () => {
   const activity = {
     ...formData,
     startTime: props.startTime,
-    endTime: props.endTime,
-    createdAt: new Date(),
-    id: Date.now().toString(),
-    completed: false
+    endTime: props.endTime
   }
   
-  console.log('Activity created:', activity)
+  if (!props.editActivity) {
+    // Add new activity properties
+    activity.createdAt = new Date()
+    activity.id = Date.now().toString()
+    activity.completed = false
+    console.log('Activity created:', activity)
+  } else {
+    console.log('Activity updated:', activity)
+  }
+  
   emit('submit', activity)
   resetForm()
 }
@@ -108,7 +138,7 @@ const handleClose = () => {
 <template>
   <Modal 
     :open="open" 
-    title="Create New Activity" 
+    :title="editActivity ? 'Edit Activity' : 'Create New Activity'" 
     description="Plan your activity and predict how it will affect you"
     @close="handleClose"
     size="lg"
@@ -232,7 +262,9 @@ const handleClose = () => {
     <template #footer>
       <div class="flex justify-end space-x-3">
         <Button @click="handleClose" variant="outline">Cancel</Button>
-        <Button @click="handleSubmit" :disabled="!formData.activityName">Create Activity</Button>
+        <Button @click="handleSubmit" :disabled="!formData.activityName">
+          {{ editActivity ? 'Update Activity' : 'Create Activity' }}
+        </Button>
       </div>
     </template>
   </Modal>
