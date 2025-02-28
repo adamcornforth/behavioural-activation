@@ -15,9 +15,6 @@
             Next
             <ChevronRight class="h-4 w-4 ml-1" />
           </Button>
-          <Button @click="checkForActivitiesNeedingFeedback" variant="outline" size="sm" class="ml-2 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-            Check Feedback
-          </Button>
         </div>
       </div>
       <div class="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
@@ -868,12 +865,6 @@ const updateCurrentTime = () => {
 onMounted(() => {
   // Add global event listener for mouseup to handle drag ending outside the calendar
   window.addEventListener('mouseup', handleGlobalMouseUp);
-  
-  // Start polling for activities needing feedback (every 30 seconds)
-  feedbackCheckInterval = window.setInterval(checkForActivitiesNeedingFeedback, 30000);
-  
-  // Also check immediately on mount
-  setTimeout(checkForActivitiesNeedingFeedback, 1000);
   
   // Update current time immediately and then every minute
   updateCurrentTime();
