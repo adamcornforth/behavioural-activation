@@ -8,10 +8,13 @@ import CardContent from '../components/ui/card-content.vue'
 import CardFooter from '../components/ui/card-footer.vue'
 import Button from '../components/ui/button.vue'
 import Calendar from '../components/Calendar.vue'
-import { getActivities, Activity } from '../store/activityStore'
+import { useActivityStore, Activity } from '../store/activityStore'
+
+// Get the activity store
+const activityStore = useActivityStore()
 
 // Get activities from the store
-const activities = computed(() => getActivities())
+const activities = computed(() => activityStore.getActivities())
 
 // Format date for display
 const formatDateTime = (date: Date) => {
