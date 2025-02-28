@@ -12,17 +12,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'submit'])
 
-// Reset form function (defined before it's used in the watch)
-const resetForm = () => {
-  formData.activityName = ''
-  formData.expectedDifficulty = 5
-  formData.expectedMood = 5
-  formData.location = ''
-  formData.notes = ''
-  formData.participants = ''
-  formData.activityType = 'other'
-  showAdvancedFields.value = false
-}
 
 // Form state
 const formData = reactive({
@@ -35,6 +24,18 @@ const formData = reactive({
   participants: '',
   activityType: 'other'
 })
+
+// Reset form function (defined after showAdvancedFields is initialized)
+const resetForm = () => {
+  formData.activityName = ''
+  formData.expectedDifficulty = 5
+  formData.expectedMood = 5
+  formData.location = ''
+  formData.notes = ''
+  formData.participants = ''
+  formData.activityType = 'other'
+  showAdvancedFields.value = false
+}
 
 // Watch for edit activity changes
 import { watch } from 'vue'
