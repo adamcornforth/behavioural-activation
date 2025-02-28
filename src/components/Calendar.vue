@@ -364,7 +364,9 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   // Determine if this is the last hour cell for this activity
   const isLastHourCell = isSameDay(activity.endTime, date) && 
                          activity.endTime.getHours() === hour &&
-                         activity.endTime.getMinutes() > 0;
+                         (activity.endTime.getMinutes() > 0 || 
+                          // Also consider it the last hour if activity duration is <= 1 hour
+                          (activity.endTime.getTime() - activity.startTime.getTime() <= 60 * 60 * 1000));
   
   // Determine if this is a middle hour cell (not first, not last)
   const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
