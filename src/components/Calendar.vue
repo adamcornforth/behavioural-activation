@@ -365,6 +365,14 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   // Consider it the last cell if the activity ends in this hour (including exactly on the hour)
   const isLastHourCell = isSameDay(activity.endTime, date) && 
                          activity.endTime.getHours() === hour;
+                         
+  // For activities ending exactly on the hour, we need to make the previous hour cell
+  // appear as the last cell for styling purposes
+  const endsExactlyOnHour = activity.endTime.getMinutes() === 0;
+  const isVisualLastHourCell = isLastHourCell || 
+                              (endsExactlyOnHour && 
+                               isSameDay(activity.endTime, date) && 
+                               activity.endTime.getHours() === hour + 1);
   
   // Determine if this is a middle hour cell (not first, not last)
   const isMiddleHourCell = !isFirstHourCell && !isLastHourCell && 
@@ -416,21 +424,21 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Determine border radius based on position in multi-hour activity
   let borderRadius = 'rounded-sm';
-  if (isFirstHourCell && !isLastHourCell) {
+  if (isFirstHourCell && !isVisualLastHourCell) {
     borderRadius = 'rounded-t-sm';
-  } else if (!isFirstHourCell && isLastHourCell) {
+  } else if (!isFirstHourCell && isVisualLastHourCell) {
     borderRadius = 'rounded-b-sm';
-  } else if (!isFirstHourCell && !isLastHourCell) {
+  } else if (!isFirstHourCell && !isVisualLastHourCell) {
     borderRadius = 'rounded-none';
   }
   
   // Determine border style based on position in multi-hour activity
   let borderStyle = 'border';
-  if (!isFirstHourCell && !isLastHourCell) {
+  if (!isFirstHourCell && !isVisualLastHourCell) {
     borderStyle = 'border-l border-r';
-  } else if (isFirstHourCell && !isLastHourCell) {
+  } else if (isFirstHourCell && !isVisualLastHourCell) {
     borderStyle = 'border-t border-l border-r';
-  } else if (!isFirstHourCell && isLastHourCell) {
+  } else if (!isFirstHourCell && isVisualLastHourCell) {
     borderStyle = 'border-b border-l border-r';
   }
   
@@ -441,6 +449,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     display: isFirstHourCell || isLastHourCell || isMiddleHourCell ? 'block' : 'none',
     isFirstHourCell,
     isLastHourCell,
+    isVisualLastHourCell,
     isMiddleHourCell,
     duration,
     borderRadius,
