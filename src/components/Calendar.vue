@@ -23,7 +23,7 @@
           v-for="day in weekDays" 
           :key="day.date" 
           class="py-2 text-center font-medium dark:text-gray-300"
-          :class="{ 'bg-blue-50 dark:bg-blue-900/30 rounded-t-md': day.isToday }"
+          :class="{ 'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-t-md': day.isToday }"
         >
           <div>{{ day.name }}</div>
           <div>{{ day.date }}</div>
@@ -46,8 +46,8 @@
             :key="hour"
             class="hour-cell h-20 border-b border-r border-gray-100 dark:border-gray-700 relative"
             :class="{
-              'bg-blue-50 dark:bg-blue-900/20': day - 1 === currentDayIndex && hour === currentHour,
-              'bg-blue-50/50 dark:bg-blue-900/10': day - 1 === currentDayIndex && hour !== currentHour
+              'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20': day - 1 === currentDayIndex && hour === currentHour,
+              'bg-blue-50 bg-opacity-50 dark:bg-blue-900 dark:bg-opacity-10': day - 1 === currentDayIndex && hour !== currentHour
             }"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
@@ -830,8 +830,49 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
       return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
     }
     
-    // Use activity type color
-    return `${colors.bg} ${colors.border} dark:bg-${colors.bg.split('-')[1]}-900 dark:${colors.border.replace('300', '700')} dark:${colors.text.replace('500', '100')}`;
+    // Map activity type colors to include explicit dark mode classes
+    const colorMap = {
+      'bg-blue-100': 'dark:bg-blue-900',
+      'bg-green-100': 'dark:bg-green-900',
+      'bg-red-100': 'dark:bg-red-900',
+      'bg-yellow-100': 'dark:bg-yellow-900',
+      'bg-purple-100': 'dark:bg-purple-900',
+      'bg-pink-100': 'dark:bg-pink-900',
+      'bg-indigo-100': 'dark:bg-indigo-900',
+      'bg-gray-100': 'dark:bg-gray-800',
+      'bg-orange-100': 'dark:bg-orange-900',
+      'bg-teal-100': 'dark:bg-teal-900',
+      'border-blue-300': 'dark:border-blue-700',
+      'border-green-300': 'dark:border-green-700',
+      'border-red-300': 'dark:border-red-700',
+      'border-yellow-300': 'dark:border-yellow-700',
+      'border-purple-300': 'dark:border-purple-700',
+      'border-pink-300': 'dark:border-pink-700',
+      'border-indigo-300': 'dark:border-indigo-700',
+      'border-gray-300': 'dark:border-gray-700',
+      'border-orange-300': 'dark:border-orange-700',
+      'border-teal-300': 'dark:border-teal-700',
+      'text-blue-500': 'dark:text-blue-100',
+      'text-green-500': 'dark:text-green-100',
+      'text-red-500': 'dark:text-red-100',
+      'text-yellow-500': 'dark:text-yellow-100',
+      'text-purple-500': 'dark:text-purple-100',
+      'text-pink-500': 'dark:text-pink-100',
+      'text-indigo-500': 'dark:text-indigo-100',
+      'text-gray-500': 'dark:text-gray-100',
+      'text-orange-500': 'dark:text-orange-100',
+      'text-teal-500': 'dark:text-teal-100'
+    };
+    
+    // Build the class string with explicit dark mode classes
+    let classString = `${colors.bg} ${colors.border}`;
+    
+    // Add dark mode equivalents
+    if (colorMap[colors.bg]) classString += ` ${colorMap[colors.bg]}`;
+    if (colorMap[colors.border]) classString += ` ${colorMap[colors.border]}`;
+    if (colors.text && colorMap[colors.text]) classString += ` ${colorMap[colors.text]}`;
+    
+    return classString;
   };
   
   // Determine border radius
@@ -1061,6 +1102,42 @@ onUnmounted(() => {
   background: rgba(59, 130, 246, 0.4) !important;
   border: 1px solid rgba(59, 130, 246, 0.6) !important;
 }
+
+/* Explicit dark mode background colors for all possible activity types */
+:global(.dark) .bg-blue-100 { background-color: rgba(30, 64, 175, 0.3); }
+:global(.dark) .bg-green-100 { background-color: rgba(20, 83, 45, 0.3); }
+:global(.dark) .bg-red-100 { background-color: rgba(153, 27, 27, 0.3); }
+:global(.dark) .bg-yellow-100 { background-color: rgba(133, 77, 14, 0.3); }
+:global(.dark) .bg-purple-100 { background-color: rgba(88, 28, 135, 0.3); }
+:global(.dark) .bg-pink-100 { background-color: rgba(131, 24, 67, 0.3); }
+:global(.dark) .bg-indigo-100 { background-color: rgba(49, 46, 129, 0.3); }
+:global(.dark) .bg-gray-100 { background-color: rgba(31, 41, 55, 0.3); }
+:global(.dark) .bg-orange-100 { background-color: rgba(154, 52, 18, 0.3); }
+:global(.dark) .bg-teal-100 { background-color: rgba(17, 94, 89, 0.3); }
+
+/* Explicit dark mode border colors */
+:global(.dark) .border-blue-300 { border-color: rgba(37, 99, 235, 0.5); }
+:global(.dark) .border-green-300 { border-color: rgba(22, 163, 74, 0.5); }
+:global(.dark) .border-red-300 { border-color: rgba(220, 38, 38, 0.5); }
+:global(.dark) .border-yellow-300 { border-color: rgba(202, 138, 4, 0.5); }
+:global(.dark) .border-purple-300 { border-color: rgba(126, 34, 206, 0.5); }
+:global(.dark) .border-pink-300 { border-color: rgba(219, 39, 119, 0.5); }
+:global(.dark) .border-indigo-300 { border-color: rgba(79, 70, 229, 0.5); }
+:global(.dark) .border-gray-300 { border-color: rgba(75, 85, 99, 0.5); }
+:global(.dark) .border-orange-300 { border-color: rgba(234, 88, 12, 0.5); }
+:global(.dark) .border-teal-300 { border-color: rgba(20, 184, 166, 0.5); }
+
+/* Explicit dark mode text colors */
+:global(.dark) .text-blue-500 { color: rgba(147, 197, 253, 1); }
+:global(.dark) .text-green-500 { color: rgba(134, 239, 172, 1); }
+:global(.dark) .text-red-500 { color: rgba(252, 165, 165, 1); }
+:global(.dark) .text-yellow-500 { color: rgba(253, 224, 71, 1); }
+:global(.dark) .text-purple-500 { color: rgba(216, 180, 254, 1); }
+:global(.dark) .text-pink-500 { color: rgba(249, 168, 212, 1); }
+:global(.dark) .text-indigo-500 { color: rgba(165, 180, 252, 1); }
+:global(.dark) .text-gray-500 { color: rgba(209, 213, 219, 1); }
+:global(.dark) .text-orange-500 { color: rgba(253, 186, 116, 1); }
+:global(.dark) .text-teal-500 { color: rgba(153, 246, 228, 1); }
 
 .current-time-indicator {
   position: absolute;
