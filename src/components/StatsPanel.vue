@@ -12,7 +12,7 @@ import ActivityModal from './ActivityModal.vue'
 
 const activityStore = useActivityStore()
 const showStats = ref(false)
-const activeTab = ref('overview') // 'overview', 'activities', 'trends'
+const activeTab = ref('overview') // 'overview', 'activities'
 
 // Activity modal state
 const showActivityModal = ref(false)
@@ -382,17 +382,10 @@ const formatDate = (date: Date) => {
           >
             Recent Activities
           </button>
-          <button 
-            @click="activeTab = 'trends'" 
-            class="py-2 px-3 text-sm focus:outline-none"
-            :class="activeTab === 'trends' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
-          >
-            Trends
-          </button>
         </div>
       </CardHeader>
       
-      <!-- Overview Tab -->
+      <!-- Overview Tab with 2-column layout -->
       <CardContent v-if="activeTab === 'overview'">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
@@ -406,70 +399,206 @@ const formatDate = (date: Date) => {
           </div>
         </div>
         
-        <div class="space-y-4">
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Prediction Accuracy</span>
-              <span class="font-medium" :class="Number(stats.predictionAccuracy) > 70 ? 'text-green-500' : Number(stats.predictionAccuracy) < 50 ? 'text-red-500' : 'text-yellow-500'">
-                {{ stats.predictionAccuracy }}%
-              </span>
+        <!-- 2-column layout for stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Left column: Key metrics -->
+          <div class="space-y-4">
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-muted-foreground">Prediction Accuracy</span>
+                <span class="font-medium" :class="Number(stats.predictionAccuracy) > 70 ? 'text-green-500' : Number(stats.predictionAccuracy) < 50 ? 'text-red-500' : 'text-yellow-500'">
+                  {{ stats.predictionAccuracy }}%
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${stats.predictionAccuracy}%`"></div>
+              </div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${stats.predictionAccuracy}%`"></div>
+            
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-muted-foreground">Difficulty Accuracy</span>
+                <span class="font-medium" :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.avgDifficultyDiffPercent) < 0 ? 'text-red-500' : ''">
+                  {{ Number(stats.avgDifficultyDiffPercent) > 0 ? stats.avgDifficultyDiffPercent + '% easier' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder' : 'As expected' }}
+                </span>
+              </div>
+              <div class="text-xs text-muted-foreground italic">
+                Activities were {{ Number(stats.avgDifficultyDiffPercent) > 0 ? 'easier' : 'harder' }} than expected
+              </div>
+            </div>
+            
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-muted-foreground">Mood Impact</span>
+                <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : Number(stats.avgMoodImprovementPercent) < 0 ? 'text-red-500' : ''">
+                  {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '% better' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse' : 'As expected' }}
+                </span>
+              </div>
+              <div class="text-xs text-muted-foreground italic">
+                Mood was {{ Number(stats.avgMoodImprovementPercent) > 0 ? 'better' : 'worse' }} than predicted
+              </div>
+            </div>
+            
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-muted-foreground">Most Common Activity Type</span>
+                <span class="font-medium capitalize">
+                  {{ stats.mostCommonType === 'self-care' ? 'Self-Care' : 
+                     stats.mostCommonType === 'cooking' ? 'Cooking' :
+                     stats.mostCommonType === 'shopping' ? 'Shopping' :
+                     stats.mostCommonType === 'chores' ? 'Chores' : 
+                     stats.mostCommonType }} ({{ stats.activityTypeCount }})
+                </span>
+              </div>
+            </div>
+            
+            <!-- Activity Type Insights Summary -->
+            <div v-if="stats.bestMoodType" class="flex flex-col gap-1 pt-2 mt-2 border-t dark:border-gray-700">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-muted-foreground">Best Activity for Mood</span>
+                <span class="font-medium capitalize text-green-600 dark:text-green-400">
+                  {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
+                     stats.bestMoodType.type === 'cooking' ? 'Cooking' :
+                     stats.bestMoodType.type === 'shopping' ? 'Shopping' :
+                     stats.bestMoodType.type === 'chores' ? 'Chores' : 
+                     stats.bestMoodType.type }}
+                </span>
+              </div>
+              <div class="text-xs text-muted-foreground italic">
+                Improves mood by {{ stats.bestMoodType.percent }}% more than expected
+              </div>
             </div>
           </div>
           
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Difficulty Accuracy</span>
-              <span class="font-medium" :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.avgDifficultyDiffPercent) < 0 ? 'text-red-500' : ''">
-                {{ Number(stats.avgDifficultyDiffPercent) > 0 ? stats.avgDifficultyDiffPercent + '% easier' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder' : 'As expected' }}
-              </span>
+          <!-- Right column: Trends and detailed stats -->
+          <div class="space-y-4">
+            <!-- Mood & Difficulty Averages -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <div class="text-sm font-medium mb-2">Mood & Difficulty Averages</div>
+              <div class="grid grid-cols-1 gap-3">
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
+                  <div class="text-xl font-medium mt-1">
+                    {{ Number(stats.avgActualMood) > 10 ? '10' : stats.avgActualMood }}/10
+                    <span class="text-sm ml-1" 
+                          :class="Number(stats.moodDiffPercent) > 0 ? 'text-green-500' : Number(stats.moodDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
+                      ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ Math.abs(Number(stats.moodDiffPercent)) < 1000 ? stats.moodDiffPercent : '0' }}%)
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedMood) > 10 ? '10' : stats.avgExpectedMood }}/10</div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
+                  <div class="text-xl font-medium mt-1">
+                    {{ Number(stats.avgActualDifficulty) > 10 ? '10' : stats.avgActualDifficulty }}/10
+                    <span class="text-sm ml-1" 
+                          :class="Number(stats.difficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.difficultyDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
+                      ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ Math.abs(Number(stats.difficultyDiffPercent)) < 1000 ? stats.difficultyDiffPercent : '0' }}%)
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedDifficulty) > 10 ? '10' : stats.avgExpectedDifficulty }}/10</div>
+                </div>
+              </div>
             </div>
-            <div class="text-xs text-muted-foreground italic">
-              Activities were {{ Number(stats.avgDifficultyDiffPercent) > 0 ? 'easier' : 'harder' }} than expected
+            
+            <!-- Activity Type Insights -->
+            <div v-if="stats.easiestType || stats.hardestType || stats.bestMoodType || stats.worstMoodType">
+              <div class="text-sm font-medium mb-2">Activity Type Insights</div>
+              <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md space-y-3">
+                <!-- Easiest Activity Type -->
+                <div v-if="stats.easiestType" class="border-b pb-2 dark:border-gray-700">
+                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Easiest Activity Type</div>
+                  <div class="flex justify-between items-center mt-1">
+                    <div class="text-sm capitalize">
+                      {{ stats.easiestType.type === 'self-care' ? 'Self-Care' : 
+                         stats.easiestType.type === 'cooking' ? 'Cooking' :
+                         stats.easiestType.type === 'shopping' ? 'Shopping' :
+                         stats.easiestType.type === 'chores' ? 'Chores' : 
+                         stats.easiestType.type }}
+                    </div>
+                    <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
+                      {{ stats.easiestType.percent }}% easier than expected
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Hardest Activity Type -->
+                <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
+                  <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
+                  <div class="flex justify-between items-center mt-1">
+                    <div class="text-sm capitalize">
+                      {{ stats.hardestType.type === 'self-care' ? 'Self-Care' : 
+                         stats.hardestType.type === 'cooking' ? 'Cooking' :
+                         stats.hardestType.type === 'shopping' ? 'Shopping' :
+                         stats.hardestType.type === 'chores' ? 'Chores' : 
+                         stats.hardestType.type }}
+                    </div>
+                    <div class="text-xs px-2 py-0.5 rounded-full" 
+                         :class="Number(stats.hardestType.percent) >= 0 ? 
+                                 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
+                                 'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
+                      {{ Number(stats.hardestType.percent) >= 0 ? 
+                         stats.hardestType.percent + '% easier than expected' : 
+                         Math.abs(Number(stats.hardestType.percent)) + '% harder than expected' }}
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Best Mood Activity Type -->
+                <div v-if="stats.bestMoodType" class="border-b pb-2 dark:border-gray-700">
+                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Best Mood Improvement</div>
+                  <div class="flex justify-between items-center mt-1">
+                    <div class="text-sm capitalize">
+                      {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
+                         stats.bestMoodType.type === 'cooking' ? 'Cooking' :
+                         stats.bestMoodType.type === 'shopping' ? 'Shopping' :
+                         stats.bestMoodType.type === 'chores' ? 'Chores' : 
+                         stats.bestMoodType.type }}
+                    </div>
+                    <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
+                      {{ stats.bestMoodType.percent }}% better mood
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Worst Mood Activity Type -->
+                <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
+                  <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
+                  <div class="flex justify-between items-center mt-1">
+                    <div class="text-sm capitalize">
+                      {{ stats.worstMoodType.type === 'self-care' ? 'Self-Care' : 
+                         stats.worstMoodType.type === 'cooking' ? 'Cooking' :
+                         stats.worstMoodType.type === 'shopping' ? 'Shopping' :
+                         stats.worstMoodType.type === 'chores' ? 'Chores' : 
+                         stats.worstMoodType.type }}
+                    </div>
+                    <div class="text-xs px-2 py-0.5 rounded-full"
+                         :class="Number(stats.worstMoodType.percent) >= 0 ? 
+                                 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
+                                 'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
+                      {{ Number(stats.worstMoodType.percent) >= 0 ? 
+                         stats.worstMoodType.percent + '% better mood' : 
+                         Math.abs(Number(stats.worstMoodType.percent)) + '% worse mood' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Mood Impact</span>
-              <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : Number(stats.avgMoodImprovementPercent) < 0 ? 'text-red-500' : ''">
-                {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '% better' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse' : 'As expected' }}
-              </span>
-            </div>
-            <div class="text-xs text-muted-foreground italic">
-              Mood was {{ Number(stats.avgMoodImprovementPercent) > 0 ? 'better' : 'worse' }} than predicted
-            </div>
-          </div>
-          
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Most Common Activity Type</span>
-              <span class="font-medium capitalize">
-                {{ stats.mostCommonType === 'self-care' ? 'Self-Care' : 
-                   stats.mostCommonType === 'cooking' ? 'Cooking' :
-                   stats.mostCommonType === 'shopping' ? 'Shopping' :
-                   stats.mostCommonType === 'chores' ? 'Chores' : 
-                   stats.mostCommonType }} ({{ stats.activityTypeCount }})
-              </span>
-            </div>
-          </div>
-          
-          <!-- Activity Type Insights Summary -->
-          <div v-if="stats.bestMoodType" class="flex flex-col gap-1 pt-2 mt-2 border-t dark:border-gray-700">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Best Activity for Mood</span>
-              <span class="font-medium capitalize text-green-600 dark:text-green-400">
-                {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
-                   stats.bestMoodType.type === 'cooking' ? 'Cooking' :
-                   stats.bestMoodType.type === 'shopping' ? 'Shopping' :
-                   stats.bestMoodType.type === 'chores' ? 'Chores' : 
-                   stats.bestMoodType.type }}
-              </span>
-            </div>
-            <div class="text-xs text-muted-foreground italic">
-              Improves mood by {{ stats.bestMoodType.percent }}% more than expected
+            
+            <!-- Mood vs. Difficulty Correlation -->
+            <div>
+              <div class="text-sm font-medium mb-2">Mood vs. Difficulty Correlation</div>
+              <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  Activities that are easier than expected tend to improve mood by
+                  <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : 'text-red-500'">
+                    {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '%' : Math.abs(Number(stats.avgMoodImprovementPercent)) + '%' }}
+                  </span> on average.
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                  Recommendation: Focus on activities that you find easier than expected to improve your mood.
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -506,138 +635,6 @@ const formatDate = (date: Date) => {
         </div>
       </CardContent>
       
-      <!-- Trends Tab -->
-      <CardContent v-if="activeTab === 'trends'">
-        <div class="space-y-4">
-          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-            <div class="text-sm font-medium mb-2">Mood & Difficulty Averages</div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
-                <div class="text-xl font-medium mt-1">
-                  {{ Number(stats.avgActualMood) > 10 ? '10' : stats.avgActualMood }}/10
-                  <span class="text-sm ml-1" 
-                        :class="Number(stats.moodDiffPercent) > 0 ? 'text-green-500' : Number(stats.moodDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                    ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ Math.abs(Number(stats.moodDiffPercent)) < 1000 ? stats.moodDiffPercent : '0' }}%)
-                  </span>
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedMood) > 10 ? '10' : stats.avgExpectedMood }}/10</div>
-              </div>
-              <div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
-                <div class="text-xl font-medium mt-1">
-                  {{ Number(stats.avgActualDifficulty) > 10 ? '10' : stats.avgActualDifficulty }}/10
-                  <span class="text-sm ml-1" 
-                        :class="Number(stats.difficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.difficultyDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                    ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ Math.abs(Number(stats.difficultyDiffPercent)) < 1000 ? stats.difficultyDiffPercent : '0' }}%)
-                  </span>
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedDifficulty) > 10 ? '10' : stats.avgExpectedDifficulty }}/10</div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Activity Type Insights -->
-          <div v-if="stats.easiestType || stats.hardestType || stats.bestMoodType || stats.worstMoodType">
-            <div class="text-sm font-medium mb-2">Activity Type Insights</div>
-            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md space-y-3">
-              <!-- Easiest Activity Type -->
-              <div v-if="stats.easiestType" class="border-b pb-2 dark:border-gray-700">
-                <div class="text-xs font-medium text-green-600 dark:text-green-400">Easiest Activity Type</div>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">
-                    {{ stats.easiestType.type === 'self-care' ? 'Self-Care' : 
-                       stats.easiestType.type === 'cooking' ? 'Cooking' :
-                       stats.easiestType.type === 'shopping' ? 'Shopping' :
-                       stats.easiestType.type === 'chores' ? 'Chores' : 
-                       stats.easiestType.type }}
-                  </div>
-                  <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
-                    {{ stats.easiestType.percent }}% easier than expected
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Hardest Activity Type -->
-              <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
-                <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">
-                    {{ stats.hardestType.type === 'self-care' ? 'Self-Care' : 
-                       stats.hardestType.type === 'cooking' ? 'Cooking' :
-                       stats.hardestType.type === 'shopping' ? 'Shopping' :
-                       stats.hardestType.type === 'chores' ? 'Chores' : 
-                       stats.hardestType.type }}
-                  </div>
-                  <div class="text-xs px-2 py-0.5 rounded-full" 
-                       :class="Number(stats.hardestType.percent) >= 0 ? 
-                               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
-                    {{ Number(stats.hardestType.percent) >= 0 ? 
-                       stats.hardestType.percent + '% easier than expected' : 
-                       Math.abs(Number(stats.hardestType.percent)) + '% harder than expected' }}
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Best Mood Activity Type -->
-              <div v-if="stats.bestMoodType" class="border-b pb-2 dark:border-gray-700">
-                <div class="text-xs font-medium text-green-600 dark:text-green-400">Best Mood Improvement</div>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">
-                    {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
-                       stats.bestMoodType.type === 'cooking' ? 'Cooking' :
-                       stats.bestMoodType.type === 'shopping' ? 'Shopping' :
-                       stats.bestMoodType.type === 'chores' ? 'Chores' : 
-                       stats.bestMoodType.type }}
-                  </div>
-                  <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
-                    {{ stats.bestMoodType.percent }}% better mood
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Worst Mood Activity Type -->
-              <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
-                <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">
-                    {{ stats.worstMoodType.type === 'self-care' ? 'Self-Care' : 
-                       stats.worstMoodType.type === 'cooking' ? 'Cooking' :
-                       stats.worstMoodType.type === 'shopping' ? 'Shopping' :
-                       stats.worstMoodType.type === 'chores' ? 'Chores' : 
-                       stats.worstMoodType.type }}
-                  </div>
-                  <div class="text-xs px-2 py-0.5 rounded-full"
-                       :class="Number(stats.worstMoodType.percent) >= 0 ? 
-                               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
-                    {{ Number(stats.worstMoodType.percent) >= 0 ? 
-                       stats.worstMoodType.percent + '% better mood' : 
-                       Math.abs(Number(stats.worstMoodType.percent)) + '% worse mood' }}
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-          
-          <div>
-            <div class="text-sm font-medium mb-2">Mood vs. Difficulty Correlation</div>
-            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-              <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                Activities that are easier than expected tend to improve mood by
-                <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : 'text-red-500'">
-                  {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '%' : Math.abs(Number(stats.avgMoodImprovementPercent)) + '%' }}
-                </span> on average.
-              </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">
-                Recommendation: Focus on activities that you find easier than expected to improve your mood.
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
       
       <CardFooter class="flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-2">
         <span>Based on data from {{ stats.totalWithFeedback }} activities</span>
