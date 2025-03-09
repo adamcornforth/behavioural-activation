@@ -139,6 +139,12 @@
                 </button>
                 <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
                   <div class="flex items-center">
+                    <!-- Activity type icon -->
+                    <div v-if="getActivityTypeIcon(activity.activityType)" 
+                         class="mr-1 w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-400"
+                         :title="getActivityTypeLabel(activity.activityType)">
+                      <component :is="getActivityTypeIcon(activity.activityType)" class="w-3 h-3" />
+                    </div>
                     <div class="text-xs font-medium truncate flex-1">{{ activity.activityName }}</div>
                     <!-- Feedback indicator -->
                     <div v-if="needsFeedback(activity)" 
@@ -216,8 +222,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay, differenceInDays } from 'date-fns';
 import Button from './ui/button.vue';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, PuzzlePiece, Mountain, MoreHorizontal } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
+import { ActivityType, ACTIVITY_TYPES, getActivityTypeMetadata } from '../types/activityTypes';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -432,6 +439,35 @@ const endDrag = () => {
   }
 };
 
+// Helper functions for activity types
+const getActivityTypeIcon = (type: ActivityType) => {
+  switch (type) {
+    case ACTIVITY_TYPES.SELF_CARE:
+      return Heart;
+    case ACTIVITY_TYPES.EXERCISE:
+      return Dumbbell;
+    case ACTIVITY_TYPES.SOCIAL:
+      return Users;
+    case ACTIVITY_TYPES.WORK:
+      return Briefcase;
+    case ACTIVITY_TYPES.LEISURE:
+      return Film;
+    case ACTIVITY_TYPES.CREATIVE:
+      return Palette;
+    case ACTIVITY_TYPES.HOBBIES:
+      return PuzzlePiece;
+    case ACTIVITY_TYPES.OUTDOOR:
+      return Mountain;
+    default:
+      return MoreHorizontal;
+  }
+};
+
+const getActivityTypeLabel = (type: ActivityType) => {
+  const metadata = getActivityTypeMetadata(type);
+  return metadata.label;
+};
+
 // Import the activity store
 import { useActivityStore } from '../store/activityStore';
 
@@ -467,7 +503,12 @@ const createDefaultActivities = () => {
     endTime: new Date(monday.setHours(10, 0, 0, 0)),
     expectedDifficulty: 7,
     expectedMood: 8,
-    location: "Gym"
+    location: "Gym",
+    activityType: ACTIVITY_TYPES.EXERCISE,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a team meeting for Tuesday at 11 AM
@@ -482,7 +523,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(tuesday).setHours(12, 30, 0, 0)),
     expectedDifficulty: 4,
     expectedMood: 6,
-    location: "Conference Room"
+    location: "Conference Room",
+    activityType: ACTIVITY_TYPES.WORK,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a lunch with friends on Wednesday
@@ -497,7 +543,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(wednesday).setHours(13, 30, 0, 0)),
     expectedDifficulty: 2,
     expectedMood: 9,
-    location: "Cafe Downtown"
+    location: "Cafe Downtown",
+    activityType: ACTIVITY_TYPES.SOCIAL,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a project work session on Thursday
@@ -512,7 +563,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(thursday).setHours(17, 0, 0, 0)),
     expectedDifficulty: 8,
     expectedMood: 7,
-    location: "Home Office"
+    location: "Home Office",
+    activityType: ACTIVITY_TYPES.WORK,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a weekend hike on Saturday
@@ -527,7 +583,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(saturday).setHours(14, 0, 0, 0)),
     expectedDifficulty: 6,
     expectedMood: 10,
-    location: "Mountain Trail"
+    location: "Mountain Trail",
+    activityType: ACTIVITY_TYPES.OUTDOOR,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Add all default activities
@@ -756,12 +817,22 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   // Determine if this is a middle cell (not first, not last)
   const isMiddleCell = !isFirstCell && !isLastCell;
   
-  // Get color based on expected mood
-  const getMoodColor = (mood: number) => {
-    if (mood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
-    if (mood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
-    if (mood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
-    return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
+  // Get color based on activity type
+  const getMoodColor = (activity: any) => {
+    // Use activity type color if available
+    const metadata = getActivityTypeMetadata(activity.activityType);
+    const colorBase = metadata.color.split('-')[0]; // Extract base color (e.g., "blue" from "blue-400")
+    
+    // Fallback to mood-based colors if needed
+    if (!colorBase) {
+      if (activity.expectedMood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
+      if (activity.expectedMood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
+      if (activity.expectedMood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
+      return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
+    }
+    
+    // Use activity type color
+    return `bg-${colorBase}-100 border-${colorBase}-300 dark:bg-${colorBase}-900 dark:border-${colorBase}-700 dark:text-${colorBase}-100`;
   };
   
   // Determine border radius
@@ -816,7 +887,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   return {
     top: `${topPercentage}%`,
     height: `${adjustedHeightPercentage}%`,
-    colorClass: getMoodColor(activity.expectedMood),
+    colorClass: getMoodColor(activity),
     display: shouldDisplay ? 'block' : 'none',
     isFirstHourCell: isFirstCell,
     isLastHourCell: isLastCell,
