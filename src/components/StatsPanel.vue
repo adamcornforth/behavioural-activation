@@ -428,14 +428,14 @@ const formatDate = (date: Date) => {
                 <!-- Expected difficulty background -->
                 <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                 
-                <!-- Expected difficulty value -->
-                <div class="absolute inset-y-0 left-0 bg-blue-400 dark:bg-blue-600 rounded-full" 
-                     :style="`width: ${Number(stats.avgExpectedDifficulty) * 10}%`"></div>
-                
-                <!-- Actual difficulty value -->
+                <!-- Actual difficulty value (below) -->
                 <div class="absolute inset-y-0 left-0 rounded-full" 
                      :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
                      :style="`width: ${Number(stats.avgActualDifficulty) * 10}%`"></div>
+                
+                <!-- Expected difficulty value (on top with transparency) -->
+                <div class="absolute inset-y-0 left-0 bg-blue-500 dark:bg-blue-600 rounded-full opacity-70" 
+                     :style="`width: ${Number(stats.avgExpectedDifficulty) * 10}%`"></div>
                 
                 <!-- Labels -->
                 <div class="absolute inset-0 flex justify-between items-center px-2 text-xs text-white font-medium">
@@ -463,14 +463,14 @@ const formatDate = (date: Date) => {
                 <!-- Expected mood background -->
                 <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                 
-                <!-- Expected mood value -->
-                <div class="absolute inset-y-0 left-0 bg-blue-400 dark:bg-blue-600 rounded-full" 
-                     :style="`width: ${Number(stats.avgExpectedMood) * 10}%`"></div>
-                
-                <!-- Actual mood value -->
+                <!-- Actual mood value (below) -->
                 <div class="absolute inset-y-0 left-0 rounded-full" 
                      :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
                      :style="`width: ${Number(stats.avgActualMood) * 10}%`"></div>
+                
+                <!-- Expected mood value (on top with transparency) -->
+                <div class="absolute inset-y-0 left-0 bg-blue-500 dark:bg-blue-600 rounded-full opacity-70" 
+                     :style="`width: ${Number(stats.avgExpectedMood) * 10}%`"></div>
                 
                 <!-- Labels -->
                 <div class="absolute inset-0 flex justify-between items-center px-2 text-xs text-white font-medium">
