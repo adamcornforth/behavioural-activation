@@ -819,12 +819,14 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Get color based on activity type
   const getMoodColor = (activity: any) => {
+    // Import the helper function if not already imported
+    const { getActivityTypeColors } = require('../types/activityTypes');
+    
     // Use activity type color if available
-    const metadata = getActivityTypeMetadata(activity.activityType);
-    const colorBase = metadata.color.split('-')[0]; // Extract base color (e.g., "blue" from "blue-400")
+    const colors = getActivityTypeColors(activity.activityType);
     
     // Fallback to mood-based colors if needed
-    if (!colorBase) {
+    if (!colors) {
       if (activity.expectedMood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
       if (activity.expectedMood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
       if (activity.expectedMood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
@@ -832,7 +834,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     }
     
     // Use activity type color
-    return `bg-${colorBase}-100 border-${colorBase}-300 dark:bg-${colorBase}-900 dark:border-${colorBase}-700 dark:text-${colorBase}-100`;
+    return `${colors.bg} ${colors.border} dark:bg-${colors.bg.split('-')[1]}-900 dark:${colors.border.replace('300', '700')} dark:${colors.text.replace('500', '100')}`;
   };
   
   // Determine border radius

@@ -104,3 +104,16 @@ export function getActivityTypeColorClass(type: ActivityType): string {
   const metadata = getActivityTypeMetadata(type);
   return `bg-${metadata.color}`;
 }
+
+// Helper to get background, border, and text color classes for an activity type
+export function getActivityTypeColors(type: ActivityType): {bg: string, border: string, text: string} {
+  const metadata = getActivityTypeMetadata(type);
+  const colorBase = metadata.color.split('-')[0]; // Extract base color (e.g., "blue" from "blue-400")
+  const intensity = metadata.color.split('-')[1] || '500'; // Extract intensity or default to 500
+  
+  return {
+    bg: `bg-${colorBase}-100`,
+    border: `border-${colorBase}-300`,
+    text: `text-${colorBase}-500`
+  };
+}
