@@ -526,11 +526,10 @@ const formatDate = (date: Date) => {
                        stats.hardestType.type === 'chores' ? 'Chores' : 
                        stats.hardestType.type }}
                   </div>
-                  <div class="text-xs" 
+                  <div class="text-xs px-2 py-0.5 rounded-full" 
                        :class="Number(stats.hardestType.percent) >= 0 ? 
                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'"
-                       class="px-2 py-0.5 rounded-full">
+                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
                     {{ Number(stats.hardestType.percent) >= 0 ? 
                        stats.hardestType.percent + '% easier than expected' : 
                        Math.abs(Number(stats.hardestType.percent)) + '% harder than expected' }}
@@ -566,11 +565,10 @@ const formatDate = (date: Date) => {
                        stats.worstMoodType.type === 'chores' ? 'Chores' : 
                        stats.worstMoodType.type }}
                   </div>
-                  <div class="text-xs"
+                  <div class="text-xs px-2 py-0.5 rounded-full"
                        :class="Number(stats.worstMoodType.percent) >= 0 ? 
                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'"
-                       class="px-2 py-0.5 rounded-full">
+                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
                     {{ Number(stats.worstMoodType.percent) >= 0 ? 
                        stats.worstMoodType.percent + '% better mood' : 
                        Math.abs(Number(stats.worstMoodType.percent)) + '% worse mood' }}
