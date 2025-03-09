@@ -1,4 +1,5 @@
 import { ref, reactive, inject, provide, InjectionKey } from 'vue'
+import { ActivityType, ACTIVITY_TYPES } from '../types/activityTypes'
 
 export interface Activity {
   id: string
@@ -12,7 +13,7 @@ export interface Activity {
   location?: string
   notes?: string
   participants?: string
-  activityType: string
+  activityType: ActivityType
   createdAt: Date
   completed: boolean
 }
