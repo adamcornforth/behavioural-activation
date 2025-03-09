@@ -207,27 +207,33 @@ const stats = computed(() => {
   let difficultyDiffPercent = 0
   
   if (activitiesWithFeedback.length > 0) {
-    // Calculate actual averages
+    // Calculate actual averages - ensure we're working with numbers
     avgActualMood = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + activity.actualMood!, 0
+      (sum, activity) => sum + Number(activity.actualMood || 0), 0
     ) / activitiesWithFeedback.length
     
     avgActualDifficulty = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + activity.actualDifficulty!, 0
+      (sum, activity) => sum + Number(activity.actualDifficulty || 0), 0
     ) / activitiesWithFeedback.length
     
-    // Calculate expected averages
+    // Calculate expected averages - ensure we're working with numbers
     avgExpectedMood = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + activity.expectedMood!, 0
+      (sum, activity) => sum + Number(activity.expectedMood || 0), 0
     ) / activitiesWithFeedback.length
     
     avgExpectedDifficulty = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + activity.expectedDifficulty!, 0
+      (sum, activity) => sum + Number(activity.expectedDifficulty || 0), 0
     ) / activitiesWithFeedback.length
     
     // Calculate percentage differences
     moodDiffPercent = ((avgActualMood - avgExpectedMood) / avgExpectedMood) * 100
     difficultyDiffPercent = ((avgExpectedDifficulty - avgActualDifficulty) / avgExpectedDifficulty) * 100
+    
+    // Ensure values are within expected range (1-10)
+    avgActualMood = Math.min(10, Math.max(1, avgActualMood))
+    avgActualDifficulty = Math.min(10, Math.max(1, avgActualDifficulty))
+    avgExpectedMood = Math.min(10, Math.max(1, avgExpectedMood))
+    avgExpectedDifficulty = Math.min(10, Math.max(1, avgExpectedDifficulty))
   }
   
   // Calculate prediction accuracy percentage
@@ -509,24 +515,24 @@ const formatDate = (date: Date) => {
               <div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
                 <div class="text-xl font-medium mt-1">
-                  {{ stats.avgActualMood }}/10
+                  {{ Number(stats.avgActualMood) > 10 ? '10' : stats.avgActualMood }}/10
                   <span class="text-sm ml-1" 
                         :class="Number(stats.moodDiffPercent) > 0 ? 'text-green-500' : Number(stats.moodDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                    ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ stats.moodDiffPercent }}%)
+                    ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ Math.abs(Number(stats.moodDiffPercent)) < 1000 ? stats.moodDiffPercent : '0' }}%)
                   </span>
                 </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ stats.avgExpectedMood }}/10</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedMood) > 10 ? '10' : stats.avgExpectedMood }}/10</div>
               </div>
               <div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
                 <div class="text-xl font-medium mt-1">
-                  {{ stats.avgActualDifficulty }}/10
+                  {{ Number(stats.avgActualDifficulty) > 10 ? '10' : stats.avgActualDifficulty }}/10
                   <span class="text-sm ml-1" 
                         :class="Number(stats.difficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.difficultyDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                    ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ stats.difficultyDiffPercent }}%)
+                    ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ Math.abs(Number(stats.difficultyDiffPercent)) < 1000 ? stats.difficultyDiffPercent : '0' }}%)
                   </span>
                 </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ stats.avgExpectedDifficulty }}/10</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedDifficulty) > 10 ? '10' : stats.avgExpectedDifficulty }}/10</div>
               </div>
             </div>
           </div>
