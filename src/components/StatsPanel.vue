@@ -5,11 +5,14 @@ import Card from './ui/card.vue'
 import CardHeader from './ui/card-header.vue'
 import CardTitle from './ui/card-title.vue'
 import CardContent from './ui/card-content.vue'
+import CardFooter from './ui/card-footer.vue'
+import CardDescription from './ui/card-description.vue'
 import Button from './ui/button.vue'
 import ActivityModal from './ActivityModal.vue'
 
 const activityStore = useActivityStore()
 const showStats = ref(false)
+const activeTab = ref('overview') // 'overview', 'activities', 'trends'
 
 // Activity modal state
 const showActivityModal = ref(false)
@@ -42,6 +45,8 @@ const handleModalClose = () => {
 const stats = computed(() => {
   const completedActivities = activityStore.getCompletedActivities()
   const totalCompleted = completedActivities.length
+  const upcomingActivities = activityStore.getUpcomingActivities()
+  const totalUpcoming = upcomingActivities.length
   
   // Only consider activities with both expected and actual values
   const activitiesWithFeedback = completedActivities.filter(
@@ -50,6 +55,8 @@ const stats = computed(() => {
                 activity.expectedMood !== undefined &&
                 activity.actualMood !== undefined
   )
+  
+  const totalWithFeedback = activitiesWithFeedback.length
   
   // Calculate average difficulty difference (expected - actual)
   let avgDifficultyDiff = 0
@@ -71,12 +78,78 @@ const stats = computed(() => {
     avgMoodImprovement = totalMoodImprovement / activitiesWithFeedback.length
   }
   
+  // Calculate activity type distribution
+  const activityTypes: Record<string, number> = {}
+  completedActivities.forEach(activity => {
+    const type = activity.activityType || 'other'
+    activityTypes[type] = (activityTypes[type] || 0) + 1
+  })
+  
+  // Find most common activity type
+  let mostCommonType = 'none'
+  let maxCount = 0
+  Object.entries(activityTypes).forEach(([type, count]) => {
+    if (count > maxCount) {
+      mostCommonType = type
+      maxCount = count
+    }
+  })
+  
+  // Calculate average actual mood and difficulty
+  let avgActualMood = 0
+  let avgActualDifficulty = 0
+  if (activitiesWithFeedback.length > 0) {
+    avgActualMood = activitiesWithFeedback.reduce(
+      (sum, activity) => sum + activity.actualMood!, 0
+    ) / activitiesWithFeedback.length
+    
+    avgActualDifficulty = activitiesWithFeedback.reduce(
+      (sum, activity) => sum + activity.actualDifficulty!, 0
+    ) / activitiesWithFeedback.length
+  }
+  
+  // Calculate prediction accuracy percentage
+  let predictionAccuracy = 0
+  if (activitiesWithFeedback.length > 0) {
+    const totalAccuracy = activitiesWithFeedback.reduce((sum, activity) => {
+      // Calculate how close the prediction was (as a percentage)
+      const difficultyAccuracy = 100 - Math.abs(activity.expectedDifficulty! - activity.actualDifficulty!) * 10
+      const moodAccuracy = 100 - Math.abs(activity.expectedMood! - activity.actualMood!) * 10
+      return sum + (difficultyAccuracy + moodAccuracy) / 2
+    }, 0)
+    
+    predictionAccuracy = totalAccuracy / activitiesWithFeedback.length
+  }
+  
   return {
     totalCompleted,
+    totalUpcoming,
+    totalWithFeedback,
     avgDifficultyDiff: avgDifficultyDiff.toFixed(1),
-    avgMoodImprovement: avgMoodImprovement.toFixed(1)
+    avgMoodImprovement: avgMoodImprovement.toFixed(1),
+    mostCommonType,
+    activityTypeCount: maxCount,
+    avgActualMood: avgActualMood.toFixed(1),
+    avgActualDifficulty: avgActualDifficulty.toFixed(1),
+    predictionAccuracy: predictionAccuracy.toFixed(0)
   }
 })
+
+// Get most recent completed activities
+const recentActivities = computed(() => {
+  return activityStore.getCompletedActivities()
+    .sort((a, b) => new Date(b.endTime).getTime() - new Date(a.endTime).getTime())
+    .slice(0, 5)
+})
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short'
+  })
+}
 </script>
 
 <template>
@@ -111,6 +184,8 @@ const stats = computed(() => {
         </div>
       </div>
     </div>
+    
+    <!-- Stats toggle button -->
     <div class="flex justify-end mb-2" v-if="stats.totalCompleted > 0">
       <Button 
         variant="outline" 
@@ -126,15 +201,65 @@ const stats = computed(() => {
       </Button>
     </div>
     
+    <!-- Statistics Card -->
     <Card v-if="showStats">
       <CardHeader>
         <CardTitle>Activity Statistics</CardTitle>
+        <CardDescription>
+          Insights based on {{ stats.totalWithFeedback }} activities with feedback
+        </CardDescription>
+        
+        <!-- Stats navigation tabs -->
+        <div class="flex space-x-1 mt-2 border-b dark:border-gray-700">
+          <button 
+            @click="activeTab = 'overview'" 
+            class="py-2 px-3 text-sm focus:outline-none"
+            :class="activeTab === 'overview' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+          >
+            Overview
+          </button>
+          <button 
+            @click="activeTab = 'activities'" 
+            class="py-2 px-3 text-sm focus:outline-none"
+            :class="activeTab === 'activities' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+          >
+            Recent Activities
+          </button>
+          <button 
+            @click="activeTab = 'trends'" 
+            class="py-2 px-3 text-sm focus:outline-none"
+            :class="activeTab === 'trends' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+          >
+            Trends
+          </button>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div class="grid gap-4">
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-muted-foreground">Activities Completed</span>
-            <span class="font-medium">{{ stats.totalCompleted }}</span>
+      
+      <!-- Overview Tab -->
+      <CardContent v-if="activeTab === 'overview'">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+            <div class="text-xs text-gray-500 dark:text-gray-400">Activities Completed</div>
+            <div class="text-2xl font-semibold mt-1">{{ stats.totalCompleted }}</div>
+          </div>
+          
+          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+            <div class="text-xs text-gray-500 dark:text-gray-400">Upcoming Activities</div>
+            <div class="text-2xl font-semibold mt-1">{{ stats.totalUpcoming }}</div>
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">Prediction Accuracy</span>
+              <span class="font-medium" :class="Number(stats.predictionAccuracy) > 70 ? 'text-green-500' : Number(stats.predictionAccuracy) < 50 ? 'text-red-500' : 'text-yellow-500'">
+                {{ stats.predictionAccuracy }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${stats.predictionAccuracy}%`"></div>
+            </div>
           </div>
           
           <div class="flex flex-col gap-1">
@@ -160,8 +285,85 @@ const stats = computed(() => {
               (Positive means activities improved mood)
             </div>
           </div>
+          
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">Most Common Activity Type</span>
+              <span class="font-medium capitalize">{{ stats.mostCommonType }} ({{ stats.activityTypeCount }})</span>
+            </div>
+          </div>
         </div>
       </CardContent>
+      
+      <!-- Recent Activities Tab -->
+      <CardContent v-if="activeTab === 'activities'" class="p-0">
+        <div class="divide-y dark:divide-gray-700">
+          <div v-for="activity in recentActivities" :key="activity.id" class="p-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-medium">{{ activity.activityName }}</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(activity.endTime) }}</p>
+              </div>
+              <div class="flex space-x-2">
+                <div v-if="activity.actualMood" class="flex flex-col items-center">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Mood</span>
+                  <span class="font-medium" :class="activity.actualMood > activity.expectedMood ? 'text-green-500' : activity.actualMood < activity.expectedMood ? 'text-red-500' : ''">
+                    {{ activity.actualMood }}/10
+                  </span>
+                </div>
+                <div v-if="activity.actualDifficulty" class="flex flex-col items-center">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Difficulty</span>
+                  <span class="font-medium" :class="activity.actualDifficulty < activity.expectedDifficulty ? 'text-green-500' : activity.actualDifficulty > activity.expectedDifficulty ? 'text-red-500' : ''">
+                    {{ activity.actualDifficulty }}/10
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="recentActivities.length === 0" class="p-4 text-center text-gray-500 dark:text-gray-400">
+          No completed activities with feedback yet
+        </div>
+      </CardContent>
+      
+      <!-- Trends Tab -->
+      <CardContent v-if="activeTab === 'trends'">
+        <div class="space-y-4">
+          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+            <div class="text-sm font-medium mb-2">Mood & Difficulty Averages</div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
+                <div class="text-xl font-medium mt-1">{{ stats.avgActualMood }}/10</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
+                <div class="text-xl font-medium mt-1">{{ stats.avgActualDifficulty }}/10</div>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-sm font-medium mb-2">Mood vs. Difficulty Correlation</div>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Activities that are easier than expected tend to improve mood by
+                <span class="font-medium" :class="Number(stats.avgMoodImprovement) > 0 ? 'text-green-500' : 'text-red-500'">
+                  {{ Number(stats.avgMoodImprovement) > 0 ? '+' : '' }}{{ stats.avgMoodImprovement }}
+                </span> points on average.
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                Recommendation: Focus on activities that you find easier than expected to improve your mood.
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+      
+      <CardFooter class="flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-2">
+        <span>Based on data from {{ stats.totalWithFeedback }} activities</span>
+        <span>Updated {{ new Date().toLocaleDateString() }}</span>
+      </CardFooter>
     </Card>
   </div>
 </template>
