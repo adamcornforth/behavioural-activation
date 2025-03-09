@@ -16,16 +16,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'submit', 'durationChange'])
 
-// Activity presets
-const presetsByCategory = computed(() => getPresetsByCategory())
-const selectedCategory = ref('')
-const selectedPresetId = ref('')
-
-
-// UI state
-const showAdvancedFields = ref(false)
-const activeTab = ref<'edit' | 'feedback'>('edit')
-
 // Form state
 const formData = reactive({
   activityName: '',
@@ -37,8 +27,22 @@ const formData = reactive({
   location: '',
   notes: '',
   participants: '',
-  activityType: 'other'
+  activityType: 'other',
+  // Time fields
+  startTime: props.startTime,
+  endTime: props.endTime
 })
+
+// Activity presets
+const presetsByCategory = computed(() => getPresetsByCategory())
+const selectedCategory = ref('')
+const selectedPresetId = ref('')
+
+
+// UI state
+const showAdvancedFields = ref(false)
+const activeTab = ref<'edit' | 'feedback'>('edit')
+
 
 // Reset form function
 const resetForm = () => {
@@ -109,6 +113,12 @@ const updateEndTime = () => {
   if (!props.startTime) return
   
   const newEndTime = new Date(props.startTime.getTime() + selectedDuration.value * 60 * 1000)
+  
+  // Update the form data directly
+  formData.startTime = props.startTime
+  formData.endTime = newEndTime
+  
+  // Also emit the event for parent components
   emit('durationChange', { startTime: props.startTime, endTime: newEndTime })
 }
 
@@ -116,6 +126,13 @@ const updateEndTime = () => {
 watch(selectedDuration, () => {
   updateEndTime()
 })
+
+// Watch for props.startTime and props.endTime changes
+watch([() => props.startTime, () => props.endTime], ([newStartTime, newEndTime]) => {
+  formData.startTime = newStartTime
+  formData.endTime = newEndTime
+  selectedDuration.value = calculateDuration(newStartTime, newEndTime)
+}, { immediate: true })
 
 // Watch for edit activity changes
 
@@ -213,9 +230,7 @@ const handleSubmit = () => {
   
   // Create activity object with all form data
   const activity = {
-    ...formData,
-    startTime: props.startTime,
-    endTime: props.endTime
+    ...formData
   }
   
   if (!props.editActivity) {
