@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import Modal from './ui/modal.vue'
 import Button from './ui/button.vue'
 import { getPresetsByCategory, findPresetById } from '../data/activityPresets'
@@ -14,7 +14,7 @@ const props = defineProps<{
   provideFeedback?: boolean
 }>()
 
-const emit = defineEmits(['close', 'submit'])
+const emit = defineEmits(['close', 'submit', 'durationChange'])
 
 // Activity presets
 const presetsByCategory = computed(() => getPresetsByCategory())
@@ -79,8 +79,45 @@ const applyPreset = () => {
   }
 }
 
+// Duration options in 15-minute increments
+const durationOptions = [
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 45, label: '45 minutes' },
+  { value: 60, label: '1 hour' },
+  { value: 90, label: '1.5 hours' },
+  { value: 120, label: '2 hours' },
+  { value: 180, label: '3 hours' },
+  { value: 240, label: '4 hours' },
+  { value: 360, label: '6 hours' },
+  { value: 480, label: '8 hours' },
+  { value: 720, label: '12 hours' },
+  { value: 1440, label: '1 day' }
+]
+
+// Calculate duration in minutes between start and end time
+const calculateDuration = (start?: Date, end?: Date) => {
+  if (!start || !end) return 60 // Default to 1 hour
+  return Math.round((end.getTime() - start.getTime()) / (1000 * 60))
+}
+
+// Selected duration in minutes
+const selectedDuration = ref(calculateDuration(props.startTime, props.endTime))
+
+// Update end time based on selected duration
+const updateEndTime = () => {
+  if (!props.startTime) return
+  
+  const newEndTime = new Date(props.startTime.getTime() + selectedDuration.value * 60 * 1000)
+  emit('durationChange', { startTime: props.startTime, endTime: newEndTime })
+}
+
+// Watch for duration changes
+watch(selectedDuration, () => {
+  updateEndTime()
+})
+
 // Watch for edit activity changes
-import { watch } from 'vue'
 
 watch(() => props.editActivity, (newVal) => {
   if (newVal) {
@@ -308,10 +345,26 @@ const handleClose = () => {
     </div>
     <!-- Edit tab -->
     <form v-if="activeTab === 'edit'" @submit.prevent="handleSubmit" class="space-y-4">
-      <!-- Time information -->
+      <!-- Time information with duration selector -->
       <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
-        <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
-        <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
+            <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+          </div>
+          <div class="ml-4">
+            <label for="duration" class="block text-sm font-medium mb-1 dark:text-gray-200">Duration:</label>
+            <select 
+              id="duration" 
+              v-model="selectedDuration" 
+              class="w-full px-3 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            >
+              <option v-for="option in durationOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
       </div>
       
       <!-- Activity Presets - only show when creating a new activity -->
@@ -358,6 +411,19 @@ const handleClose = () => {
             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="What are you planning to do?"
           />
+        </div>
+        
+        <div>
+          <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
+          <select 
+            id="activityType" 
+            v-model="formData.activityType" 
+            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+          >
+            <option v-for="type in activityTypes" :key="type.value" :value="type.value">
+              {{ type.label }}
+            </option>
+          </select>
         </div>
         
         <div>
@@ -415,18 +481,6 @@ const handleClose = () => {
       
       <!-- Advanced fields - more compact spacing -->
       <div v-if="showAdvancedFields" class="space-y-3 border-t dark:border-gray-700 pt-3 mt-2">
-        <div>
-          <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
-          <select 
-            id="activityType" 
-            v-model="formData.activityType" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="type in activityTypes" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-        </div>
         
         <div>
           <label for="location" class="block text-sm font-medium mb-1 dark:text-gray-200">Location</label>
