@@ -168,9 +168,9 @@ const stats = computed(() => {
   
   // Find best and worst activity types
   let easiestType = { type: 'none', value: -Infinity }
-  let hardestType = { type: 'none', value: -Infinity }
+  let hardestType = { type: 'none', value: Infinity }  // Changed to Infinity for finding minimum
   let bestMoodType = { type: 'none', value: -Infinity }
-  let worstMoodType = { type: 'none', value: -Infinity }
+  let worstMoodType = { type: 'none', value: Infinity } // Changed to Infinity for finding minimum
   
   Object.entries(typeStats).forEach(([type, stats]) => {
     if (stats.count >= 2) { // Only consider types with at least 2 activities
@@ -179,10 +179,10 @@ const stats = computed(() => {
         easiestType = { type, value: stats.difficultyDiffPercent }
       }
       
-      // Hardest type (lowest negative difficulty difference)
-      // Only consider as hardest if it's actually harder than expected (negative value)
-      if (stats.difficultyDiffPercent < 0 && Math.abs(stats.difficultyDiffPercent) > hardestType.value) {
-        hardestType = { type, value: Math.abs(stats.difficultyDiffPercent) }
+      // Hardest type (lowest difficulty difference - regardless of sign)
+      // Lower value means harder (less easy) than other activities
+      if (stats.difficultyDiffPercent < hardestType.value) {
+        hardestType = { type, value: stats.difficultyDiffPercent }
       }
       
       // Best mood type (highest positive mood improvement)
@@ -190,10 +190,10 @@ const stats = computed(() => {
         bestMoodType = { type, value: stats.moodImprovementPercent }
       }
       
-      // Worst mood type (lowest negative mood improvement)
-      // Only consider as worst if it's actually worse than expected (negative value)
-      if (stats.moodImprovementPercent < 0 && Math.abs(stats.moodImprovementPercent) > worstMoodType.value) {
-        worstMoodType = { type, value: Math.abs(stats.moodImprovementPercent) }
+      // Worst mood type (lowest mood improvement - regardless of sign)
+      // Lower value means worse mood impact than other activities
+      if (stats.moodImprovementPercent < worstMoodType.value) {
+        worstMoodType = { type, value: stats.moodImprovementPercent }
       }
     }
   })
@@ -516,7 +516,7 @@ const formatDate = (date: Date) => {
               </div>
               
               <!-- Hardest Activity Type -->
-              <div v-if="stats.hardestType && Number(stats.hardestType.percent) > 0" class="border-b pb-2 dark:border-gray-700">
+              <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
                 <div class="flex justify-between items-center mt-1">
                   <div class="text-sm capitalize">
@@ -526,8 +526,14 @@ const formatDate = (date: Date) => {
                        stats.hardestType.type === 'chores' ? 'Chores' : 
                        stats.hardestType.type }}
                   </div>
-                  <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
-                    {{ stats.hardestType.percent }}% harder than expected
+                  <div class="text-xs" 
+                       :class="Number(stats.hardestType.percent) >= 0 ? 
+                               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
+                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'"
+                       class="px-2 py-0.5 rounded-full">
+                    {{ Number(stats.hardestType.percent) >= 0 ? 
+                       stats.hardestType.percent + '% easier than expected' : 
+                       Math.abs(Number(stats.hardestType.percent)) + '% harder than expected' }}
                   </div>
                 </div>
               </div>
@@ -550,7 +556,7 @@ const formatDate = (date: Date) => {
               </div>
               
               <!-- Worst Mood Activity Type -->
-              <div v-if="stats.worstMoodType && Number(stats.worstMoodType.percent) > 0" class="border-b pb-2 dark:border-gray-700">
+              <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
                 <div class="flex justify-between items-center mt-1">
                   <div class="text-sm capitalize">
@@ -560,8 +566,14 @@ const formatDate = (date: Date) => {
                        stats.worstMoodType.type === 'chores' ? 'Chores' : 
                        stats.worstMoodType.type }}
                   </div>
-                  <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
-                    {{ stats.worstMoodType.percent }}% worse mood
+                  <div class="text-xs"
+                       :class="Number(stats.worstMoodType.percent) >= 0 ? 
+                               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
+                               'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'"
+                       class="px-2 py-0.5 rounded-full">
+                    {{ Number(stats.worstMoodType.percent) >= 0 ? 
+                       stats.worstMoodType.percent + '% better mood' : 
+                       Math.abs(Number(stats.worstMoodType.percent)) + '% worse mood' }}
                   </div>
                 </div>
               </div>
