@@ -173,7 +173,7 @@ const stats = computed(() => {
   let worstMoodType = { type: 'none', value: Infinity } // Changed to Infinity for finding minimum
   
   Object.entries(typeStats).forEach(([type, stats]) => {
-    if (stats.count >= 2) { // Only consider types with at least 2 activities
+    if (stats.count >= 1) { // Consider types with at least 1 activity
       // Easiest type (highest positive difficulty difference)
       if (stats.difficultyDiffPercent > easiestType.value) {
         easiestType = { type, value: stats.difficultyDiffPercent }
@@ -576,9 +576,6 @@ const formatDate = (date: Date) => {
                 </div>
               </div>
               
-              <div class="text-xs text-gray-500 dark:text-gray-400 pt-1">
-                Note: Only activity types with at least 2 completed activities are included in these insights.
-              </div>
             </div>
           </div>
           
