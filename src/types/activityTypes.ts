@@ -67,7 +67,7 @@ export const activityTypeMetadata: Record<ActivityType, ActivityTypeMetadata> = 
     value: ACTIVITY_TYPES.HOBBIES,
     label: 'Hobbies',
     color: 'orange-500',
-    icon: 'puzzle-piece',
+    icon: 'puzzle',
     description: 'Regular activities done for enjoyment'
   },
   [ACTIVITY_TYPES.OUTDOOR]: {

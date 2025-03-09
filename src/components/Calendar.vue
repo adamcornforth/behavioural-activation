@@ -222,7 +222,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay, differenceInDays } from 'date-fns';
 import Button from './ui/button.vue';
-import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, PuzzlePiece, Mountain, MoreHorizontal } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, Puzzle, Mountain, MoreHorizontal } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
 import { ActivityType, ACTIVITY_TYPES, getActivityTypeMetadata } from '../types/activityTypes';
 
@@ -455,7 +455,7 @@ const getActivityTypeIcon = (type: ActivityType) => {
     case ACTIVITY_TYPES.CREATIVE:
       return Palette;
     case ACTIVITY_TYPES.HOBBIES:
-      return PuzzlePiece;
+      return Puzzle;
     case ACTIVITY_TYPES.OUTDOOR:
       return Mountain;
     default:
