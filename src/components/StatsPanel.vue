@@ -58,24 +58,38 @@ const stats = computed(() => {
   
   const totalWithFeedback = activitiesWithFeedback.length
   
-  // Calculate average difficulty difference (expected - actual)
-  let avgDifficultyDiff = 0
+  // Calculate average difficulty difference as a percentage
+  let avgDifficultyDiffPercent = 0
   if (activitiesWithFeedback.length > 0) {
-    const totalDifficultyDiff = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + (activity.expectedDifficulty! - activity.actualDifficulty!), 
+    const totalDifficultyDiffPercent = activitiesWithFeedback.reduce(
+      (sum, activity) => {
+        // Calculate percentage: (expected - actual) / expected * 100
+        // Positive percentage means activity was easier than expected
+        const expected = activity.expectedDifficulty!
+        const actual = activity.actualDifficulty!
+        const diffPercent = ((expected - actual) / expected) * 100
+        return sum + diffPercent
+      }, 
       0
     )
-    avgDifficultyDiff = totalDifficultyDiff / activitiesWithFeedback.length
+    avgDifficultyDiffPercent = totalDifficultyDiffPercent / activitiesWithFeedback.length
   }
   
-  // Calculate average mood improvement (actual - expected)
-  let avgMoodImprovement = 0
+  // Calculate average mood improvement as a percentage
+  let avgMoodImprovementPercent = 0
   if (activitiesWithFeedback.length > 0) {
-    const totalMoodImprovement = activitiesWithFeedback.reduce(
-      (sum, activity) => sum + (activity.actualMood! - activity.expectedMood!), 
+    const totalMoodImprovementPercent = activitiesWithFeedback.reduce(
+      (sum, activity) => {
+        // Calculate percentage: (actual - expected) / expected * 100
+        // Positive percentage means mood improved more than expected
+        const expected = activity.expectedMood!
+        const actual = activity.actualMood!
+        const improvementPercent = ((actual - expected) / expected) * 100
+        return sum + improvementPercent
+      }, 
       0
     )
-    avgMoodImprovement = totalMoodImprovement / activitiesWithFeedback.length
+    avgMoodImprovementPercent = totalMoodImprovementPercent / activitiesWithFeedback.length
   }
   
   // Calculate activity type distribution
@@ -125,8 +139,8 @@ const stats = computed(() => {
     totalCompleted,
     totalUpcoming,
     totalWithFeedback,
-    avgDifficultyDiff: avgDifficultyDiff.toFixed(1),
-    avgMoodImprovement: avgMoodImprovement.toFixed(1),
+    avgDifficultyDiffPercent: avgDifficultyDiffPercent.toFixed(0),
+    avgMoodImprovementPercent: avgMoodImprovementPercent.toFixed(0),
     mostCommonType,
     activityTypeCount: maxCount,
     avgActualMood: avgActualMood.toFixed(1),
@@ -264,25 +278,25 @@ const formatDate = (date: Date) => {
           
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Avg. Difficulty Difference</span>
-              <span class="font-medium" :class="Number(stats.avgDifficultyDiff) > 0 ? 'text-green-500' : Number(stats.avgDifficultyDiff) < 0 ? 'text-red-500' : ''">
-                {{ Number(stats.avgDifficultyDiff) > 0 ? '+' : '' }}{{ stats.avgDifficultyDiff }}
+              <span class="text-sm text-muted-foreground">Difficulty Accuracy</span>
+              <span class="font-medium" :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.avgDifficultyDiffPercent) < 0 ? 'text-red-500' : ''">
+                {{ Number(stats.avgDifficultyDiffPercent) > 0 ? stats.avgDifficultyDiffPercent + '% easier' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder' : 'As expected' }}
               </span>
             </div>
             <div class="text-xs text-muted-foreground italic">
-              (Positive means activities were easier than expected)
+              Activities were {{ Number(stats.avgDifficultyDiffPercent) > 0 ? 'easier' : 'harder' }} than expected
             </div>
           </div>
           
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Avg. Mood Improvement</span>
-              <span class="font-medium" :class="Number(stats.avgMoodImprovement) > 0 ? 'text-green-500' : Number(stats.avgMoodImprovement) < 0 ? 'text-red-500' : ''">
-                {{ Number(stats.avgMoodImprovement) > 0 ? '+' : '' }}{{ stats.avgMoodImprovement }}
+              <span class="text-sm text-muted-foreground">Mood Impact</span>
+              <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : Number(stats.avgMoodImprovementPercent) < 0 ? 'text-red-500' : ''">
+                {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '% better' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse' : 'As expected' }}
               </span>
             </div>
             <div class="text-xs text-muted-foreground italic">
-              (Positive means activities improved mood)
+              Mood was {{ Number(stats.avgMoodImprovementPercent) > 0 ? 'better' : 'worse' }} than predicted
             </div>
           </div>
           
@@ -348,9 +362,9 @@ const formatDate = (date: Date) => {
             <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
               <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Activities that are easier than expected tend to improve mood by
-                <span class="font-medium" :class="Number(stats.avgMoodImprovement) > 0 ? 'text-green-500' : 'text-red-500'">
-                  {{ Number(stats.avgMoodImprovement) > 0 ? '+' : '' }}{{ stats.avgMoodImprovement }}
-                </span> points on average.
+                <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : 'text-red-500'">
+                  {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '%' : Math.abs(Number(stats.avgMoodImprovementPercent)) + '%' }}
+                </span> on average.
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">
                 Recommendation: Focus on activities that you find easier than expected to improve your mood.
