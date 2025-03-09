@@ -422,8 +422,31 @@ const formatDate = (date: Date) => {
                   {{ Number(stats.avgDifficultyDiffPercent) > 0 ? stats.avgDifficultyDiffPercent + '% easier' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder' : 'As expected' }}
                 </span>
               </div>
-              <div class="text-xs text-muted-foreground italic">
-                Activities were {{ Number(stats.avgDifficultyDiffPercent) > 0 ? 'easier' : 'harder' }} than expected
+              
+              <!-- Difficulty comparison slider -->
+              <div class="relative h-6 mt-1">
+                <!-- Expected difficulty background -->
+                <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                
+                <!-- Expected difficulty value -->
+                <div class="absolute inset-y-0 left-0 bg-blue-400 dark:bg-blue-600 rounded-full" 
+                     :style="`width: ${Number(stats.avgExpectedDifficulty) * 10}%`"></div>
+                
+                <!-- Actual difficulty value -->
+                <div class="absolute inset-y-0 left-0 rounded-full" 
+                     :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
+                     :style="`width: ${Number(stats.avgActualDifficulty) * 10}%`"></div>
+                
+                <!-- Labels -->
+                <div class="absolute inset-0 flex justify-between items-center px-2 text-xs text-white font-medium">
+                  <span>Easier</span>
+                  <span>Harder</span>
+                </div>
+              </div>
+              
+              <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>Expected: {{ stats.avgExpectedDifficulty }}/10</span>
+                <span>Actual: {{ stats.avgActualDifficulty }}/10</span>
               </div>
             </div>
             
@@ -434,8 +457,31 @@ const formatDate = (date: Date) => {
                   {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '% better' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse' : 'As expected' }}
                 </span>
               </div>
-              <div class="text-xs text-muted-foreground italic">
-                Mood was {{ Number(stats.avgMoodImprovementPercent) > 0 ? 'better' : 'worse' }} than predicted
+              
+              <!-- Mood comparison slider -->
+              <div class="relative h-6 mt-1">
+                <!-- Expected mood background -->
+                <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                
+                <!-- Expected mood value -->
+                <div class="absolute inset-y-0 left-0 bg-blue-400 dark:bg-blue-600 rounded-full" 
+                     :style="`width: ${Number(stats.avgExpectedMood) * 10}%`"></div>
+                
+                <!-- Actual mood value -->
+                <div class="absolute inset-y-0 left-0 rounded-full" 
+                     :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
+                     :style="`width: ${Number(stats.avgActualMood) * 10}%`"></div>
+                
+                <!-- Labels -->
+                <div class="absolute inset-0 flex justify-between items-center px-2 text-xs text-white font-medium">
+                  <span>Lower</span>
+                  <span>Higher</span>
+                </div>
+              </div>
+              
+              <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>Expected: {{ stats.avgExpectedMood }}/10</span>
+                <span>Actual: {{ stats.avgActualMood }}/10</span>
               </div>
             </div>
             
