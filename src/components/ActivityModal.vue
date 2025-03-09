@@ -282,9 +282,13 @@ const handleClose = () => {
     :description="activeTab === 'feedback' ? 'How did this activity affect you?' : 'Plan your activity and predict how it will affect you'"
     @close="handleClose"
     size="lg"
+    class="overflow-hidden"
   >
+    <!-- Content wrapper with scrolling -->
+    <div class="overflow-y-auto max-h-[60vh] pr-1 -mr-1">
+    
     <!-- Tab navigation -->
-    <div v-if="editActivity" class="mb-6 border-b dark:border-gray-700">
+    <div v-if="editActivity" class="mb-4 border-b dark:border-gray-700">
       <div class="flex space-x-4">
         <button 
           @click="activeTab = 'edit'" 
@@ -342,8 +346,8 @@ const handleClose = () => {
         </div>
       </div>
       
-      <!-- Basic fields -->
-      <div class="space-y-4">
+      <!-- Basic fields - more compact spacing -->
+      <div class="space-y-3">
         <div>
           <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
           <input 
@@ -409,8 +413,8 @@ const handleClose = () => {
         </button>
       </div>
       
-      <!-- Advanced fields -->
-      <div v-if="showAdvancedFields" class="space-y-4 border-t dark:border-gray-700 pt-4 mt-2">
+      <!-- Advanced fields - more compact spacing -->
+      <div v-if="showAdvancedFields" class="space-y-3 border-t dark:border-gray-700 pt-3 mt-2">
         <div>
           <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
           <select 
@@ -451,7 +455,7 @@ const handleClose = () => {
           <textarea 
             id="notes" 
             v-model="formData.notes" 
-            rows="3" 
+            rows="2" 
             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Any additional details or thoughts..."
           ></textarea>
@@ -476,8 +480,8 @@ const handleClose = () => {
         </div>
       </div>
       
-      <!-- Feedback fields -->
-      <div class="space-y-4">
+      <!-- Feedback fields - more compact spacing -->
+      <div class="space-y-3">
         <div>
           <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Difficulty: {{ formData.actualDifficulty || '?' }}
@@ -533,13 +537,15 @@ const handleClose = () => {
           <textarea 
             id="feedbackNotes" 
             v-model="formData.notes" 
-            rows="3" 
+            rows="2" 
             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Any reflections on this activity..."
           ></textarea>
         </div>
       </div>
     </form>
+    
+    </div> <!-- Close the scrollable content wrapper -->
     
     <template #footer>
       <div class="flex justify-end space-x-3">
