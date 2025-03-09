@@ -819,9 +819,6 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Get color based on activity type
   const getMoodColor = (activity: any) => {
-    // Use the imported helper function
-    const colors = getActivityTypeColors(activity.activityType);
-    
     // Use activity type color if available
     const colors = getActivityTypeColors(activity.activityType);
     
