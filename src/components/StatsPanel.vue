@@ -201,7 +201,13 @@ const stats = computed(() => {
   // Calculate average actual mood and difficulty
   let avgActualMood = 0
   let avgActualDifficulty = 0
+  let avgExpectedMood = 0
+  let avgExpectedDifficulty = 0
+  let moodDiffPercent = 0
+  let difficultyDiffPercent = 0
+  
   if (activitiesWithFeedback.length > 0) {
+    // Calculate actual averages
     avgActualMood = activitiesWithFeedback.reduce(
       (sum, activity) => sum + activity.actualMood!, 0
     ) / activitiesWithFeedback.length
@@ -209,6 +215,19 @@ const stats = computed(() => {
     avgActualDifficulty = activitiesWithFeedback.reduce(
       (sum, activity) => sum + activity.actualDifficulty!, 0
     ) / activitiesWithFeedback.length
+    
+    // Calculate expected averages
+    avgExpectedMood = activitiesWithFeedback.reduce(
+      (sum, activity) => sum + activity.expectedMood!, 0
+    ) / activitiesWithFeedback.length
+    
+    avgExpectedDifficulty = activitiesWithFeedback.reduce(
+      (sum, activity) => sum + activity.expectedDifficulty!, 0
+    ) / activitiesWithFeedback.length
+    
+    // Calculate percentage differences
+    moodDiffPercent = ((avgActualMood - avgExpectedMood) / avgExpectedMood) * 100
+    difficultyDiffPercent = ((avgExpectedDifficulty - avgActualDifficulty) / avgExpectedDifficulty) * 100
   }
   
   // Calculate prediction accuracy percentage
@@ -241,6 +260,10 @@ const stats = computed(() => {
     activityTypeCount: maxCount,
     avgActualMood: avgActualMood.toFixed(1),
     avgActualDifficulty: avgActualDifficulty.toFixed(1),
+    avgExpectedMood: avgExpectedMood.toFixed(1),
+    avgExpectedDifficulty: avgExpectedDifficulty.toFixed(1),
+    moodDiffPercent: moodDiffPercent.toFixed(0),
+    difficultyDiffPercent: difficultyDiffPercent.toFixed(0),
     predictionAccuracy: predictionAccuracy.toFixed(0),
     // New activity type insights
     easiestType: easiestType.type !== 'none' ? {
@@ -485,11 +508,25 @@ const formatDate = (date: Date) => {
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
-                <div class="text-xl font-medium mt-1">{{ stats.avgActualMood }}/10</div>
+                <div class="text-xl font-medium mt-1">
+                  {{ stats.avgActualMood }}/10
+                  <span class="text-sm ml-1" 
+                        :class="Number(stats.moodDiffPercent) > 0 ? 'text-green-500' : Number(stats.moodDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
+                    ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ stats.moodDiffPercent }}%)
+                  </span>
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ stats.avgExpectedMood }}/10</div>
               </div>
               <div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
-                <div class="text-xl font-medium mt-1">{{ stats.avgActualDifficulty }}/10</div>
+                <div class="text-xl font-medium mt-1">
+                  {{ stats.avgActualDifficulty }}/10
+                  <span class="text-sm ml-1" 
+                        :class="Number(stats.difficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.difficultyDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
+                    ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ stats.difficultyDiffPercent }}%)
+                  </span>
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ stats.avgExpectedDifficulty }}/10</div>
               </div>
             </div>
           </div>
