@@ -408,7 +408,13 @@ const formatDate = (date: Date) => {
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center">
               <span class="text-sm text-muted-foreground">Most Common Activity Type</span>
-              <span class="font-medium capitalize">{{ stats.mostCommonType }} ({{ stats.activityTypeCount }})</span>
+              <span class="font-medium capitalize">
+                {{ stats.mostCommonType === 'self-care' ? 'Self-Care' : 
+                   stats.mostCommonType === 'cooking' ? 'Cooking' :
+                   stats.mostCommonType === 'shopping' ? 'Shopping' :
+                   stats.mostCommonType === 'chores' ? 'Chores' : 
+                   stats.mostCommonType }} ({{ stats.activityTypeCount }})
+              </span>
             </div>
           </div>
           
@@ -416,7 +422,13 @@ const formatDate = (date: Date) => {
           <div v-if="stats.bestMoodType" class="flex flex-col gap-1 pt-2 mt-2 border-t dark:border-gray-700">
             <div class="flex justify-between items-center">
               <span class="text-sm text-muted-foreground">Best Activity for Mood</span>
-              <span class="font-medium capitalize text-green-600 dark:text-green-400">{{ stats.bestMoodType.type }}</span>
+              <span class="font-medium capitalize text-green-600 dark:text-green-400">
+                {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
+                   stats.bestMoodType.type === 'cooking' ? 'Cooking' :
+                   stats.bestMoodType.type === 'shopping' ? 'Shopping' :
+                   stats.bestMoodType.type === 'chores' ? 'Chores' : 
+                   stats.bestMoodType.type }}
+              </span>
             </div>
             <div class="text-xs text-muted-foreground italic">
               Improves mood by {{ stats.bestMoodType.percent }}% more than expected
@@ -481,7 +493,13 @@ const formatDate = (date: Date) => {
               <div v-if="stats.easiestType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-green-600 dark:text-green-400">Easiest Activity Type</div>
                 <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">{{ stats.easiestType.type }}</div>
+                  <div class="text-sm capitalize">
+                    {{ stats.easiestType.type === 'self-care' ? 'Self-Care' : 
+                       stats.easiestType.type === 'cooking' ? 'Cooking' :
+                       stats.easiestType.type === 'shopping' ? 'Shopping' :
+                       stats.easiestType.type === 'chores' ? 'Chores' : 
+                       stats.easiestType.type }}
+                  </div>
                   <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
                     {{ stats.easiestType.percent }}% easier than expected
                   </div>
@@ -492,7 +510,13 @@ const formatDate = (date: Date) => {
               <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
                 <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">{{ stats.hardestType.type }}</div>
+                  <div class="text-sm capitalize">
+                    {{ stats.hardestType.type === 'self-care' ? 'Self-Care' : 
+                       stats.hardestType.type === 'cooking' ? 'Cooking' :
+                       stats.hardestType.type === 'shopping' ? 'Shopping' :
+                       stats.hardestType.type === 'chores' ? 'Chores' : 
+                       stats.hardestType.type }}
+                  </div>
                   <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
                     {{ stats.hardestType.percent }}% harder than expected
                   </div>
@@ -503,7 +527,13 @@ const formatDate = (date: Date) => {
               <div v-if="stats.bestMoodType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-green-600 dark:text-green-400">Best Mood Improvement</div>
                 <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">{{ stats.bestMoodType.type }}</div>
+                  <div class="text-sm capitalize">
+                    {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
+                       stats.bestMoodType.type === 'cooking' ? 'Cooking' :
+                       stats.bestMoodType.type === 'shopping' ? 'Shopping' :
+                       stats.bestMoodType.type === 'chores' ? 'Chores' : 
+                       stats.bestMoodType.type }}
+                  </div>
                   <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
                     {{ stats.bestMoodType.percent }}% better mood
                   </div>
@@ -514,7 +544,13 @@ const formatDate = (date: Date) => {
               <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
                 <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
                 <div class="flex justify-between items-center mt-1">
-                  <div class="text-sm capitalize">{{ stats.worstMoodType.type }}</div>
+                  <div class="text-sm capitalize">
+                    {{ stats.worstMoodType.type === 'self-care' ? 'Self-Care' : 
+                       stats.worstMoodType.type === 'cooking' ? 'Cooking' :
+                       stats.worstMoodType.type === 'shopping' ? 'Shopping' :
+                       stats.worstMoodType.type === 'chores' ? 'Chores' : 
+                       stats.worstMoodType.type }}
+                  </div>
                   <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
                     {{ stats.worstMoodType.percent }}% worse mood
                   </div>

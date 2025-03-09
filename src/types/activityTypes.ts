@@ -7,6 +7,9 @@ export const ACTIVITY_TYPES = {
   CREATIVE: 'creative',
   HOBBIES: 'hobbies',
   OUTDOOR: 'outdoor',
+  CHORES: 'chores',
+  SHOPPING: 'shopping',
+  COOKING: 'cooking',
   OTHER: 'other'
 } as const;
 
@@ -76,6 +79,27 @@ export const activityTypeMetadata: Record<ActivityType, ActivityTypeMetadata> = 
     color: 'emerald-500',
     icon: 'mountain',
     description: 'Activities done in nature or outside'
+  },
+  [ACTIVITY_TYPES.CHORES]: {
+    value: ACTIVITY_TYPES.CHORES,
+    label: 'Chores',
+    color: 'indigo-400',
+    icon: 'home',
+    description: 'Household maintenance and routine tasks'
+  },
+  [ACTIVITY_TYPES.SHOPPING]: {
+    value: ACTIVITY_TYPES.SHOPPING,
+    label: 'Shopping',
+    color: 'teal-500',
+    icon: 'shopping-cart',
+    description: 'Purchasing groceries, goods, or services'
+  },
+  [ACTIVITY_TYPES.COOKING]: {
+    value: ACTIVITY_TYPES.COOKING,
+    label: 'Cooking',
+    color: 'amber-500',
+    icon: 'utensils',
+    description: 'Preparing meals and food-related activities'
   },
   [ACTIVITY_TYPES.OTHER]: {
     value: ACTIVITY_TYPES.OTHER,
