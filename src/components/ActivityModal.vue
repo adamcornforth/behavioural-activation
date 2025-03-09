@@ -401,29 +401,32 @@ const handleClose = () => {
       
       <!-- Basic fields - more compact spacing -->
       <div class="space-y-3">
-        <div>
-          <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
-          <input 
-            id="activityName" 
-            v-model="formData.activityName" 
-            type="text" 
-            required
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-            placeholder="What are you planning to do?"
-          />
-        </div>
-        
-        <div>
-          <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
-          <select 
-            id="activityType" 
-            v-model="formData.activityType" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="type in activityTypes" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
+        <!-- Activity name and type in 2-column layout -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
+            <input 
+              id="activityName" 
+              v-model="formData.activityName" 
+              type="text" 
+              required
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+              placeholder="What are you planning to do?"
+            />
+          </div>
+          
+          <div>
+            <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
+            <select 
+              id="activityType" 
+              v-model="formData.activityType" 
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            >
+              <option v-for="type in activityTypes" :key="type.value" :value="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
         </div>
         
         <div>
