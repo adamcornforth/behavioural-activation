@@ -4,6 +4,7 @@ import Modal from './ui/modal.vue'
 import Button from './ui/button.vue'
 import { getPresetsByCategory, findPresetById } from '../data/activityPresets'
 import { Activity } from '../store/activityStore'
+import { getActivityTypeOptions } from '../types/activityTypes'
 
 const props = defineProps<{
   open: boolean
@@ -152,15 +153,8 @@ const moodOptions = [
   { value: 10, label: 'Excellent' }
 ]
 
-const activityTypes = [
-  { value: 'self-care', label: 'Self-Care' },
-  { value: 'exercise', label: 'Exercise' },
-  { value: 'social', label: 'Social' },
-  { value: 'work', label: 'Work' },
-  { value: 'leisure', label: 'Leisure' },
-  { value: 'creative', label: 'Creative' },
-  { value: 'other', label: 'Other' }
-]
+import { getActivityTypeOptions } from '../types/activityTypes'
+const activityTypes = getActivityTypeOptions()
 
 // Format date for display
 const formatDateTime = (date?: Date) => {

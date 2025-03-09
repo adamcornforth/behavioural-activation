@@ -224,7 +224,7 @@ import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isS
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, Puzzle, Mountain, MoreHorizontal } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
-import { ActivityType, ACTIVITY_TYPES, getActivityTypeMetadata } from '../types/activityTypes';
+import { ActivityType, ACTIVITY_TYPES, getActivityTypeMetadata, getActivityTypeColors } from '../types/activityTypes';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -819,8 +819,8 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   
   // Get color based on activity type
   const getMoodColor = (activity: any) => {
-    // Import the helper function if not already imported
-    const { getActivityTypeColors } = require('../types/activityTypes');
+    // Use the imported helper function
+    const colors = getActivityTypeColors(activity.activityType);
     
     // Use activity type color if available
     const colors = getActivityTypeColors(activity.activityType);
