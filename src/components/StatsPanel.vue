@@ -109,6 +109,93 @@ const stats = computed(() => {
     }
   })
   
+  // Calculate activity type statistics
+  const typeStats: Record<string, {
+    count: number,
+    avgDifficulty: number,
+    avgMood: number,
+    difficultyDiffPercent: number,
+    moodImprovementPercent: number
+  }> = {}
+  
+  // Initialize type stats
+  Object.keys(activityTypes).forEach(type => {
+    typeStats[type] = {
+      count: 0,
+      avgDifficulty: 0,
+      avgMood: 0,
+      difficultyDiffPercent: 0,
+      moodImprovementPercent: 0
+    }
+  })
+  
+  // Calculate stats for each activity type
+  activitiesWithFeedback.forEach(activity => {
+    const type = activity.activityType || 'other'
+    
+    if (!typeStats[type]) {
+      typeStats[type] = {
+        count: 0,
+        avgDifficulty: 0,
+        avgMood: 0,
+        difficultyDiffPercent: 0,
+        moodImprovementPercent: 0
+      }
+    }
+    
+    typeStats[type].count++
+    typeStats[type].avgDifficulty += activity.actualDifficulty!
+    typeStats[type].avgMood += activity.actualMood!
+    
+    // Calculate difficulty difference percentage
+    const difficultyDiffPercent = ((activity.expectedDifficulty! - activity.actualDifficulty!) / activity.expectedDifficulty!) * 100
+    typeStats[type].difficultyDiffPercent += difficultyDiffPercent
+    
+    // Calculate mood improvement percentage
+    const moodImprovementPercent = ((activity.actualMood! - activity.expectedMood!) / activity.expectedMood!) * 100
+    typeStats[type].moodImprovementPercent += moodImprovementPercent
+  })
+  
+  // Calculate averages for each type
+  Object.keys(typeStats).forEach(type => {
+    if (typeStats[type].count > 0) {
+      typeStats[type].avgDifficulty /= typeStats[type].count
+      typeStats[type].avgMood /= typeStats[type].count
+      typeStats[type].difficultyDiffPercent /= typeStats[type].count
+      typeStats[type].moodImprovementPercent /= typeStats[type].count
+    }
+  })
+  
+  // Find best and worst activity types
+  let easiestType = { type: 'none', value: -Infinity }
+  let hardestType = { type: 'none', value: -Infinity }
+  let bestMoodType = { type: 'none', value: -Infinity }
+  let worstMoodType = { type: 'none', value: -Infinity }
+  
+  Object.entries(typeStats).forEach(([type, stats]) => {
+    if (stats.count >= 2) { // Only consider types with at least 2 activities
+      // Easiest type (highest positive difficulty difference)
+      if (stats.difficultyDiffPercent > easiestType.value) {
+        easiestType = { type, value: stats.difficultyDiffPercent }
+      }
+      
+      // Hardest type (lowest/most negative difficulty difference)
+      if (-stats.difficultyDiffPercent > hardestType.value) {
+        hardestType = { type, value: -stats.difficultyDiffPercent }
+      }
+      
+      // Best mood type (highest positive mood improvement)
+      if (stats.moodImprovementPercent > bestMoodType.value) {
+        bestMoodType = { type, value: stats.moodImprovementPercent }
+      }
+      
+      // Worst mood type (lowest/most negative mood improvement)
+      if (-stats.moodImprovementPercent > worstMoodType.value) {
+        worstMoodType = { type, value: -stats.moodImprovementPercent }
+      }
+    }
+  })
+  
   // Calculate average actual mood and difficulty
   let avgActualMood = 0
   let avgActualDifficulty = 0
@@ -145,7 +232,25 @@ const stats = computed(() => {
     activityTypeCount: maxCount,
     avgActualMood: avgActualMood.toFixed(1),
     avgActualDifficulty: avgActualDifficulty.toFixed(1),
-    predictionAccuracy: predictionAccuracy.toFixed(0)
+    predictionAccuracy: predictionAccuracy.toFixed(0),
+    // New activity type insights
+    easiestType: easiestType.type !== 'none' ? {
+      type: easiestType.type,
+      percent: easiestType.value.toFixed(0)
+    } : null,
+    hardestType: hardestType.type !== 'none' ? {
+      type: hardestType.type,
+      percent: hardestType.value.toFixed(0)
+    } : null,
+    bestMoodType: bestMoodType.type !== 'none' ? {
+      type: bestMoodType.type,
+      percent: bestMoodType.value.toFixed(0)
+    } : null,
+    worstMoodType: worstMoodType.type !== 'none' ? {
+      type: worstMoodType.type,
+      percent: worstMoodType.value.toFixed(0)
+    } : null,
+    typeStats
   }
 })
 
@@ -306,6 +411,17 @@ const formatDate = (date: Date) => {
               <span class="font-medium capitalize">{{ stats.mostCommonType }} ({{ stats.activityTypeCount }})</span>
             </div>
           </div>
+          
+          <!-- Activity Type Insights Summary -->
+          <div v-if="stats.bestMoodType" class="flex flex-col gap-1 pt-2 mt-2 border-t dark:border-gray-700">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">Best Activity for Mood</span>
+              <span class="font-medium capitalize text-green-600 dark:text-green-400">{{ stats.bestMoodType.type }}</span>
+            </div>
+            <div class="text-xs text-muted-foreground italic">
+              Improves mood by {{ stats.bestMoodType.percent }}% more than expected
+            </div>
+          </div>
         </div>
       </CardContent>
       
@@ -353,6 +469,60 @@ const formatDate = (date: Date) => {
               <div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
                 <div class="text-xl font-medium mt-1">{{ stats.avgActualDifficulty }}/10</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Activity Type Insights -->
+          <div v-if="stats.easiestType || stats.hardestType || stats.bestMoodType || stats.worstMoodType">
+            <div class="text-sm font-medium mb-2">Activity Type Insights</div>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md space-y-3">
+              <!-- Easiest Activity Type -->
+              <div v-if="stats.easiestType" class="border-b pb-2 dark:border-gray-700">
+                <div class="text-xs font-medium text-green-600 dark:text-green-400">Easiest Activity Type</div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-sm capitalize">{{ stats.easiestType.type }}</div>
+                  <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
+                    {{ stats.easiestType.percent }}% easier than expected
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Hardest Activity Type -->
+              <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
+                <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-sm capitalize">{{ stats.hardestType.type }}</div>
+                  <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
+                    {{ stats.hardestType.percent }}% harder than expected
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Best Mood Activity Type -->
+              <div v-if="stats.bestMoodType" class="border-b pb-2 dark:border-gray-700">
+                <div class="text-xs font-medium text-green-600 dark:text-green-400">Best Mood Improvement</div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-sm capitalize">{{ stats.bestMoodType.type }}</div>
+                  <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
+                    {{ stats.bestMoodType.percent }}% better mood
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Worst Mood Activity Type -->
+              <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
+                <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-sm capitalize">{{ stats.worstMoodType.type }}</div>
+                  <div class="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300 px-2 py-0.5 rounded-full">
+                    {{ stats.worstMoodType.percent }}% worse mood
+                  </div>
+                </div>
+              </div>
+              
+              <div class="text-xs text-gray-500 dark:text-gray-400 pt-1">
+                Note: Only activity types with at least 2 completed activities are included in these insights.
               </div>
             </div>
           </div>
