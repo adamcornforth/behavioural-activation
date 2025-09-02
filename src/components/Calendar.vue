@@ -23,7 +23,7 @@
           v-for="day in weekDays" 
           :key="day.date" 
           class="py-2 text-center font-medium dark:text-gray-300"
-          :class="{ 'bg-blue-50 dark:bg-blue-900/30 rounded-t-md': day.isToday }"
+          :class="{ 'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-t-md': day.isToday }"
         >
           <div>{{ day.name }}</div>
           <div>{{ day.date }}</div>
@@ -46,8 +46,8 @@
             :key="hour"
             class="hour-cell h-20 border-b border-r border-gray-100 dark:border-gray-700 relative"
             :class="{
-              'bg-blue-50 dark:bg-blue-900/20': day - 1 === currentDayIndex && hour === currentHour,
-              'bg-blue-50/50 dark:bg-blue-900/10': day - 1 === currentDayIndex && hour !== currentHour
+              'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20': day - 1 === currentDayIndex && hour === currentHour,
+              'bg-blue-50 bg-opacity-50 dark:bg-blue-900 dark:bg-opacity-10': day - 1 === currentDayIndex && hour !== currentHour
             }"
             @mouseup="endDrag()"
             @mouseleave="onMouseLeave($event, day - 1, hour)"
@@ -139,6 +139,12 @@
                 </button>
                 <template v-if="getActivityStyle(activity, day - 1, hour).isFirstHourCell">
                   <div class="flex items-center">
+                    <!-- Activity type icon -->
+                    <div v-if="getActivityTypeIcon(activity.activityType)" 
+                         class="mr-1 w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-400"
+                         :title="getActivityTypeLabel(activity.activityType)">
+                      <component :is="getActivityTypeIcon(activity.activityType)" class="w-3 h-3" />
+                    </div>
                     <div class="text-xs font-medium truncate flex-1">{{ activity.activityName }}</div>
                     <!-- Feedback indicator -->
                     <div v-if="needsFeedback(activity)" 
@@ -214,10 +220,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay, differenceInDays } from 'date-fns';
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isSameDay, differenceInDays } from 'date-fns';
 import Button from './ui/button.vue';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, Puzzle, Mountain, MoreHorizontal } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
+import { ActivityType, ACTIVITY_TYPES, getActivityTypeMetadata, getActivityTypeColors } from '../types/activityTypes';
 
 // State
 const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 })); // Start on Monday
@@ -391,14 +398,14 @@ const startDrag = (event: MouseEvent, day: number, hour: number, quarterHour: nu
   console.log(`Started dragging at day ${day}, hour ${dragStartHour.value}`);
 };
 
-const onDrag = (event: MouseEvent, day: number, hour: number, quarterHour: number) => {
+const onDrag = (_event: MouseEvent, day: number, hour: number, quarterHour: number) => {
   if (isDragging.value) {
     dragEndDay.value = day;
     dragEndHour.value = hour + quarterHour;
   }
 };
 
-const onMouseLeave = (event: MouseEvent, day: number, hour: number) => {
+const onMouseLeave = (_event: MouseEvent, _day: number, _hour: number) => {
   // Optional: Handle mouse leaving the calendar grid
   // This can be used to improve the drag experience
 };
@@ -430,6 +437,35 @@ const endDrag = () => {
     showActivityModal.value = true;
     selectedTimeRange.value = normalizedSelection;
   }
+};
+
+// Helper functions for activity types
+const getActivityTypeIcon = (type: ActivityType) => {
+  switch (type) {
+    case ACTIVITY_TYPES.SELF_CARE:
+      return Heart;
+    case ACTIVITY_TYPES.EXERCISE:
+      return Dumbbell;
+    case ACTIVITY_TYPES.SOCIAL:
+      return Users;
+    case ACTIVITY_TYPES.WORK:
+      return Briefcase;
+    case ACTIVITY_TYPES.LEISURE:
+      return Film;
+    case ACTIVITY_TYPES.CREATIVE:
+      return Palette;
+    case ACTIVITY_TYPES.HOBBIES:
+      return Puzzle;
+    case ACTIVITY_TYPES.OUTDOOR:
+      return Mountain;
+    default:
+      return MoreHorizontal;
+  }
+};
+
+const getActivityTypeLabel = (type: ActivityType) => {
+  const metadata = getActivityTypeMetadata(type);
+  return metadata.label;
 };
 
 // Import the activity store
@@ -467,7 +503,12 @@ const createDefaultActivities = () => {
     endTime: new Date(monday.setHours(10, 0, 0, 0)),
     expectedDifficulty: 7,
     expectedMood: 8,
-    location: "Gym"
+    location: "Gym",
+    activityType: ACTIVITY_TYPES.EXERCISE,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a team meeting for Tuesday at 11 AM
@@ -482,7 +523,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(tuesday).setHours(12, 30, 0, 0)),
     expectedDifficulty: 4,
     expectedMood: 6,
-    location: "Conference Room"
+    location: "Conference Room",
+    activityType: ACTIVITY_TYPES.WORK,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a lunch with friends on Wednesday
@@ -497,7 +543,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(wednesday).setHours(13, 30, 0, 0)),
     expectedDifficulty: 2,
     expectedMood: 9,
-    location: "Cafe Downtown"
+    location: "Cafe Downtown",
+    activityType: ACTIVITY_TYPES.SOCIAL,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a project work session on Thursday
@@ -512,7 +563,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(thursday).setHours(17, 0, 0, 0)),
     expectedDifficulty: 8,
     expectedMood: 7,
-    location: "Home Office"
+    location: "Home Office",
+    activityType: ACTIVITY_TYPES.WORK,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Create a weekend hike on Saturday
@@ -527,7 +583,12 @@ const createDefaultActivities = () => {
     endTime: new Date(new Date(saturday).setHours(14, 0, 0, 0)),
     expectedDifficulty: 6,
     expectedMood: 10,
-    location: "Mountain Trail"
+    location: "Mountain Trail",
+    activityType: ACTIVITY_TYPES.OUTDOOR,
+    createdAt: new Date(),
+    completed: false,
+    notes: "",
+    participants: ""
   };
   
   // Add all default activities
@@ -756,12 +817,68 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   // Determine if this is a middle cell (not first, not last)
   const isMiddleCell = !isFirstCell && !isLastCell;
   
-  // Get color based on expected mood
-  const getMoodColor = (mood: number) => {
-    if (mood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
-    if (mood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
-    if (mood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
-    return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
+  // Get color based on activity type
+  const getMoodColor = (activity: any) => {
+    // Use activity type color if available
+    const colors = getActivityTypeColors(activity.activityType);
+    
+    // Fallback to mood-based colors if needed
+    if (!colors) {
+      if (activity.expectedMood >= 8) return 'bg-green-100 border-green-300 dark:bg-green-900 dark:border-green-700 dark:text-green-100';
+      if (activity.expectedMood >= 6) return 'bg-blue-100 border-blue-300 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100';
+      if (activity.expectedMood >= 4) return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-100';
+      return 'bg-red-100 border-red-300 dark:bg-red-900 dark:border-red-700 dark:text-red-100';
+    }
+    
+    // Map activity type colors to include explicit dark mode classes
+    const colorMap: { [key: string]: string } = {
+      'bg-blue-100': 'dark:bg-blue-900',
+      'bg-green-100': 'dark:bg-green-900',
+      'bg-emerald-100': 'dark:bg-emerald-900',
+      'bg-red-100': 'dark:bg-red-900',
+      'bg-yellow-100': 'dark:bg-yellow-900',
+      'bg-purple-100': 'dark:bg-purple-900',
+      'bg-pink-100': 'dark:bg-pink-900',
+      'bg-indigo-100': 'dark:bg-indigo-900',
+      'bg-gray-100': 'dark:bg-gray-700',
+      'bg-orange-100': 'dark:bg-orange-900',
+      'bg-teal-100': 'dark:bg-teal-900',
+      'bg-amber-100': 'dark:bg-amber-900',
+      'border-blue-300': 'dark:border-blue-700',
+      'border-green-300': 'dark:border-green-700',
+      'border-emerald-300': 'dark:border-emerald-700',
+      'border-red-300': 'dark:border-red-700',
+      'border-yellow-300': 'dark:border-yellow-700',
+      'border-purple-300': 'dark:border-purple-700',
+      'border-pink-300': 'dark:border-pink-700',
+      'border-indigo-300': 'dark:border-indigo-700',
+      'border-gray-300': 'dark:border-gray-500',
+      'border-orange-300': 'dark:border-orange-700',
+      'border-teal-300': 'dark:border-teal-700',
+      'border-amber-300': 'dark:border-amber-700',
+      'text-blue-500': 'dark:text-blue-100',
+      'text-green-500': 'dark:text-green-100',
+      'text-emerald-500': 'dark:text-white',
+      'text-red-500': 'dark:text-red-100',
+      'text-yellow-500': 'dark:text-yellow-100',
+      'text-purple-500': 'dark:text-purple-100',
+      'text-pink-500': 'dark:text-pink-100',
+      'text-indigo-500': 'dark:text-indigo-100',
+      'text-gray-500': 'dark:text-gray-100',
+      'text-orange-500': 'dark:text-orange-100',
+      'text-teal-500': 'dark:text-teal-100',
+      'text-amber-500': 'dark:text-amber-100'
+    };
+    
+    // Build the class string with explicit dark mode classes
+    let classString = `${colors.bg} ${colors.border}`;
+    
+    // Add dark mode equivalents
+    if (colorMap[colors.bg]) classString += ` ${colorMap[colors.bg]}`;
+    if (colorMap[colors.border]) classString += ` ${colorMap[colors.border]}`;
+    if (colors.text && colorMap[colors.text]) classString += ` ${colorMap[colors.text]}`;
+    
+    return classString;
   };
   
   // Determine border radius
@@ -816,7 +933,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
   return {
     top: `${topPercentage}%`,
     height: `${adjustedHeightPercentage}%`,
-    colorClass: getMoodColor(activity.expectedMood),
+    colorClass: getMoodColor(activity),
     display: shouldDisplay ? 'block' : 'none',
     isFirstHourCell: isFirstCell,
     isLastHourCell: isLastCell,
@@ -991,6 +1108,42 @@ onUnmounted(() => {
   background: rgba(59, 130, 246, 0.4) !important;
   border: 1px solid rgba(59, 130, 246, 0.6) !important;
 }
+
+/* Explicit dark mode background colors for all possible activity types */
+:global(.dark) .bg-blue-100 { background-color: rgba(30, 64, 175, 0.3); }
+:global(.dark) .bg-green-100 { background-color: rgba(20, 83, 45, 0.3); }
+:global(.dark) .bg-red-100 { background-color: rgba(153, 27, 27, 0.3); }
+:global(.dark) .bg-yellow-100 { background-color: rgba(133, 77, 14, 0.3); }
+:global(.dark) .bg-purple-100 { background-color: rgba(88, 28, 135, 0.3); }
+:global(.dark) .bg-pink-100 { background-color: rgba(131, 24, 67, 0.3); }
+:global(.dark) .bg-indigo-100 { background-color: rgba(49, 46, 129, 0.3); }
+:global(.dark) .bg-gray-100 { background-color: rgba(31, 41, 55, 0.3); }
+:global(.dark) .bg-orange-100 { background-color: rgba(154, 52, 18, 0.3); }
+:global(.dark) .bg-teal-100 { background-color: rgba(17, 94, 89, 0.3); }
+
+/* Explicit dark mode border colors */
+:global(.dark) .border-blue-300 { border-color: rgba(37, 99, 235, 0.5); }
+:global(.dark) .border-green-300 { border-color: rgba(22, 163, 74, 0.5); }
+:global(.dark) .border-red-300 { border-color: rgba(220, 38, 38, 0.5); }
+:global(.dark) .border-yellow-300 { border-color: rgba(202, 138, 4, 0.5); }
+:global(.dark) .border-purple-300 { border-color: rgba(126, 34, 206, 0.5); }
+:global(.dark) .border-pink-300 { border-color: rgba(219, 39, 119, 0.5); }
+:global(.dark) .border-indigo-300 { border-color: rgba(79, 70, 229, 0.5); }
+:global(.dark) .border-gray-300 { border-color: rgba(75, 85, 99, 0.5); }
+:global(.dark) .border-orange-300 { border-color: rgba(234, 88, 12, 0.5); }
+:global(.dark) .border-teal-300 { border-color: rgba(20, 184, 166, 0.5); }
+
+/* Explicit dark mode text colors */
+:global(.dark) .text-blue-500 { color: rgba(147, 197, 253, 1); }
+:global(.dark) .text-green-500 { color: rgba(134, 239, 172, 1); }
+:global(.dark) .text-red-500 { color: rgba(252, 165, 165, 1); }
+:global(.dark) .text-yellow-500 { color: rgba(253, 224, 71, 1); }
+:global(.dark) .text-purple-500 { color: rgba(216, 180, 254, 1); }
+:global(.dark) .text-pink-500 { color: rgba(249, 168, 212, 1); }
+:global(.dark) .text-indigo-500 { color: rgba(165, 180, 252, 1); }
+:global(.dark) .text-gray-500 { color: rgba(209, 213, 219, 1); }
+:global(.dark) .text-orange-500 { color: rgba(253, 186, 116, 1); }
+:global(.dark) .text-teal-500 { color: rgba(153, 246, 228, 1); }
 
 .current-time-indicator {
   position: absolute;

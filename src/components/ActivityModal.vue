@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import Modal from './ui/modal.vue'
 import Button from './ui/button.vue'
 import { getPresetsByCategory, findPresetById } from '../data/activityPresets'
 import { Activity } from '../store/activityStore'
+import { getActivityTypeOptions } from '../types/activityTypes'
 
 const props = defineProps<{
   open: boolean
@@ -13,17 +14,7 @@ const props = defineProps<{
   provideFeedback?: boolean
 }>()
 
-const emit = defineEmits(['close', 'submit'])
-
-// Activity presets
-const presetsByCategory = computed(() => getPresetsByCategory())
-const selectedCategory = ref('')
-const selectedPresetId = ref('')
-
-
-// UI state
-const showAdvancedFields = ref(false)
-const activeTab = ref<'edit' | 'feedback'>('edit')
+const emit = defineEmits(['close', 'submit', 'durationChange'])
 
 // Form state
 const formData = reactive({
@@ -36,8 +27,22 @@ const formData = reactive({
   location: '',
   notes: '',
   participants: '',
-  activityType: 'other'
+  activityType: 'other',
+  // Time fields
+  startTime: props.startTime,
+  endTime: props.endTime
 })
+
+// Activity presets
+const presetsByCategory = computed(() => getPresetsByCategory())
+const selectedCategory = ref('')
+const selectedPresetId = ref('')
+
+
+// UI state
+const showAdvancedFields = ref(false)
+const activeTab = ref<'edit' | 'feedback'>('edit')
+
 
 // Reset form function
 const resetForm = () => {
@@ -78,9 +83,58 @@ const applyPreset = () => {
   }
 }
 
-// Watch for edit activity changes
-import { watch } from 'vue'
+// Duration options in 15-minute increments
+const durationOptions = [
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 45, label: '45 minutes' },
+  { value: 60, label: '1 hour' },
+  { value: 90, label: '1.5 hours' },
+  { value: 120, label: '2 hours' },
+  { value: 180, label: '3 hours' },
+  { value: 240, label: '4 hours' },
+  { value: 360, label: '6 hours' },
+  { value: 480, label: '8 hours' },
+  { value: 720, label: '12 hours' },
+  { value: 1440, label: '1 day' }
+]
 
+// Calculate duration in minutes between start and end time
+const calculateDuration = (start?: Date, end?: Date) => {
+  if (!start || !end) return 60 // Default to 1 hour
+  return Math.round((end.getTime() - start.getTime()) / (1000 * 60))
+}
+
+// Selected duration in minutes
+const selectedDuration = ref(calculateDuration(props.startTime, props.endTime))
+
+// Update end time based on selected duration
+const updateEndTime = () => {
+  if (!props.startTime) return
+  
+  const newEndTime = new Date(props.startTime.getTime() + selectedDuration.value * 60 * 1000)
+  
+  // Update the form data directly
+  formData.startTime = props.startTime
+  formData.endTime = newEndTime
+  
+  // Also emit the event for parent components
+  emit('durationChange', { startTime: props.startTime, endTime: newEndTime })
+}
+
+// Watch for duration changes
+watch(selectedDuration, () => {
+  updateEndTime()
+})
+
+// Watch for props.startTime and props.endTime changes
+watch([() => props.startTime, () => props.endTime], ([newStartTime, newEndTime]) => {
+  formData.startTime = newStartTime
+  formData.endTime = newEndTime
+  selectedDuration.value = calculateDuration(newStartTime, newEndTime)
+}, { immediate: true })
+
+// Watch for edit activity changes
 watch(() => props.editActivity, (newVal) => {
   if (newVal) {
     // Populate form with activity data
@@ -136,31 +190,8 @@ if (props.provideFeedback) {
 
 
 // Difficulty and mood options
-const difficultyOptions = [
-  { value: 1, label: 'Very Easy' },
-  { value: 3, label: 'Easy' },
-  { value: 5, label: 'Moderate' },
-  { value: 7, label: 'Difficult' },
-  { value: 10, label: 'Very Difficult' }
-]
 
-const moodOptions = [
-  { value: 1, label: 'Very Low' },
-  { value: 3, label: 'Low' },
-  { value: 5, label: 'Neutral' },
-  { value: 7, label: 'Good' },
-  { value: 10, label: 'Excellent' }
-]
-
-const activityTypes = [
-  { value: 'self-care', label: 'Self-Care' },
-  { value: 'exercise', label: 'Exercise' },
-  { value: 'social', label: 'Social' },
-  { value: 'work', label: 'Work' },
-  { value: 'leisure', label: 'Leisure' },
-  { value: 'creative', label: 'Creative' },
-  { value: 'other', label: 'Other' }
-]
+const activityTypes = getActivityTypeOptions()
 
 // Format date for display
 const formatDateTime = (date?: Date) => {
@@ -181,10 +212,8 @@ const handleSubmit = () => {
   }
   
   // Create activity object with all form data
-  const activity = {
-    ...formData,
-    startTime: props.startTime,
-    endTime: props.endTime
+  const activity: any = {
+    ...formData
   }
   
   if (!props.editActivity) {
@@ -288,9 +317,13 @@ const handleClose = () => {
     :description="activeTab === 'feedback' ? 'How did this activity affect you?' : 'Plan your activity and predict how it will affect you'"
     @close="handleClose"
     size="lg"
+    class="overflow-hidden"
   >
+    <!-- Content wrapper with scrolling -->
+    <div class="overflow-y-auto max-h-[60vh] pr-1 -mr-1">
+    
     <!-- Tab navigation -->
-    <div v-if="editActivity" class="mb-6 border-b dark:border-gray-700">
+    <div v-if="editActivity" class="mb-4 border-b dark:border-gray-700">
       <div class="flex space-x-4">
         <button 
           @click="activeTab = 'edit'" 
@@ -310,10 +343,26 @@ const handleClose = () => {
     </div>
     <!-- Edit tab -->
     <form v-if="activeTab === 'edit'" @submit.prevent="handleSubmit" class="space-y-4">
-      <!-- Time information -->
+      <!-- Time information with duration selector -->
       <div v-if="startTime && endTime" class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md mb-4">
-        <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
-        <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-sm font-medium dark:text-gray-200">Selected Time:</p>
+            <p class="text-sm dark:text-gray-300">{{ formatDateTime(startTime) }} - {{ formatDateTime(endTime) }}</p>
+          </div>
+          <div class="ml-4">
+            <label for="duration" class="block text-sm font-medium mb-1 dark:text-gray-200">Duration:</label>
+            <select 
+              id="duration" 
+              v-model="selectedDuration" 
+              class="w-full px-3 py-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            >
+              <option v-for="option in durationOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
       </div>
       
       <!-- Activity Presets - only show when creating a new activity -->
@@ -348,18 +397,34 @@ const handleClose = () => {
         </div>
       </div>
       
-      <!-- Basic fields -->
-      <div class="space-y-4">
-        <div>
-          <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
-          <input 
-            id="activityName" 
-            v-model="formData.activityName" 
-            type="text" 
-            required
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-            placeholder="What are you planning to do?"
-          />
+      <!-- Basic fields - more compact spacing -->
+      <div class="space-y-3">
+        <!-- Activity name and type in 2-column layout -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="activityName" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Name*</label>
+            <input 
+              id="activityName" 
+              v-model="formData.activityName" 
+              type="text" 
+              required
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+              placeholder="What are you planning to do?"
+            />
+          </div>
+          
+          <div>
+            <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
+            <select 
+              id="activityType" 
+              v-model="formData.activityType" 
+              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            >
+              <option v-for="type in activityTypes" :key="type.value" :value="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
         </div>
         
         <div>
@@ -415,20 +480,8 @@ const handleClose = () => {
         </button>
       </div>
       
-      <!-- Advanced fields -->
-      <div v-if="showAdvancedFields" class="space-y-4 border-t dark:border-gray-700 pt-4 mt-2">
-        <div>
-          <label for="activityType" class="block text-sm font-medium mb-1 dark:text-gray-200">Activity Type</label>
-          <select 
-            id="activityType" 
-            v-model="formData.activityType" 
-            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-          >
-            <option v-for="type in activityTypes" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-        </div>
+      <!-- Advanced fields - more compact spacing -->
+      <div v-if="showAdvancedFields" class="space-y-3 border-t dark:border-gray-700 pt-3 mt-2">
         
         <div>
           <label for="location" class="block text-sm font-medium mb-1 dark:text-gray-200">Location</label>
@@ -457,7 +510,7 @@ const handleClose = () => {
           <textarea 
             id="notes" 
             v-model="formData.notes" 
-            rows="3" 
+            rows="2" 
             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Any additional details or thoughts..."
           ></textarea>
@@ -482,8 +535,8 @@ const handleClose = () => {
         </div>
       </div>
       
-      <!-- Feedback fields -->
-      <div class="space-y-4">
+      <!-- Feedback fields - more compact spacing -->
+      <div class="space-y-3">
         <div>
           <label for="actualDifficulty" class="block text-sm font-medium mb-1 dark:text-gray-200">
             Actual Difficulty: {{ formData.actualDifficulty || '?' }}
@@ -539,13 +592,15 @@ const handleClose = () => {
           <textarea 
             id="feedbackNotes" 
             v-model="formData.notes" 
-            rows="3" 
+            rows="2" 
             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
             placeholder="Any reflections on this activity..."
           ></textarea>
         </div>
       </div>
     </form>
+    
+    </div> <!-- Close the scrollable content wrapper -->
     
     <template #footer>
       <div class="flex justify-end space-x-3">

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import Button from '../components/ui/button.vue'
 import Calendar from '../components/Calendar.vue'
 import StatsPanel from '../components/StatsPanel.vue'
 </script>

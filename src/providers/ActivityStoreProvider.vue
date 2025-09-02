@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, onMounted } from 'vue'
+import { provide } from 'vue'
 import { createActivityStore, ActivityStoreKey } from '../store/activityStore'
 
 // Create the store

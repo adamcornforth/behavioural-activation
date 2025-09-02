@@ -72,5 +72,17 @@ module.exports = {
       },
     },
   },
+  safelist: [
+    // Add all the color variants needed for activity types
+    {
+      pattern: /bg-(blue|green|red|yellow|purple|pink|gray|orange|emerald)-(100|200|300|400|500|700|900)/,
+    },
+    {
+      pattern: /border-(blue|green|red|yellow|purple|pink|gray|orange|emerald)-(300|500|700)/,
+    },
+    {
+      pattern: /text-(blue|green|red|yellow|purple|pink|gray|orange|emerald)-(100|400|500)/,
+    }
+  ],
   plugins: [require("tailwindcss-animate")],
 }
