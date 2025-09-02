@@ -85,9 +85,9 @@ With my input, it produced:
 
 ### Mobile view
 
-<img width="387" height="638" alt="image" src="https://github.com/user-attachments/assets/e1a97493-e59e-4329-8e17-fce15c765612" />
-
 - **Day-only view**: Mobile version of the calendar
+
+<img width="387" height="638" alt="image" src="https://github.com/user-attachments/assets/e1a97493-e59e-4329-8e17-fce15c765612" />
 
 ## Technology Stack
 
