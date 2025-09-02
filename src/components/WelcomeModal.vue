@@ -5,22 +5,24 @@
     title="Welcome to Behavioural Activation"
     size="lg"
   >
-    <div class="space-y-6">
-      <div class="text-center">
-        <div class="mb-4 flex justify-center">
-          <div class="rounded-full bg-blue-100 dark:bg-blue-900 p-3">
-            <svg class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div class="flex flex-col max-h-[80vh] md:max-h-none">
+      <!-- Scrollable content area -->
+      <div class="overflow-y-auto flex-1 space-y-6 px-1">
+        <div class="text-center">
+          <div class="mb-4 flex justify-center">
+            <div class="rounded-full bg-blue-100 dark:bg-blue-900 p-3">
+              <svg class="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
           </div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Start Your Journey to Better Mental Wellbeing
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300 text-sm">
+            This app helps you plan, track, and reflect on meaningful activities to improve your mood and engagement with life.
+          </p>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          Start Your Journey to Better Mental Wellbeing
-        </h3>
-        <p class="text-gray-600 dark:text-gray-300 text-sm">
-          This app helps you plan, track, and reflect on meaningful activities to improve your mood and engagement with life.
-        </p>
-      </div>
 
       <div class="space-y-4">
         <div class="border-l-4 border-blue-500 pl-4">
@@ -69,8 +71,10 @@
           </div>
         </div>
       </div>
+      </div>
 
-      <div class="text-center pt-4">
+      <!-- Fixed button area -->
+      <div class="flex-shrink-0 text-center pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
         <button
           @click="$emit('close')"
           class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
