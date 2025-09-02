@@ -142,11 +142,12 @@
             <div v-for="activity in getActivitiesForCell(day - 1, hour)" :key="activity.id" class="absolute inset-0">
               <div
                 :class="[
-                  'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer group',
+                  'activity-block absolute left-0 right-0 px-1 py-0.5 cursor-pointer group',
                   `activity-${activity.id}`,
                   getActivityStyle(activity, day - 1, hour).colorClass,
                   getActivityStyle(activity, day - 1, hour).borderRadius,
-                  getActivityStyle(activity, day - 1, hour).borderStyle
+                  getActivityStyle(activity, day - 1, hour).borderStyle,
+                  getActivityStyle(activity, day - 1, hour).isFirstHourCell ? 'overflow-visible z-40' : 'overflow-hidden z-30'
                 ]"
                 :style="{
                   top: getActivityStyle(activity, day - 1, hour).top,
@@ -305,11 +306,12 @@
           <div v-for="activity in getActivitiesForCell(currentMobileDayIndex, hour)" :key="activity.id" class="absolute inset-0">
             <div
               :class="[
-                'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer group',
+                'activity-block absolute left-0 right-0 px-1 py-0.5 cursor-pointer group',
                 `activity-${activity.id}`,
                 getActivityStyle(activity, currentMobileDayIndex, hour).colorClass,
                 getActivityStyle(activity, currentMobileDayIndex, hour).borderRadius,
-                getActivityStyle(activity, currentMobileDayIndex, hour).borderStyle
+                getActivityStyle(activity, currentMobileDayIndex, hour).borderStyle,
+                getActivityStyle(activity, currentMobileDayIndex, hour).isFirstHourCell ? 'overflow-visible z-40' : 'overflow-hidden z-30'
               ]"
               :style="{
                 top: getActivityStyle(activity, currentMobileDayIndex, hour).top,
@@ -1278,13 +1280,11 @@ onUnmounted(() => {
   transition: all 0.2s ease;
   min-height: 1.5rem;
   box-sizing: border-box;
-  z-index: 30; /* Higher than quarter-hour markers */
 }
 
 .activity-block.activity-hovered,
 .activity-block:hover {
   filter: brightness(0.95);
-  z-index: 30;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
