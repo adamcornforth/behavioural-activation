@@ -50,7 +50,7 @@
 }
 
 @layer base {
-  * {
+  *:not(html) {
     @apply border-border;
   }
   html,
@@ -59,6 +59,7 @@
     padding: 0;
     height: 100%;
     overflow: hidden;
+    border: none;
   }
   body {
     @apply bg-background text-foreground;
