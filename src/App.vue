@@ -4,7 +4,7 @@ import ActivityStoreProvider from './providers/ActivityStoreProvider.vue'
 import { ref, onMounted, watch } from 'vue'
 import { Moon, Sun } from 'lucide-vue-next'
 
-const darkMode = ref(false)
+const darkMode = ref(true)
 
 // Initialize dark mode from localStorage
 onMounted(() => {
@@ -13,10 +13,9 @@ onMounted(() => {
     darkMode.value = savedMode === 'true'
     applyDarkMode(darkMode.value)
   } else {
-    // Check for system preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    darkMode.value = prefersDark
-    applyDarkMode(prefersDark)
+    // Default to dark mode
+    darkMode.value = true
+    applyDarkMode(true)
   }
 })
 

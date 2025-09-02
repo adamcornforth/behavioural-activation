@@ -834,6 +834,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     const colorMap: { [key: string]: string } = {
       'bg-blue-100': 'dark:bg-blue-900',
       'bg-green-100': 'dark:bg-green-900',
+      'bg-emerald-100': 'dark:bg-emerald-900',
       'bg-red-100': 'dark:bg-red-900',
       'bg-yellow-100': 'dark:bg-yellow-900',
       'bg-purple-100': 'dark:bg-purple-900',
@@ -842,8 +843,10 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
       'bg-gray-100': 'dark:bg-gray-700',
       'bg-orange-100': 'dark:bg-orange-900',
       'bg-teal-100': 'dark:bg-teal-900',
+      'bg-amber-100': 'dark:bg-amber-900',
       'border-blue-300': 'dark:border-blue-700',
       'border-green-300': 'dark:border-green-700',
+      'border-emerald-300': 'dark:border-emerald-700',
       'border-red-300': 'dark:border-red-700',
       'border-yellow-300': 'dark:border-yellow-700',
       'border-purple-300': 'dark:border-purple-700',
@@ -852,8 +855,10 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
       'border-gray-300': 'dark:border-gray-500',
       'border-orange-300': 'dark:border-orange-700',
       'border-teal-300': 'dark:border-teal-700',
+      'border-amber-300': 'dark:border-amber-700',
       'text-blue-500': 'dark:text-blue-100',
       'text-green-500': 'dark:text-green-100',
+      'text-emerald-500': 'dark:text-white',
       'text-red-500': 'dark:text-red-100',
       'text-yellow-500': 'dark:text-yellow-100',
       'text-purple-500': 'dark:text-purple-100',
@@ -861,7 +866,8 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
       'text-indigo-500': 'dark:text-indigo-100',
       'text-gray-500': 'dark:text-gray-100',
       'text-orange-500': 'dark:text-orange-100',
-      'text-teal-500': 'dark:text-teal-100'
+      'text-teal-500': 'dark:text-teal-100',
+      'text-amber-500': 'dark:text-amber-100'
     };
     
     // Build the class string with explicit dark mode classes
