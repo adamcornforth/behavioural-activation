@@ -5,19 +5,6 @@ plan and track activities, rate difficulty and mood impact, and visualize progre
 
 The project is hosted here: https://adamcornforth.github.io/behavioural-activation/
 
-Calendar planning:
-
-<img width="1384" alt="image" src="https://github.com/user-attachments/assets/7192839e-acb4-4820-bee5-fbaaefd144a2" />
-
-Activity stats:
-
-<img width="1362" height="653" alt="image" src="https://github.com/user-attachments/assets/b3499c8c-a5e3-4bbc-b49b-0f4c9890aa8a" />
-
-Mobile view:
-
-<img width="387" height="638" alt="image" src="https://github.com/user-attachments/assets/e1a97493-e59e-4329-8e17-fce15c765612" />
-
-
 ## About This Project
 
 This project was created using AI assistance, following a structured "prompt engineering" approach.
@@ -81,11 +68,26 @@ With my input, it produced:
 
 ## Core Features
 
+### Calendar planning
+
 - **Activity Management**: Create, schedule, and track time-bound activities
 - **Calendar View**: Weekly view with drag-and-drop scheduling
-- **Mood & Difficulty Tracking**: Rate expected vs. actual difficulty and mood impact
 - **Activity Presets**: Quick selection of common activities
+
+<img width="1384" alt="image" src="https://github.com/user-attachments/assets/7192839e-acb4-4820-bee5-fbaaefd144a2" />
+
+### Activity stats
+
+- **Mood & Difficulty Tracking**: Rate expected vs. actual difficulty and mood impact
 - **Stats & Progress Tracking**: Visualize trends and insights about your activities
+
+<img width="1362" height="653" alt="image" src="https://github.com/user-attachments/assets/b3499c8c-a5e3-4bbc-b49b-0f4c9890aa8a" />
+
+### Mobile view
+
+<img width="387" height="638" alt="image" src="https://github.com/user-attachments/assets/e1a97493-e59e-4329-8e17-fce15c765612" />
+
+- **Day-only view**: Mobile version of the calendar
 
 ## Technology Stack
 
