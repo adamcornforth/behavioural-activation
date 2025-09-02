@@ -135,7 +135,6 @@ watch([() => props.startTime, () => props.endTime], ([newStartTime, newEndTime])
 }, { immediate: true })
 
 // Watch for edit activity changes
-
 watch(() => props.editActivity, (newVal) => {
   if (newVal) {
     // Populate form with activity data
