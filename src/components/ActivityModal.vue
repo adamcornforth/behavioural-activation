@@ -190,23 +190,7 @@ if (props.provideFeedback) {
 
 
 // Difficulty and mood options
-const difficultyOptions = [
-  { value: 1, label: 'Very Easy' },
-  { value: 3, label: 'Easy' },
-  { value: 5, label: 'Moderate' },
-  { value: 7, label: 'Difficult' },
-  { value: 10, label: 'Very Difficult' }
-]
 
-const moodOptions = [
-  { value: 1, label: 'Very Low' },
-  { value: 3, label: 'Low' },
-  { value: 5, label: 'Neutral' },
-  { value: 7, label: 'Good' },
-  { value: 10, label: 'Excellent' }
-]
-
-import { getActivityTypeOptions } from '../types/activityTypes'
 const activityTypes = getActivityTypeOptions()
 
 // Format date for display
@@ -228,7 +212,7 @@ const handleSubmit = () => {
   }
   
   // Create activity object with all form data
-  const activity = {
+  const activity: any = {
     ...formData
   }
   

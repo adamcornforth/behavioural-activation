@@ -220,7 +220,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isWithinInterval, isSameDay, differenceInDays } from 'date-fns';
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isSameDay, differenceInDays } from 'date-fns';
 import Button from './ui/button.vue';
 import { ChevronLeft, ChevronRight, Heart, Dumbbell, Users, Briefcase, Film, Palette, Puzzle, Mountain, MoreHorizontal } from 'lucide-vue-next';
 import ActivityModal from './ActivityModal.vue';
@@ -398,14 +398,14 @@ const startDrag = (event: MouseEvent, day: number, hour: number, quarterHour: nu
   console.log(`Started dragging at day ${day}, hour ${dragStartHour.value}`);
 };
 
-const onDrag = (event: MouseEvent, day: number, hour: number, quarterHour: number) => {
+const onDrag = (_event: MouseEvent, day: number, hour: number, quarterHour: number) => {
   if (isDragging.value) {
     dragEndDay.value = day;
     dragEndHour.value = hour + quarterHour;
   }
 };
 
-const onMouseLeave = (event: MouseEvent, day: number, hour: number) => {
+const onMouseLeave = (_event: MouseEvent, _day: number, _hour: number) => {
   // Optional: Handle mouse leaving the calendar grid
   // This can be used to improve the drag experience
 };
@@ -831,7 +831,7 @@ const getActivityStyle = (activity: any, day: number, hour: number) => {
     }
     
     // Map activity type colors to include explicit dark mode classes
-    const colorMap = {
+    const colorMap: { [key: string]: string } = {
       'bg-blue-100': 'dark:bg-blue-900',
       'bg-green-100': 'dark:bg-green-900',
       'bg-red-100': 'dark:bg-red-900',

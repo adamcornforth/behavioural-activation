@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { XIcon } from 'lucide-vue-next'
-import { cn } from '../../lib/utils'
 
 const props = defineProps<{
   open: boolean

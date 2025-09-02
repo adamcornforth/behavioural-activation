@@ -1,5 +1,5 @@
-import { ref, reactive, inject, provide, InjectionKey } from 'vue'
-import { ActivityType, ACTIVITY_TYPES } from '../types/activityTypes'
+import { ref, inject, InjectionKey } from 'vue'
+import { ActivityType } from '../types/activityTypes'
 
 export interface Activity {
   id: string

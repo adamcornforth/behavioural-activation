@@ -16,28 +16,28 @@ const activeTab = ref('overview') // 'overview', 'activities'
 
 // Activity modal state
 const showActivityModal = ref(false)
-const currentActivity = ref(null)
+const currentActivity = ref<any>(undefined)
 const provideFeedback = ref(false)
 
 // Function to open activity modal for feedback
-const openFeedbackModal = (activity) => {
+const openFeedbackModal = (activity: any) => {
   currentActivity.value = activity
   provideFeedback.value = true
   showActivityModal.value = true
 }
 
 // Handle activity update
-const handleActivityUpdate = (updatedActivity) => {
+const handleActivityUpdate = (updatedActivity: any) => {
   activityStore.updateActivity(updatedActivity.id, updatedActivity)
   showActivityModal.value = false
-  currentActivity.value = null
+  currentActivity.value = undefined
   provideFeedback.value = false
 }
 
 // Handle modal close
 const handleModalClose = () => {
   showActivityModal.value = false
-  currentActivity.value = null
+  currentActivity.value = undefined
   provideFeedback.value = false
 }
 
