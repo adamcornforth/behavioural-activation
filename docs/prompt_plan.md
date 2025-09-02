@@ -214,7 +214,7 @@ Initialize a new Vite + TypeScript Vue project and set up the basic folder struc
 
 Tasks:
 
-1. Run: npm create vite@latest behavioural-activation --template vue-ts
+1. Run: npm create vite@latest project --template vue-ts
 2. Navigate into the project folder, run npm install or yarn to install.
 3. Create a minimal file/folder structure:
     - src/

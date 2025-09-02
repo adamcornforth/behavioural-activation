@@ -410,33 +410,33 @@ const formatDate = (date: Date) => {
                   {{ stats.predictionAccuracy }}%
                 </span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${stats.predictionAccuracy}%`"></div>
+              <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div class="bg-blue-600 h-2 rounded-full" :style="`width: ${stats.predictionAccuracy}%`"></div>
               </div>
             </div>
-            
+
             <div class="flex flex-col gap-1">
               <div class="flex justify-between items-center">
                 <span class="text-sm text-muted-foreground">Difficulty Accuracy</span>
                 <span class="font-medium" :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.avgDifficultyDiffPercent) < 0 ? 'text-red-500' : ''">
-                  {{ Number(stats.avgDifficultyDiffPercent) > 0 ? stats.avgDifficultyDiffPercent + '% easier' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder' : 'As expected' }}
+                  {{ Number(stats.avgDifficultyDiffPercent) > 0 ? " +" + stats.avgDifficultyDiffPercent + '% easier than expected' : Number(stats.avgDifficultyDiffPercent) < 0 ? Math.abs(Number(stats.avgDifficultyDiffPercent)) + '% harder than expected' : 'As expected' }}
                 </span>
               </div>
               
               <!-- Difficulty comparison slider -->
-              <div class="relative h-6 mt-1">
+              <div class="relative h-5">
                 <!-- Expected difficulty background -->
                 <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                
-                <!-- Actual difficulty value (below) -->
-                <div class="absolute inset-y-0 left-0 rounded-full" 
+
+                <!-- Expected difficulty value -->
+                <div class="absolute inset-y-0 left-0 rounded-full"
                      :class="Number(stats.avgDifficultyDiffPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
+                :style="`width: ${Number(stats.avgExpectedDifficulty) * 10}%`"></div>
+
+                <!-- Actual difficulty value -->
+                <div class="absolute inset-y-0 left-0 rounded-full bg-blue-500 dark:bg-blue-600"
                      :style="`width: ${Number(stats.avgActualDifficulty) * 10}%`"></div>
-                
-                <!-- Expected difficulty value (on top with transparency) -->
-                <div class="absolute inset-y-0 left-0 bg-blue-500 dark:bg-blue-600 rounded-full opacity-70" 
-                     :style="`width: ${Number(stats.avgExpectedDifficulty) * 10}%`"></div>
-                
+
                 <!-- Labels -->
                 <div class="absolute inset-0 flex justify-between items-center px-2 text-xs text-white font-medium">
                   <span>Easier</span>
@@ -454,22 +454,22 @@ const formatDate = (date: Date) => {
               <div class="flex justify-between items-center">
                 <span class="text-sm text-muted-foreground">Mood Impact</span>
                 <span class="font-medium" :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'text-green-500' : Number(stats.avgMoodImprovementPercent) < 0 ? 'text-red-500' : ''">
-                  {{ Number(stats.avgMoodImprovementPercent) > 0 ? stats.avgMoodImprovementPercent + '% better' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse' : 'As expected' }}
+                  {{ Number(stats.avgMoodImprovementPercent) > 0 ? " +" + stats.avgMoodImprovementPercent + '% better than expected' : Number(stats.avgMoodImprovementPercent) < 0 ? Math.abs(Number(stats.avgMoodImprovementPercent)) + '% worse than expected' : 'As expected' }}
                 </span>
               </div>
               
               <!-- Mood comparison slider -->
-              <div class="relative h-6 mt-1">
+              <div class="relative h-5">
                 <!-- Expected mood background -->
                 <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                 
                 <!-- Actual mood value (below) -->
-                <div class="absolute inset-y-0 left-0 rounded-full" 
+                <div class="absolute inset-y-0 left-0 rounded-full"
                      :class="Number(stats.avgMoodImprovementPercent) > 0 ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'"
                      :style="`width: ${Number(stats.avgActualMood) * 10}%`"></div>
                 
                 <!-- Expected mood value (on top with transparency) -->
-                <div class="absolute inset-y-0 left-0 bg-blue-500 dark:bg-blue-600 rounded-full opacity-70" 
+                <div class="absolute inset-y-0 left-0 bg-blue-500 dark:bg-blue-600 rounded-full"
                      :style="`width: ${Number(stats.avgExpectedMood) * 10}%`"></div>
                 
                 <!-- Labels -->
@@ -518,42 +518,13 @@ const formatDate = (date: Date) => {
           
           <!-- Right column: Trends and detailed stats -->
           <div class="space-y-4">
-            <!-- Mood & Difficulty Averages -->
-            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-              <div class="text-sm font-medium mb-2">Mood & Difficulty Averages</div>
-              <div class="grid grid-cols-1 gap-3">
-                <div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Mood</div>
-                  <div class="text-xl font-medium mt-1">
-                    {{ Number(stats.avgActualMood) > 10 ? '10' : stats.avgActualMood }}/10
-                    <span class="text-sm ml-1" 
-                          :class="Number(stats.moodDiffPercent) > 0 ? 'text-green-500' : Number(stats.moodDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                      ({{ Number(stats.moodDiffPercent) > 0 ? '+' : '' }}{{ Math.abs(Number(stats.moodDiffPercent)) < 1000 ? stats.moodDiffPercent : '0' }}%)
-                    </span>
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedMood) > 10 ? '10' : stats.avgExpectedMood }}/10</div>
-                </div>
-                <div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">Avg. Actual Difficulty</div>
-                  <div class="text-xl font-medium mt-1">
-                    {{ Number(stats.avgActualDifficulty) > 10 ? '10' : stats.avgActualDifficulty }}/10
-                    <span class="text-sm ml-1" 
-                          :class="Number(stats.difficultyDiffPercent) > 0 ? 'text-green-500' : Number(stats.difficultyDiffPercent) < 0 ? 'text-red-500' : 'text-gray-500'">
-                      ({{ Number(stats.difficultyDiffPercent) > 0 ? '' : '+' }}{{ Math.abs(Number(stats.difficultyDiffPercent)) < 1000 ? stats.difficultyDiffPercent : '0' }}%)
-                    </span>
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">vs. expected {{ Number(stats.avgExpectedDifficulty) > 10 ? '10' : stats.avgExpectedDifficulty }}/10</div>
-                </div>
-              </div>
-            </div>
-            
             <!-- Activity Type Insights -->
             <div v-if="stats.easiestType || stats.hardestType || stats.bestMoodType || stats.worstMoodType">
-              <div class="text-sm font-medium mb-2">Activity Type Insights</div>
+              <div class="text-sm font-medium mb-2">Activity Expectations vs Actual Insights</div>
               <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-md space-y-3">
                 <!-- Easiest Activity Type -->
                 <div v-if="stats.easiestType" class="border-b pb-2 dark:border-gray-700">
-                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Easiest Activity Type</div>
+                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Difficulty</div>
                   <div class="flex justify-between items-center mt-1">
                     <div class="text-sm capitalize">
                       {{ stats.easiestType.type === 'self-care' ? 'Self-Care' : 
@@ -563,36 +534,14 @@ const formatDate = (date: Date) => {
                          stats.easiestType.type }}
                     </div>
                     <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
-                      {{ stats.easiestType.percent }}% easier than expected
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Hardest Activity Type -->
-                <div v-if="stats.hardestType" class="border-b pb-2 dark:border-gray-700">
-                  <div class="text-xs font-medium text-red-600 dark:text-red-400">Hardest Activity Type</div>
-                  <div class="flex justify-between items-center mt-1">
-                    <div class="text-sm capitalize">
-                      {{ stats.hardestType.type === 'self-care' ? 'Self-Care' : 
-                         stats.hardestType.type === 'cooking' ? 'Cooking' :
-                         stats.hardestType.type === 'shopping' ? 'Shopping' :
-                         stats.hardestType.type === 'chores' ? 'Chores' : 
-                         stats.hardestType.type }}
-                    </div>
-                    <div class="text-xs px-2 py-0.5 rounded-full" 
-                         :class="Number(stats.hardestType.percent) >= 0 ? 
-                                 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                                 'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
-                      {{ Number(stats.hardestType.percent) >= 0 ? 
-                         stats.hardestType.percent + '% easier than expected' : 
-                         Math.abs(Number(stats.hardestType.percent)) + '% harder than expected' }}
+                      +{{ stats.easiestType.percent }}% easier than expected
                     </div>
                   </div>
                 </div>
                 
                 <!-- Best Mood Activity Type -->
-                <div v-if="stats.bestMoodType" class="border-b pb-2 dark:border-gray-700">
-                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Best Mood Improvement</div>
+                <div v-if="stats.bestMoodType" class="dark:border-gray-700">
+                  <div class="text-xs font-medium text-green-600 dark:text-green-400">Mood</div>
                   <div class="flex justify-between items-center mt-1">
                     <div class="text-sm capitalize">
                       {{ stats.bestMoodType.type === 'self-care' ? 'Self-Care' : 
@@ -602,32 +551,11 @@ const formatDate = (date: Date) => {
                          stats.bestMoodType.type }}
                     </div>
                     <div class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:bg-opacity-50 dark:text-green-300 px-2 py-0.5 rounded-full">
-                      {{ stats.bestMoodType.percent }}% better mood
+                      +{{ stats.bestMoodType.percent }}% better mood than expected
                     </div>
                   </div>
                 </div>
-                
-                <!-- Worst Mood Activity Type -->
-                <div v-if="stats.worstMoodType" class="border-b pb-2 dark:border-gray-700">
-                  <div class="text-xs font-medium text-red-600 dark:text-red-400">Worst Mood Impact</div>
-                  <div class="flex justify-between items-center mt-1">
-                    <div class="text-sm capitalize">
-                      {{ stats.worstMoodType.type === 'self-care' ? 'Self-Care' : 
-                         stats.worstMoodType.type === 'cooking' ? 'Cooking' :
-                         stats.worstMoodType.type === 'shopping' ? 'Shopping' :
-                         stats.worstMoodType.type === 'chores' ? 'Chores' : 
-                         stats.worstMoodType.type }}
-                    </div>
-                    <div class="text-xs px-2 py-0.5 rounded-full"
-                         :class="Number(stats.worstMoodType.percent) >= 0 ? 
-                                 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:bg-opacity-50 dark:text-yellow-300' : 
-                                 'bg-red-100 text-red-800 dark:bg-red-900 dark:bg-opacity-50 dark:text-red-300'">
-                      {{ Number(stats.worstMoodType.percent) >= 0 ? 
-                         stats.worstMoodType.percent + '% better mood' : 
-                         Math.abs(Number(stats.worstMoodType.percent)) + '% worse mood' }}
-                    </div>
-                  </div>
-                </div>
+
               </div>
             </div>
             
