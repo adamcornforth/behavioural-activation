@@ -61,8 +61,8 @@ function showHelp() {
 
 <template>
   <ActivityStoreProvider>
-    <div class="bg-background h-100 dark:bg-gray-900 dark:text-white transition-colors duration-200">
-      <header class="container pt-4 md:pt-6 flex justify-between items-center">
+    <div class="bg-background h-screen max-h-screen flex flex-col dark:bg-gray-900 dark:text-white transition-colors duration-200">
+      <header class="container pt-4 md:pt-6 pb-2 flex justify-between items-center flex-shrink-0">
         <h1 class="text-3xl font-bold tracking-tight">Behavioural Activation</h1>
         <div class="flex items-center gap-2">
           <button 
@@ -84,7 +84,7 @@ function showHelp() {
           </button>
         </div>
       </header>
-      <main class="container pt-2">
+      <main class="container flex-1 overflow-hidden">
         <HomePage />
       </main>
     </div>
