@@ -1,16 +1,27 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import Calendar from '../components/Calendar.vue'
 import StatsPanel from '../components/StatsPanel.vue'
+import StatsButton from '../components/StatsButton.vue'
+
+const showStats = ref(false)
+
+const toggleStats = () => {
+  showStats.value = !showStats.value
+}
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <section class="mb-4 flex-shrink-0">
-      <p class="text-muted-foreground dark:text-gray-300 text-lg mb-2">A tool to help you engage in meaningful activities</p>
+    <section class="mb-2 md:mb-4 flex-shrink-0">
+      <div class="flex items-center justify-between mb-1 md:mb-2">
+        <p class="text-muted-foreground dark:text-gray-300 text-sm md:text-lg">A tool to help you engage in meaningful activities</p>
+        <StatsButton :show-stats="showStats" @toggle-stats="toggleStats" />
+      </div>
     </section>
     
-    <div class="flex-shrink-0 mb-2">
-      <StatsPanel />
+    <div class="flex-shrink-0 mb-1 md:mb-2">
+      <StatsPanel :show-stats="showStats" />
     </div>
     
     <section class="flex-1 overflow-hidden">

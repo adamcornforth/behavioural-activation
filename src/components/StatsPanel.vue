@@ -10,8 +10,12 @@ import CardDescription from './ui/card-description.vue'
 import Button from './ui/button.vue'
 import ActivityModal from './ActivityModal.vue'
 
+// Props to control stats visibility
+const props = defineProps<{
+  showStats: boolean
+}>()
+
 const activityStore = useActivityStore()
-const showStats = ref(false)
 const activeTab = ref('overview') // 'overview', 'activities'
 
 // Activity modal state
@@ -321,17 +325,17 @@ const formatDate = (date: Date) => {
     />
     
     <!-- Activities needing feedback -->
-    <div v-if="activityStore.getPendingFeedbackActivities().length > 0" class="mb-2">
-      <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-md border border-blue-100 dark:border-blue-800">
-        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Activities Needing Feedback</h3>
-        <div class="space-y-2">
+    <div v-if="activityStore.getPendingFeedbackActivities().length > 0" class="mb-1 md:mb-2">
+      <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-2 md:p-4 rounded-md border border-blue-100 dark:border-blue-800">
+        <h3 class="text-xs md:text-sm font-medium text-blue-800 dark:text-blue-300 mb-1 md:mb-2">Activities Needing Feedback</h3>
+        <div class="space-y-1 md:space-y-2">
           <div 
             v-for="activity in activityStore.getPendingFeedbackActivities().slice(0, 3)" 
             :key="activity.id"
-            class="flex justify-between items-center bg-white dark:bg-gray-800 p-2 rounded shadow-sm"
+            class="flex justify-between items-center bg-white dark:bg-gray-800 p-1.5 md:p-2 rounded shadow-sm"
           >
-            <div class="text-sm">{{ activity.activityName }}</div>
-            <Button size="sm" @click="openFeedbackModal(activity)">
+            <div class="text-xs md:text-sm">{{ activity.activityName }}</div>
+            <Button size="sm" @click="openFeedbackModal(activity)" class="text-xs md:text-sm py-1 px-2 md:py-1.5 md:px-3">
               Give Feedback
             </Button>
           </div>
@@ -342,24 +346,8 @@ const formatDate = (date: Date) => {
       </div>
     </div>
     
-    <!-- Stats toggle button -->
-    <div class="flex justify-end mb-2" v-if="stats.totalCompleted > 0">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        @click="showStats = !showStats"
-        class="flex items-center gap-2"
-      >
-        <span v-if="!showStats">Show Statistics</span>
-        <span v-else>Hide Statistics</span>
-        <span v-if="stats.totalCompleted > 0" class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs font-medium px-2 py-0.5 rounded-full">
-          {{ stats.totalCompleted }}
-        </span>
-      </Button>
-    </div>
-    
     <!-- Statistics Card -->
-    <Card v-if="showStats">
+    <Card v-if="props.showStats">
       <CardHeader>
         <CardTitle>Activity Statistics</CardTitle>
         <CardDescription>
