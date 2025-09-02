@@ -310,7 +310,7 @@ const formatDate = (date: Date) => {
 </script>
 
 <template>
-  <div class="mb-6">
+  <div class="mb-2">
     <!-- Activity Modal for feedback -->
     <ActivityModal
       :open="showActivityModal"
@@ -321,7 +321,7 @@ const formatDate = (date: Date) => {
     />
     
     <!-- Activities needing feedback -->
-    <div v-if="activityStore.getPendingFeedbackActivities().length > 0" class="mb-4">
+    <div v-if="activityStore.getPendingFeedbackActivities().length > 0" class="mb-2">
       <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 p-4 rounded-md border border-blue-100 dark:border-blue-800">
         <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Activities Needing Feedback</h3>
         <div class="space-y-2">

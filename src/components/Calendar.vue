@@ -985,7 +985,7 @@ onUnmounted(() => {
 
 <style scoped>
 .calendar-container {
-  height: calc(100vh - 132px);
+  height: 100%;
   overflow-y: auto;
 }
 
