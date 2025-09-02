@@ -3,7 +3,18 @@
 A front-end application designed to facilitate Behavioral Activation (BA) therapy, helping users
 plan and track activities, rate difficulty and mood impact, and visualize progress.
 
+Calendar planning:
+
 <img width="1384" alt="image" src="https://github.com/user-attachments/assets/7192839e-acb4-4820-bee5-fbaaefd144a2" />
+
+Activity stats:
+
+<img width="1362" height="653" alt="image" src="https://github.com/user-attachments/assets/b3499c8c-a5e3-4bbc-b49b-0f4c9890aa8a" />
+
+Mobile view:
+
+<img width="387" height="638" alt="image" src="https://github.com/user-attachments/assets/e1a97493-e59e-4329-8e17-fce15c765612" />
+
 
 ## About This Project
 
