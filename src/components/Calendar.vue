@@ -1,36 +1,67 @@
 <template>
   <div class="calendar-container">
     <div class="calendar-header sticky top-0 bg-white dark:bg-gray-800 z-50 drop-shadow-md dark:drop-shadow-md">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold dark:text-white">{{ formatDate(currentWeekStart) }}</h2>
-        <div class="flex gap-2">
-          <Button @click="previousWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-            <ChevronLeft class="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <Button @click="currentWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-            Today
-          </Button>
-          <Button @click="nextWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-            Next
-            <ChevronRight class="h-4 w-4 ml-1" />
-          </Button>
+      <!-- Desktop header -->
+      <div class="hidden md:block">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold dark:text-white">{{ formatDate(currentWeekStart) }}</h2>
+          <div class="flex gap-2">
+            <Button @click="previousWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              <ChevronLeft class="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <Button @click="currentWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              Today
+            </Button>
+            <Button @click="nextWeek" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              Next
+              <ChevronRight class="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+        <div class="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
+          <div class="py-2 text-center"></div>
+          <div 
+            v-for="day in weekDays" 
+            :key="day.date" 
+            class="py-2 text-center font-medium dark:text-gray-300"
+            :class="{ 'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-t-md': day.isToday }"
+          >
+            <div>{{ day.name }}</div>
+            <div>{{ day.date }}</div>
+          </div>
         </div>
       </div>
-      <div class="grid grid-cols-8 border-b border-gray-200 dark:border-gray-700">
-        <div class="py-2 text-center"></div>
-        <div 
-          v-for="day in weekDays" 
-          :key="day.date" 
-          class="py-2 text-center font-medium dark:text-gray-300"
-          :class="{ 'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-t-md': day.isToday }"
-        >
-          <div>{{ day.name }}</div>
-          <div>{{ day.date }}</div>
+      
+      <!-- Mobile header -->
+      <div class="md:hidden">
+        <div class="flex justify-between items-center mb-2 px-2">
+          <h2 class="text-lg font-bold dark:text-white">{{ formatMobileDate(currentMobileDay) }}</h2>
+          <div class="flex gap-1">
+            <Button @click="previousDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 p-1">
+              <ChevronLeft class="h-4 w-4" />
+            </Button>
+            <Button @click="currentDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 px-2">
+              Today
+            </Button>
+            <Button @click="nextDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 p-1">
+              <ChevronRight class="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <div class="grid border-b border-gray-200 dark:border-gray-700" style="grid-template-columns: 60px 1fr;">
+          <div class="py-2 text-center text-xs"></div>
+          <div 
+            class="py-2 text-center font-medium dark:text-gray-300 text-sm"
+            :class="{ 'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-30 rounded-t-md': isMobileDayToday }"
+          >
+            {{ currentMobileDay.name }} {{ currentMobileDay.date }}
+          </div>
         </div>
       </div>
     </div>
-    <div class="calendar-body grid grid-cols-8">
+    <!-- Desktop calendar body -->
+    <div class="calendar-body hidden md:grid grid-cols-8">
       <!-- Time labels -->
       <div class="time-labels">
         <div v-for="hour in hours" :key="hour" class="time-label h-20 border-b border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 pr-2 text-right">
@@ -193,6 +224,162 @@
       </div>
     </div>
 
+    <!-- Mobile calendar body -->
+    <div class="calendar-body md:hidden grid" style="grid-template-columns: 60px 1fr;">
+      <!-- Time labels -->
+      <div class="time-labels">
+        <div v-for="hour in hours" :key="hour" class="time-label h-20 border-b border-gray-100 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 pr-1 text-right">
+          {{ formatMobileHour(hour) }}
+        </div>
+      </div>
+
+      <!-- Single day column -->
+      <div class="day-column">
+        <div
+          v-for="hour in hours"
+          :key="hour"
+          class="hour-cell h-20 border-b border-r border-gray-100 dark:border-gray-700 relative"
+          :class="{
+            'bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20': currentMobileDayIndex === currentDayIndex && hour === currentHour,
+            'bg-blue-50 bg-opacity-50 dark:bg-blue-900 dark:bg-opacity-10': currentMobileDayIndex === currentDayIndex && hour !== currentHour
+          }"
+          @mouseup="endDrag()"
+          @mouseleave="onMouseLeave($event, currentMobileDayIndex, hour)"
+        >
+          <!-- 15-minute interval markers -->
+          <div 
+            :class="[
+              'quarter-hour-marker quarter-marker-25',
+              { 'has-activity': hasActivityInQuarter(currentMobileDayIndex, hour, 0) }
+            ]" 
+            style="top: 0%; height: 25%"
+            @mousedown="!hasActivityInQuarter(currentMobileDayIndex, hour, 0) && startDrag($event, currentMobileDayIndex, hour, 0)"
+            @mousemove="onDrag($event, currentMobileDayIndex, hour, 0)"
+          ></div>
+          <div 
+            :class="[
+              'quarter-hour-marker quarter-marker-50',
+              { 'has-activity': hasActivityInQuarter(currentMobileDayIndex, hour, 0.25) }
+            ]" 
+            style="top: 25%; height: 25%"
+            @mousedown="!hasActivityInQuarter(currentMobileDayIndex, hour, 0.25) && startDrag($event, currentMobileDayIndex, hour, 0.25)"
+            @mousemove="onDrag($event, currentMobileDayIndex, hour, 0.25)"
+          ></div>
+          <div 
+            :class="[
+              'quarter-hour-marker quarter-marker-75',
+              { 'has-activity': hasActivityInQuarter(currentMobileDayIndex, hour, 0.5) }
+            ]" 
+            style="top: 50%; height: 25%"
+            @mousedown="!hasActivityInQuarter(currentMobileDayIndex, hour, 0.5) && startDrag($event, currentMobileDayIndex, hour, 0.5)"
+            @mousemove="onDrag($event, currentMobileDayIndex, hour, 0.5)"
+          ></div>
+          <div 
+            :class="[
+              'quarter-hour-marker quarter-marker-100',
+              { 'has-activity': hasActivityInQuarter(currentMobileDayIndex, hour, 0.75) }
+            ]" 
+            style="top: 75%; height: 25%"
+            @mousedown="!hasActivityInQuarter(currentMobileDayIndex, hour, 0.75) && startDrag($event, currentMobileDayIndex, hour, 0.75)"
+            @mousemove="onDrag($event, currentMobileDayIndex, hour, 0.75)"
+          ></div>
+          <!-- Visual selection indicator -->
+          <div
+            v-if="isDragging && isInSelectionRange(currentMobileDayIndex, hour)"
+            class="selection-indicator absolute inset-0 w-full opacity-70"
+            :style="getSelectionStyle(currentMobileDayIndex, hour)"
+          ></div>
+
+          <!-- Current time indicator -->
+          <div 
+            v-if="currentMobileDayIndex === currentDayIndex && hour === currentHour" 
+            class="current-time-indicator"
+            :style="{
+              top: `${(currentDate.getMinutes() / 60) * 100}%`
+            }"
+          ></div>
+          
+          <!-- Render activities in this cell -->
+          <div v-for="activity in getActivitiesForCell(currentMobileDayIndex, hour)" :key="activity.id" class="absolute inset-0">
+            <div
+              :class="[
+                'activity-block absolute left-0 right-0 px-1 py-0.5 z-20 overflow-hidden cursor-pointer group',
+                `activity-${activity.id}`,
+                getActivityStyle(activity, currentMobileDayIndex, hour).colorClass,
+                getActivityStyle(activity, currentMobileDayIndex, hour).borderRadius,
+                getActivityStyle(activity, currentMobileDayIndex, hour).borderStyle
+              ]"
+              :style="{
+                top: getActivityStyle(activity, currentMobileDayIndex, hour).top,
+                height: getActivityStyle(activity, currentMobileDayIndex, hour).height,
+                display: getActivityStyle(activity, currentMobileDayIndex, hour).display === 'none' ? 'none' : 'block'
+              }"
+              @click="editActivity(activity)"
+              @mouseenter="handleActivityHover(activity.id, true)"
+              @mouseleave="handleActivityHover(activity.id, false)"
+              @mouseup="endDrag()"
+            >
+              <!-- Delete button - only show on first cell and on hover -->
+              <button
+                v-if="getActivityStyle(activity, currentMobileDayIndex, hour).isFirstHourCell"
+                :class="[
+                  'delete-button absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 transition-opacity',
+                  { 'opacity-100': hoveredActivityId === activity.id }
+                ]"
+                @click.stop="confirmDeleteActivity(activity)"
+                title="Delete activity"
+              >
+                ×
+              </button>
+              <template v-if="getActivityStyle(activity, currentMobileDayIndex, hour).isFirstHourCell">
+                <div class="flex items-center">
+                  <!-- Activity type icon -->
+                  <div v-if="getActivityTypeIcon(activity.activityType)" 
+                       class="mr-1 w-4 h-4 flex items-center justify-center text-gray-600 dark:text-gray-400"
+                       :title="getActivityTypeLabel(activity.activityType)">
+                    <component :is="getActivityTypeIcon(activity.activityType)" class="w-3 h-3" />
+                  </div>
+                  <div class="text-xs font-medium truncate flex-1">{{ activity.activityName }}</div>
+                  <!-- Feedback indicator -->
+                  <div v-if="needsFeedback(activity)" 
+                       class="ml-1 w-3 h-3 rounded-full bg-yellow-400" 
+                       title="Needs feedback">
+                  </div>
+                  <!-- Completed indicator -->
+                  <div v-else-if="activity.completed"
+                       class="ml-1 w-4 h-4 flex items-center justify-center text-green-600 dark:text-green-400"
+                       title="Completed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="text-xs truncate">
+                  {{ getActivityStyle(activity, currentMobileDayIndex, hour).duration }}
+                </div>
+                <div class="text-xs truncate"
+                     v-if="Number.parseInt(getActivityStyle(activity, currentMobileDayIndex, hour).height) > 10">
+                  <span>Difficulty: {{ activity.expectedDifficulty }}/10</span>
+                  <span v-if="activity.completed && activity.actualDifficulty !== undefined" 
+                        :class="getDifficultyComparisonClass(activity)">
+                    ({{ getDifficultyComparisonText(activity) }})
+                  </span>
+                </div>
+                <div class="text-xs truncate"
+                     v-if="Number.parseInt(getActivityStyle(activity, currentMobileDayIndex, hour).height) > 10">
+                  <span>Mood: {{ activity.expectedMood }}/10</span>
+                  <span v-if="activity.completed && activity.actualMood !== undefined"
+                        :class="getMoodComparisonClass(activity)">
+                    ({{ getMoodComparisonText(activity) }})
+                  </span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Activity modal -->
     <ActivityModal
       :open="showActivityModal"
@@ -235,6 +422,9 @@ const dragStartHour = ref(0);
 const dragEndDay = ref(0);
 const dragEndHour = ref(0);
 
+// Mobile-specific state
+const currentMobileDayOffset = ref(0);
+
 // Activity modal state
 const showActivityModal = ref(false);
 const selectedTimeRange = ref<{ start: Date, end: Date } | null>(null);
@@ -275,25 +465,87 @@ const currentDayIndex = computed(() => {
   return daysDiff >= 0 && daysDiff < 7 ? daysDiff : -1;
 });
 
+// Mobile-specific computed properties
+const currentMobileDay = computed(() => {
+  const date = addDays(currentWeekStart.value, currentMobileDayOffset.value);
+  const isToday = isSameDay(date, currentDate.value);
+  return {
+    name: format(date, 'EEE'),
+    date: format(date, 'd'),
+    fullDate: date,
+    isToday
+  };
+});
+
+const currentMobileDayIndex = computed(() => {
+  return currentMobileDayOffset.value;
+});
+
+const isMobileDayToday = computed(() => {
+  return currentMobileDayIndex.value === currentDayIndex.value;
+});
+
 // Methods
 const formatDate = (date: Date) => {
   return format(date, 'MMMM yyyy');
+};
+
+const formatMobileDate = (day: any) => {
+  return format(day.fullDate, 'MMM d');
 };
 
 const formatHour = (hour: number) => {
   return hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
 };
 
+const formatMobileHour = (hour: number) => {
+  if (hour === 12) return '12p';
+  if (hour > 12) return `${hour - 12}p`;
+  if (hour === 0) return '12a';
+  return `${hour}a`;
+};
+
 const previousWeek = () => {
   currentWeekStart.value = subWeeks(currentWeekStart.value, 1);
+  // Keep mobile day offset when navigating weeks on desktop
 };
 
 const nextWeek = () => {
   currentWeekStart.value = addWeeks(currentWeekStart.value, 1);
+  // Keep mobile day offset when navigating weeks on desktop
 };
 
 const currentWeek = () => {
   currentWeekStart.value = startOfWeek(new Date(), { weekStartsOn: 1 });
+  currentMobileDayOffset.value = 0; // Reset mobile day to Monday when navigating to current week
+};
+
+// Mobile navigation methods
+const previousDay = () => {
+  if (currentMobileDayOffset.value > 0) {
+    currentMobileDayOffset.value--;
+  } else {
+    // Go to previous week and set to Sunday (day 6)
+    currentWeekStart.value = subWeeks(currentWeekStart.value, 1);
+    currentMobileDayOffset.value = 6;
+  }
+};
+
+const nextDay = () => {
+  if (currentMobileDayOffset.value < 6) {
+    currentMobileDayOffset.value++;
+  } else {
+    // Go to next week and set to Monday (day 0)
+    currentWeekStart.value = addWeeks(currentWeekStart.value, 1);
+    currentMobileDayOffset.value = 0;
+  }
+};
+
+const currentDay = () => {
+  const today = new Date();
+  currentWeekStart.value = startOfWeek(today, { weekStartsOn: 1 });
+  const daysDiff = differenceInDays(today, currentWeekStart.value);
+  currentMobileDayOffset.value = daysDiff >= 0 && daysDiff < 7 ? daysDiff : 0;
 };
 
 // Helper to check if a cell is in the current selection range
@@ -961,6 +1213,11 @@ const updateCurrentTime = () => {
 onMounted(() => {
   // Add global event listener for mouseup to handle drag ending outside the calendar
   window.addEventListener('mouseup', handleGlobalMouseUp);
+  
+  // Initialize mobile day to current day of week
+  const today = new Date();
+  const daysDiff = differenceInDays(today, currentWeekStart.value);
+  currentMobileDayOffset.value = daysDiff >= 0 && daysDiff < 7 ? daysDiff : 0;
   
   // Update current time immediately and then every minute
   updateCurrentTime();
