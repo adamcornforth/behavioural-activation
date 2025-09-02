@@ -36,16 +36,18 @@
       <!-- Mobile header -->
       <div class="md:hidden">
         <div class="flex justify-between items-center mb-2 px-2">
-          <h2 class="text-lg font-bold dark:text-white">{{ formatMobileDate(currentMobileDay) }}</h2>
+          <h2 class="text-lg font-bold dark:text-white">{{ formatMobileDateMonth(currentMobileDay) }}</h2>
           <div class="flex gap-1">
-            <Button @click="previousDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 p-1">
-              <ChevronLeft class="h-4 w-4" />
+            <Button @click="previousDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              <ChevronLeft class="h-4 w-4 mr-1" />
+              Prev
             </Button>
-            <Button @click="currentDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 px-2">
+            <Button @click="currentDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
               Today
             </Button>
-            <Button @click="nextDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 p-1">
-              <ChevronRight class="h-4 w-4" />
+            <Button @click="nextDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              Next
+              <ChevronRight class="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -492,6 +494,10 @@ const formatDate = (date: Date) => {
 
 const formatMobileDate = (day: any) => {
   return format(day.fullDate, 'MMM d');
+};
+
+const formatMobileDateMonth = (day: any) => {
+  return format(day.fullDate, 'MMM');
 };
 
 const formatHour = (hour: number) => {
