@@ -36,7 +36,7 @@
       <!-- Mobile header -->
       <div class="md:hidden">
         <div class="flex justify-between items-center mb-2 px-2">
-          <h2 class="text-lg font-bold dark:text-white">{{ formatMobileDateMonth(currentMobileDay) }}</h2>
+          <h2 class="text-base font-bold dark:text-white">{{ formatMobileDateMonth(currentMobileDay) }}</h2>
           <div class="flex gap-1">
             <Button @click="previousDay" variant="outline" size="sm" class="dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
               <ChevronLeft class="h-4 w-4 mr-1" />

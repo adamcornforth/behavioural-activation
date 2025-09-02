@@ -15,7 +15,7 @@ const toggleStats = () => {
   <div class="h-full flex flex-col">
     <section class="mb-2 md:mb-4 flex-shrink-0">
       <div class="flex items-center justify-between">
-        <p class="text-muted-foreground dark:text-gray-300 text-sm md:text-lg">A tool to help you engage in meaningful activities</p>
+        <p class="text-muted-foreground dark:text-gray-300 text-xs md:text-lg">A tool to help you engage in meaningful activities</p>
         <StatsButton :show-stats="showStats" @toggle-stats="toggleStats" />
       </div>
     </section>

@@ -63,7 +63,7 @@ function showHelp() {
   <ActivityStoreProvider>
     <div class="bg-background h-screen max-h-screen flex flex-col dark:bg-gray-900 dark:text-white transition-colors duration-200">
       <header class="container pt-4 md:pt-6 pb-2 flex justify-between items-center flex-shrink-0">
-        <h1 class="text-3xl font-bold tracking-tight">Behavioural Activation</h1>
+        <h1 class="text-xl md:text-3xl font-bold tracking-tight">Behavioural Activation</h1>
         <div class="flex items-center gap-2">
           <button 
             @click="showHelp" 
