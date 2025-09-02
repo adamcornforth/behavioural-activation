@@ -492,10 +492,6 @@ const formatDate = (date: Date) => {
   return format(date, 'MMMM yyyy');
 };
 
-const formatMobileDate = (day: any) => {
-  return format(day.fullDate, 'MMM d');
-};
-
 const formatMobileDateMonth = (day: any) => {
   return format(day.fullDate, 'MMM');
 };

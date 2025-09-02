@@ -4,7 +4,7 @@ import { useActivityStore } from '../store/activityStore'
 import Button from './ui/button.vue'
 
 // Props to control the stats visibility
-const props = defineProps<{
+defineProps<{
   showStats: boolean
 }>()
 
