@@ -218,7 +218,7 @@
       </template>
 
       <!-- Selection preview -->
-      <div v-if="isDragging" class="selection-preview fixed bottom-4 right-4 bg-white p-3 shadow-lg rounded-md border border-gray-200 z-50">
+      <div v-if="isDragging" class="selection-preview fixed bottom-4 right-4 bg-white dark:bg-gray-800 p-3 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 text-black dark:text-white z-50">
         <p class="font-medium">Selection:</p>
         <p>{{ formatSelectionTime() }}</p>
       </div>
