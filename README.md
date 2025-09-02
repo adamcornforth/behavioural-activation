@@ -3,6 +3,8 @@
 A front-end application designed to facilitate Behavioral Activation (BA) therapy, helping users
 plan and track activities, rate difficulty and mood impact, and visualize progress.
 
+The project is hosted here: https://adamcornforth.github.io/behavioural-activation/
+
 Calendar planning:
 
 <img width="1384" alt="image" src="https://github.com/user-attachments/assets/7192839e-acb4-4820-bee5-fbaaefd144a2" />
