@@ -3,7 +3,12 @@
 A front-end application designed to facilitate Behavioral Activation (BA) therapy, helping users
 plan and track activities, rate difficulty and mood impact, and visualize progress.
 
-The project is hosted here: https://adamcornforth.github.io/behavioural-activation/
+The project is hosted here: https://adamcornforth.github.io/behavioural-activation/.
+
+> [!IMPORTANT]
+> There is **no cloud storage** on the site. All the data is stored locally on your browser and never
+leaves your device. This means there is no signup or user management, and switching devices or even
+browsers will mean new data. Clearing your localstorage for the site will remove all the data also.
 
 ## About This Project
 
