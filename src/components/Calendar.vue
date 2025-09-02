@@ -1361,9 +1361,9 @@ onUnmounted(() => {
   z-index: 15;
 }
 
-:global(.dark) .selection-indicator {
-  background: rgba(59, 130, 246, 0.4) !important;
-  border: 1px solid rgba(59, 130, 246, 0.6) !important;
+.calendar-container :global(.dark) .selection-indicator {
+  background: rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.6);
 }
 
 /* Explicit dark mode background colors for all possible activity types */

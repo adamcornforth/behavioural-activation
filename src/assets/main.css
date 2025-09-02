@@ -53,7 +53,16 @@
   *:not(html) {
     @apply border-border;
   }
-  html,
+  html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    border: none !important;
+  }
+  html.dark {
+    border: none !important;
+  }
   body {
     margin: 0;
     padding: 0;
